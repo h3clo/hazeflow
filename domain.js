@@ -83,6 +83,19 @@ export function inferKind(text,kind='일상'){if(kind!=='일상')return kind;if(
 export function recordsForDate(d,date){
  return [...d.logs.filter(l=>l.date===date),...d.exercises.filter(e=>e.date===date).map(e=>({id:e.id,date:e.date,time:'',kind:'운동',text:`${e.name} · ${e.minutes}분${e.effort?' · '+e.effort:''}${e.note?'\n'+e.note:''}`,legacy:true}))].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
 }
+// Existing manual records also form activity intervals. Source logs and memos never interrupt them.
+export function activityIntervals(d,now=new Date()){
+ const records=d.logs.filter(l=>!l.sourceId&&!l.memo&&isDate(l.date)&&isTime(l.time)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)||a.id.localeCompare(b.id));
+ const result=new Map();
+ records.forEach((l,i)=>{const start=new Date(l.date+'T'+l.time),next=records[i+1],explicit=isDate(l.endDate)&&isTime(l.endTime),end=explicit?new Date(l.endDate+'T'+l.endTime):next?new Date(next.date+'T'+next.time):null,ongoing=!end&&start<=now;
+ result.set(l.id,{start,end,ongoing,automatic:!explicit,minutes:Math.max(0,Math.floor(((end||now)-start)/60000)),endDate:end?todayKey(end):'',endTime:end?String(end.getHours()).padStart(2,'0')+':'+String(end.getMinutes()).padStart(2,'0'):''});});
+ return result;
+}
+export function activityTimeLabel(l,interval){
+ if(!interval)return l.time||'시간 미기록';
+ const end=interval.end?(interval.endDate!==l.date?interval.endDate+' ':'')+interval.endTime:interval.ongoing?'진행 중':'시작 예정';
+ return l.time+' ~ '+end+' · '+interval.minutes+'분';
+}
 export function recordedDates(d){return [...new Set([...d.events.map(x=>x.date),...d.tasks.flatMap(x=>[x.dueDate||x.date,x.completedOn]),...d.logs.map(x=>x.date),...d.exercises.map(x=>x.date),...Object.keys(d.diary),...Object.keys(d.life),...Object.keys(d.routineRuns)])].filter(isDate).sort()}
 const plain = v => v&&typeof v==='object'&&!Array.isArray(v);
 const safeId = v => typeof v==='string'&&!['__proto__','constructor','prototype'].includes(v)&&/^[-a-zA-Z0-9_]+$/.test(v);
@@ -99,6 +112,7 @@ export function validateBackup(v){
    if(key==='tasks'&&(['note','listName'].some(k=>x[k]!==undefined&&!str(x[k]))||['flagged','done'].some(k=>x[k]!==undefined&&typeof x[k]!=='boolean')))throw Error('미리알림 내용 형식을 확인해주세요.');
    if(key==='tasks'&&((x.dueDate===undefined?!isDate(x.date):x.dueDate!==null&&!isDate(x.dueDate))||(x.dueTime!==undefined&&x.dueTime!==''&&(!isTime(x.dueTime)||!x.dueDate))||(x.completedOn!=null&&!isDate(x.completedOn))))throw Error('미리알림 날짜와 시간을 확인해주세요.');
    if(key==='events'&&(!isTime(x.start)||!isTime(x.end)||x.end<=x.start))throw Error('일정 시간이 올바르지 않아요.');
+   if(key==='logs'&&((x.memo!==undefined&&typeof x.memo!=='boolean')||((x.endTime||x.endDate)&&(!isTime(x.time)||!isTime(x.endTime)||!isDate(x.endDate)||new Date(x.endDate+'T'+x.endTime)<new Date(x.date+'T'+x.time)))))throw Error('활동 종료 시간을 확인해주세요.');
    if(key==='logs'&&!validPhotoRefs(x.photos))throw Error('사진 정보를 확인해주세요.');
    if(key==='logs'&&(!(x.time===''||isTime(x.time))||!str(x.text)||!str(x.kind)))throw Error('활동 기록이 올바르지 않아요.');
    if(key==='exercises'&&(!str(x.name)||!Number.isFinite(+x.minutes)||+x.minutes<=0))throw Error('운동 기록이 올바르지 않아요.');
@@ -124,7 +138,7 @@ export function dayDocument(d,date){
  section('일정 · 계획',d.events.filter(e=>e.date===date).sort((a,b)=>a.start.localeCompare(b.start)).map(e=>`- ${e.start}–${e.end} ${e.title} (${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[e.status]||'예정'})${e.actualStart?' · 실제 시작 '+e.actualStart:''}${e.actualEnd?' · 실제 완료 '+e.actualEnd:''}`));
  section('루틴 · 반복 계획과 실행',routinesForDate(d,date).map(r=>`### ${r.time||'시간 미정'} ${r.title} · ${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[r.run?.status]||'아직 실행 기록 없음'}\n\n${r.steps.map(s=>`- [${r.run?.checked.includes(s.id)?'x':' '}] ${s.title}${s.minutes?' · '+s.minutes+'분':''}`).join('\n')}\n`));
  section('미리알림',d.tasks.filter(t=>t.dueDate===date||t.completedOn===date).map(t=>`- [${t.done?'x':' '}] ${t.title}${t.dueTime?' · '+t.dueTime:''}${t.dueDate?' · 기한 '+t.dueDate:' · 기한 없음'}${t.note?'\n  '+t.note:''}`));
- section('실제 활동',recordsForDate(d,date).map(l=>`### ${l.time||'시간 미기록'} · ${l.kind}\n\n${l.text}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
+ section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${l.kind}\n\n${l.text}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
  section('생활 기록',Object.entries(d.life[date]||{}).filter(([,v])=>v!==''&&v!=null).map(([k,v])=>`- ${lifeLabels[k]||k}: ${v}`));
  const diary=d.diary[date];if(diary)section('일기',[diary.mood?'기분: '+({great:'좋았어',okay:'평온해',tired:'지쳤어',hard:'힘들었어'}[diary.mood]||diary.mood):'',diary.note||'',diary.entry||'',photoMarkdown(diary.photos)].filter(Boolean));
  if(out.length===2)out.push('저장된 기록이 없어요.');return out.join('\n');
