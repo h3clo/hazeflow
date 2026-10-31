@@ -2,7 +2,7 @@ import {monthBefore,weekSummary,dayStats,compareWorkouts,numericComparison,moodN
 import {lifeLabels,weekdays,todayKey} from './domain.js';
 
 export function featureUI({esc,btn,card,empty,field,photoGallery}){
- const metrics=['weight','muscle','fat','sleep','energy','stress','water','study'];
+ const metrics=['weight','muscle','fat','fatPercent','sleep','energy','stress','water','study'];
  const workoutText=w=>w.type==='strength'?`${w.kg}kg × ${w.reps}회 × ${w.sets}세트`:w.type==='mountain'?`각도 ${w.angle} · 속도 ${w.speed} · ${w.minutes}분`:`속도 ${w.speed} · ${w.minutes}분`;
  const summaryTile=(n,label)=>`<div><strong>${n}</strong><span>${label}</span></div>`;
  function snapshot(d,k){const s=dayStats(d,k);return card(k,`${!s.hasActual?empty('이 날짜에 남긴 실제 기록이 없어요.'):''}<div class="snapshot-counts"><span>식사 ${s.meals}건</span><span>운동 ${s.workouts}건</span><span>활동 ${s.activities}건</span></div>${photoGallery([...s.logs.flatMap(l=>l.photos||[]),...(s.diary.photos||[])])}${s.diary.mood?`<p>${moodNames[s.diary.mood]||esc(s.diary.mood)}</p>`:''}${s.diary.note||s.diary.entry?`<div class="snapshot-diary">${esc(s.diary.entry||s.diary.note)}</div>`:''}<details><summary>이 날의 활동 ${s.logs.length}건</summary>${s.logs.map(l=>`<p class="snapshot-log"><small>${l.time||'시간 미기록'} · ${esc(l.kind)}</small><br>${esc(l.text||'사진 기록')}</p>`).join('')||empty('활동 기록이 없어요.')}</details>${btn('이 날 보기','view-day',k,'small-button')}`)}

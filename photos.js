@@ -1,7 +1,7 @@
 export const MAX_PHOTOS=8;
 export function validPhotoRef(p){return !!p&&typeof p==='object'&&!Array.isArray(p)&&typeof p.id==='string'&&/^[-a-zA-Z0-9_]+$/.test(p.id)&&!['__proto__','constructor','prototype'].includes(p.id)&&typeof p.name==='string'&&p.name.length<=300&&p.type==='image/jpeg'&&Number.isInteger(p.width)&&p.width>0&&p.width<=1600&&Number.isInteger(p.height)&&p.height>0&&p.height<=1600&&Number.isInteger(p.bytes)&&p.bytes>0&&p.bytes<=3*1024*1024}
 export function validPhotoRefs(refs){return refs===undefined||(Array.isArray(refs)&&refs.length<=MAX_PHOTOS&&refs.every(validPhotoRef)&&new Set(refs.map(p=>p.id)).size===refs.length)}
-export function collectPhotoRefs(d,dates=null){const selected=dates?new Set(dates):null,map=new Map();for(const row of d.logs||[])if(!selected||selected.has(row.date))for(const p of row.photos||[])map.set(p.id,p);for(const [date,row]of Object.entries(d.diary||{}))if(!selected||selected.has(date))for(const p of row.photos||[])map.set(p.id,p);return [...map.values()]}
+export function collectPhotoRefs(d,dates=null){const selected=dates?new Set(dates):null,map=new Map();for(const row of d.logs||[])if(!selected||selected.has(row.date))for(const p of row.photos||[])map.set(p.id,p);for(const [date,row]of Object.entries(d.diary||{}))if(!selected||selected.has(date))for(const p of row.photos||[])map.set(p.id,p);for(const [date,row]of Object.entries(d.life||{}))if(!selected||selected.has(date))for(const p of row.bodyPhotos||[])map.set(p.id,p);return [...map.values()]}
 export function photoMarkdown(refs){return (refs||[]).map(p=>`![${p.name.replace(/[\[\]\r\n]/g,' ')}](photos/${p.id}.jpg)`).join('\n\n')}
 export function makePhotoStore(name){
  let dbPromise;const urls=new Map();
