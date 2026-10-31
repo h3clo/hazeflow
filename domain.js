@@ -72,6 +72,7 @@ export function eventAction(d,id,action,time){
 }
 export function workoutSummary(log){
  if(log.kind&&log.kind!=='운동')return '';
+ if(String(log.text||'').includes('\n'))return String(log.text).split(/\r?\n/).map(text=>workoutSummary({...log,text})).filter(Boolean).join('\n');
  const text=String(log.text||'').trim(),m=text.match(/^(?:운동\s+)?(.+?)\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)(?:\s+(\d+(?:\.\d+)?))?$/);if(!m)return '';
  const [,name,a,b,c]=m,n=name.replace(/\s/g,'');
  if(n==='마이마운틴')return c?`${name} · 각도 ${a} · 속도 ${b} · ${c}분`:'';
