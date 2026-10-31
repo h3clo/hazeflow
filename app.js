@@ -6,7 +6,8 @@ import {MAX_PHOTOS,makePhotoStore,preparePhoto,collectPhotoRefs,decodePhotoBundl
 import {photoBackup,documentZip} from './photo-export.js';
 import {weekdays,todayKey,uid,emptyState,migrate,isDate,isTime,routinesForDate,versionAt,setRoutineVersion,archiveRoutine,routineAction,eventAction,syncLog,workoutSummary,inferKind,recordsForDate,recordedDates,lifeLabels,validateBackup,mergeBackup,dayDocument,allDocument,taskMatches,taskComplete,sortTasks} from './domain.js';
 const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const sandbox=new URLSearchParams(location.search).has('sandbox'),guestKey=sandbox?'hazeflow-qa-v2':'hazeflow-v1';let key=guestKey;
+const params=new URLSearchParams(location.search),sandbox=params.has('sandbox'),qaDevice=sandbox&&/^[a-z0-9-]{1,30}$/.test(params.get('device')||'')?params.get('device'):'';
+const guestKey=sandbox?'hazeflow-qa-v2'+(qaDevice?'-device-'+qaDevice:''):'hazeflow-v1';let key=guestKey;
 
 const iconPaths={day:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',week:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/>',tasks:'<circle cx="12" cy="12" r="8"/><path d="m8 12 3 3 5-6"/>',routines:'<path d="M4 8h12l-3-3m7 11H8l3 3M4 8v5m16 3v-5"/>',history:'<path d="M6 4h12v16H6zM9 8h6m-6 4h6m-6 4h4"/>',diary:'<path d="M5 4h14v16H5zM9 4v16m3-11h4m-4 4h4"/>',compare:'<path d="M4 8h16l-4-4M20 16H4l4 4"/>',review:'<path d="M5 20V10m7 10V4m7 16v-7M3 20h18"/>',favorites:'<path d="m12 3 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1Z"/>',life:'<path d="M20 7c-2-4-6-3-8 0-2-3-6-4-8 0-2 4 2 7 8 12 6-5 10-8 8-12Z"/>',moon:'<path d="M20 14a8 8 0 0 1-10-10 8 8 0 1 0 10 10Z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/>'};
 const icon=name=>`<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]||''}</svg>`;
@@ -37,7 +38,7 @@ function render(){
  if(view==='compare'){if(date>todayKey())date=todayKey();if(compareLeft&&compareLeft>date)compareLeft=monthBefore(date)}
  document.body.dataset.view=view;
  const meta={day:['나의 하루','반복할 생활과 오늘의 계획을 보고, 실제 하루를 남겨요.'],week:['한 주의 계획','일정과 요일별 루틴을 함께 확인해요.'],routines:['루틴 설정','한 번 설정하고, 정한 요일마다 실행만 체크해요.'],history:['기록 모아보기','날짜를 따라 식사·운동·생활의 변화를 돌아봐요.'],diary:['하루의 일기','기억하고 싶은 순간과 마음을 남겨요.'],tasks:['미리알림','기한 없이 모아두거나 날짜·시간을 지정해 관리해요.'],life:['생활 상태','필요한 항목만 기록해도 괜찮아요.'],compare:['과거의 나와 비교','사진과 기록을 나란히 놓고, 나의 변화를 살펴봐요.'],review:['한 주 돌아보기','계획과 실제 하루를 돌아보고 다음 주를 준비해요.'],favorites:['식사·운동 즐겨찾기','자주 쓰는 내용을 저장하고 필요한 만큼 바꿔서 기록해요.']};
- $('h1').textContent=meta[view][0];$('#subtitle').textContent=meta[view][1];$('#sandbox-banner').hidden=!sandbox;
+ $('h1').textContent=meta[view][0];$('#subtitle').textContent=meta[view][1];$('#sandbox-banner').hidden=!sandbox;$('#sandbox-banner').textContent='점검 전용 공간 · 실제 기록과 분리되어 있어요.'+(qaDevice?' · 기기 '+qaDevice:'');
  $('#date-title').textContent=new Date(date+'T12:00:00').toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'short'});$('#selected-date').value=date;
  document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===view);b.setAttribute('aria-current',b.dataset.view===view?'page':'false')});
  $('#day-summary').textContent=`일정 ${data.events.filter(e=>e.date===date).length} · 루틴 ${routinesForDate(data,date).length} · 기록 ${recordsForDate(data,date).length}`;
