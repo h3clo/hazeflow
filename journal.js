@@ -1,6 +1,6 @@
 import {recordsForDate,routinesForDate,lifeLabels} from './domain.js';
 export function journalDraft(d,date){
- const parts=[],records=recordsForDate(d,date),activities=records.filter(l=>!l.money&&!l.sourceId),money=records.filter(l=>l.money),note=d.diary[date]?.note?.trim();
+ const parts=[],records=recordsForDate(d,date),activities=records.filter(l=>(!l.money||l.kind==='식사')&&!l.sourceId),money=records.filter(l=>l.money),note=d.diary[date]?.note?.trim();
  if(activities.length)parts.push('오늘 남긴 활동\n'+activities.map(l=>`- ${l.time||'시간 미기록'} · ${l.kind}: ${l.text||'사진 기록'}${l.photos?.length?' (사진 '+l.photos.length+'장)':''}`).join('\n'));
  const events=d.events.filter(e=>e.date===date&&['doing','done'].includes(e.status));if(events.length)parts.push('실행한 일정\n'+events.map(e=>`- ${e.title} · ${e.status==='done'?'완료':'진행 중'}${e.actualStart?' · 시작 '+e.actualStart:''}${e.actualEnd?' · 종료 '+e.actualEnd:''}`).join('\n'));
  const routines=routinesForDate(d,date).filter(r=>r.run&&['doing','done'].includes(r.run.status));if(routines.length)parts.push('실행한 루틴\n'+routines.map(r=>`- ${r.title} · ${r.run.checked.length}/${r.steps.length}단계`).join('\n'));

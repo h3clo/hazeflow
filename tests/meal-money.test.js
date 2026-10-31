@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mealExpense,setMealExpense,unlinkMealExpense} from '../meal-money.js';
+import {emptyState,validateBackup,dayDocument,activityIntervals} from '../domain.js';
+import {monthMoney,moneyCSV,parseMoneyCSV,planMoneyImport} from '../money.js';
+import {dayStats,weekSummary} from '../insights.js';
+import {flattenState,unflattenState} from '../sync-state.js';
+import {journalDraft} from '../journal.js';
+const values={kind:'식사',text:'닭다리살 덮밥',mealAmount:'9000',mealMerchant:'동네 식당',mealPayment:'카드'};
+const meal=()=>setMealExpense({id:'meal',date:'2026-10-31',time:'12:00',kind:'식사',text:values.text,photos:[],memo:false},values);
+test('식사에 금액만 더해 지출을 만들고 선택 항목은 안전한 기본값을 쓴다',()=>{const m=mealExpense({...values,mealMerchant:''});assert.equal(m.amount,9000);assert.equal(m.merchant,'닭다리살 덮밥');assert.equal(m.category,'식비');assert.equal(mealExpense({...values,mealAmount:''}),undefined);for(const amount of ['0','-100','0.5','NaN'])assert.throws(()=>mealExpense({...values,mealAmount:amount}));assert.throws(()=>mealExpense({...values,kind:'일상'}))});
+test('한 기록이 식사·가계부·주간 회고·시간 구간에 한 번씩 반영된다',()=>{const d=emptyState();d.logs=[meal()];assert.equal(dayStats(d,'2026-10-31').meals,1);assert.equal(monthMoney(d.logs,'2026-10').totals.expense,9000);assert.equal(weekSummary(d,'2026-10-31','2026-10-31').money.expense,9000);assert.equal(activityIntervals(d,new Date('2026-10-31T15:00:00')).get('meal').ongoing,true);assert.equal(d.logs.length,1)});
+test('금액 수정과 연결 해제는 식사 원문·사진·시간을 보존한다',()=>{const original=meal(),before=structuredClone(original),changed=setMealExpense(original,{...values,mealAmount:'10000'});assert.equal(changed.money.amount,10000);const unlinked=unlinkMealExpense(changed);assert.equal(unlinked.money,undefined);assert.equal(unlinked.text,original.text);assert.equal(unlinked.time,'12:00');assert.deepEqual(unlinked.photos,original.photos);assert.deepEqual(original,before);assert.equal(setMealExpense(original,{...values,mealAmount:''}).money,undefined)});
+test('연결된 식사를 백업·동기화·문서·일기 초안에 보존한다',()=>{const d=emptyState();d.logs=[meal()];assert.deepEqual(validateBackup(d).logs,d.logs);assert.deepEqual(unflattenState(flattenState(d)).logs,d.logs);assert.match(dayDocument(d,'2026-10-31'),/식사 지출: 9,000원/);const draft=journalDraft(d,'2026-10-31');assert.match(draft,/닭다리살 덮밥/);assert.match(draft,/지출 9,000원/);d.logs[0].money.type='income';assert.throws(()=>validateBackup(d))});
+test('연결 식사의 CSV를 다시 가져와도 같은 지출을 중복 추가하지 않는다',()=>{const logs=[meal()],rows=parseMoneyCSV(moneyCSV(logs),'2026-10-31').rows;assert.equal(planMoneyImport(logs,rows).accepted.length,0)});

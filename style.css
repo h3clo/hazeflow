@@ -74,3 +74,5 @@ body[data-view=day] header{margin-bottom:18px}body[data-view=day] #subtitle{disp
 .money-row{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line,#68778535)}.money-row>div:first-child{display:grid;gap:6px;min-width:0}.money-row strong{overflow-wrap:anywhere}.money-row small{color:var(--muted);font-size:11px}.money-row .row-actions{flex-shrink:0;align-self:start}body[data-view=money] .review-overview strong{font-size:clamp(16px,2vw,26px)}
 
 body[data-view=money] .compare-grid{align-items:start}
+
+.meal-expense{border:1px solid var(--line);border-radius:9px;padding:12px;margin:12px 0}.meal-expense>label{margin:0}.meal-expense summary{cursor:pointer;font-size:11px;color:var(--muted);padding:9px 0}.meal-expense .hint{margin-bottom:0}.meal-expense-details{display:grid;gap:8px}.meal-money-summary{font-size:11px!important;color:var(--accent);margin:8px 0 0!important}
