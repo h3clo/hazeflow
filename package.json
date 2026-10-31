@@ -1,0 +1,16 @@
+{
+  "name": "haze-flow",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3",
+    "vite": "^6.0.0"
+  },
+  "type": "module"
+}

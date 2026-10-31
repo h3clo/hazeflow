@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.snapshots/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+docs/*.png
+*.zip
+haze-flow-backup-*.json
+docs/conversation-review.md
