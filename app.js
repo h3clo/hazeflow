@@ -31,6 +31,7 @@ function commit(fn,{paint=true,undo=false,message=''}={}){
  try{const latest=load();if(recovery)throw Error('저장된 기록을 읽을 수 없어요.');const before=structuredClone(latest);const original=localStorage.getItem(key);if(original&&!localStorage.getItem(key+'-before-v2')&&JSON.parse(original).schemaVersion!==2)localStorage.setItem(key+'-before-v2',original);fn(latest);const serialized=JSON.stringify(latest);localStorage.setItem(key,serialized);data=latest;if(undo)undoState={before,after:serialized};if(paint)render();if(message)notify(message,undo);return true}catch(e){notify(e.message||'저장하지 못했어요. 내보내기로 기록을 보관해주세요.');return false}
 }
 function render(){
+ if(view==='compare'){if(date>todayKey())date=todayKey();if(compareLeft&&compareLeft>date)compareLeft=monthBefore(date)}
  document.body.dataset.view=view;
  const meta={day:['나의 하루','반복할 생활과 오늘의 계획을 보고, 실제 하루를 남겨요.'],week:['한 주의 계획','일정과 요일별 루틴을 함께 확인해요.'],routines:['루틴 설정','한 번 설정하고, 정한 요일마다 실행만 체크해요.'],history:['기록 모아보기','날짜를 따라 식사·운동·생활의 변화를 돌아봐요.'],diary:['하루의 일기','기억하고 싶은 순간과 마음을 남겨요.'],tasks:['미리알림','기한 없이 모아두거나 날짜·시간을 지정해 관리해요.'],life:['생활 상태','필요한 항목만 기록해도 괜찮아요.'],compare:['과거의 나와 비교','사진과 기록을 나란히 놓고, 나의 변화를 살펴봐요.'],review:['한 주 돌아보기','계획과 실제 하루를 돌아보고 다음 주를 준비해요.'],favorites:['식사·운동 즐겨찾기','자주 쓰는 내용을 저장하고 필요한 만큼 바꿔서 기록해요.']};
  $('h1').textContent=meta[view][0];$('#subtitle').textContent=meta[view][1];$('#sandbox-banner').hidden=!sandbox;
