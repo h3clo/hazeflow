@@ -1,3 +1,4 @@
+import {validMoney} from './money.js';
 import {validPhotoRefs,photoMarkdown} from './photos.js';
 export const weekdays = ['일','월','화','수','목','금','토'];
 export const todayKey = (d=new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -114,6 +115,7 @@ export function validateBackup(v){
    if(key==='tasks'&&((x.dueDate===undefined?!isDate(x.date):x.dueDate!==null&&!isDate(x.dueDate))||(x.dueTime!==undefined&&x.dueTime!==''&&(!isTime(x.dueTime)||!x.dueDate))||(x.completedOn!=null&&!isDate(x.completedOn))))throw Error('미리알림 날짜와 시간을 확인해주세요.');
    if(key==='events'&&(!isTime(x.start)||!isTime(x.end)||x.end<=x.start))throw Error('일정 시간이 올바르지 않아요.');
    if(key==='logs'&&((x.memo!==undefined&&typeof x.memo!=='boolean')||((x.endTime||x.endDate)&&(!isTime(x.time)||!isTime(x.endTime)||!isDate(x.endDate)||new Date(x.endDate+'T'+x.endTime)<new Date(x.date+'T'+x.time)))))throw Error('활동 종료 시간을 확인해주세요.');
+   if(key==='logs'&&x.money!==undefined&&(!validMoney(x.money)||!x.memo))throw Error('가계부 거래 형식을 확인해주세요.');
    if(key==='logs'&&!validPhotoRefs(x.photos))throw Error('사진 정보를 확인해주세요.');
    if(key==='logs'&&(!(x.time===''||isTime(x.time))||!str(x.text)||!str(x.kind)))throw Error('활동 기록이 올바르지 않아요.');
    if(key==='exercises'&&(!str(x.name)||!Number.isFinite(+x.minutes)||+x.minutes<=0))throw Error('운동 기록이 올바르지 않아요.');
