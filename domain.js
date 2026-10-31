@@ -2,7 +2,7 @@ import {validMoney} from './money.js';
 import {validPhotoRefs,photoMarkdown} from './photos.js';
 export const weekdays = ['일','월','화','수','목','금','토'];
 export const todayKey = (d=new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-export const uid = () => crypto.randomUUID();
+export const uid = () => typeof crypto.randomUUID==='function'?crypto.randomUUID():'record-'+[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
 export const isDate = s => typeof s==='string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s+'T12:00:00')) && todayKey(new Date(s+'T12:00:00'))===s;
 export const isTime = s => typeof s==='string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
 export const emptyState = () => ({schemaVersion:2,events:[],tasks:[],routines:[],checks:{},diary:{},exercises:[],logs:[],life:{},routineTemplates:[],routineRuns:{},favorites:[],weeklyReviews:{}});

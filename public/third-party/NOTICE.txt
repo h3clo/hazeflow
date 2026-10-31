@@ -1,0 +1,12 @@
+Haze Flow loads heic-to 1.6.7 only when native HEIC decoding fails.
+heic-to is unmodified and distributed under LGPL-3.0-or-later.
+License: ./heic-to-LICENSE.txt
+Full GPLv3 text incorporated by LGPLv3: https://www.gnu.org/licenses/gpl-3.0.txt
+Corresponding upstream source and build instructions:
+https://github.com/hoppergee/heic-to/tree/78345a3fcdb4a1d70d513fce2646aeff0127f7ba
+https://registry.npmjs.org/heic-to/-/heic-to-1.6.7.tgz
+This decoder uses libheif/libde265; their source/build references are included
+in the upstream repository. Haze Flow source and dependency lockfile:
+https://github.com/h3clo/hazeflow
+The decoder is a separate lazy module; it can be replaced by rebuilding this
+public application from source with a compatible decoder implementation.

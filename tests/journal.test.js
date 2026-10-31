@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {emptyState} from '../domain.js';
+import {journalDraft,applyJournalDraft} from '../journal.js';
+test('직접 남긴 활동·돈·측정값·메모만 모으며 계획과 다른 날짜는 제외한다',()=>{const d=emptyState(),date='2026-10-31';d.logs=[{id:'a',date,time:'12:00',kind:'식사',text:'닭다리살 100g'},{id:'b',date:'2026-10-30',time:'',kind:'일상',text:'과거 기록'},{id:'c',date,time:'',kind:'가계부',money:{type:'expense',amount:5800},text:'커피 지출'}];d.events=[{id:'plan',date,title:'미실행 계획',status:'planned'}];d.diary[date]={note:'오늘의 메모',entry:'기존 일기'};d.life[date]={weight:'60'};const before=structuredClone(d),text=journalDraft(d,date);assert.match(text,/닭다리살/);assert.match(text,/5,800원/);assert.match(text,/체중/);assert.doesNotMatch(text,/미실행 계획|과거 기록|기존 일기/);assert.deepEqual(d,before)});
+test('기록이 없으면 일기를 지어내지 않는다',()=>assert.equal(journalDraft(emptyState(),'2026-10-31'),''));
+test('기존 일기는 기본적으로 보존하며 명시적 교체와 중복 방지를 지원한다',()=>{assert.equal(applyJournalDraft('기존','초안'),'기존\n\n초안');assert.equal(applyJournalDraft('기존','초안',true),'초안');assert.equal(applyJournalDraft('기존\n\n초안','초안'),'기존\n\n초안');assert.throws(()=>applyJournalDraft('기존','  '))});
