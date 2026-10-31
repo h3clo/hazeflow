@@ -1,10 +1,12 @@
+import {cloudConfig} from './cloud.js';
+import {createAccount} from './account.js';
 import {monthBefore,shiftDate,weekStart,templateEntry} from './insights.js';
 import {featureUI} from './feature-ui.js';
 import {MAX_PHOTOS,makePhotoStore,preparePhoto,collectPhotoRefs,decodePhotoBundle} from './photos.js';
 import {photoBackup,documentZip} from './photo-export.js';
 import {weekdays,todayKey,uid,emptyState,migrate,isDate,isTime,routinesForDate,versionAt,setRoutineVersion,archiveRoutine,routineAction,eventAction,syncLog,workoutSummary,inferKind,recordsForDate,recordedDates,lifeLabels,validateBackup,mergeBackup,dayDocument,allDocument,taskMatches,taskComplete,sortTasks} from './domain.js';
 const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const sandbox=new URLSearchParams(location.search).has('sandbox'),key=sandbox?'hazeflow-qa-v2':'hazeflow-v1';
+const sandbox=new URLSearchParams(location.search).has('sandbox'),guestKey=sandbox?'hazeflow-qa-v2':'hazeflow-v1';let key=guestKey;
 
 const iconPaths={day:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',week:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/>',tasks:'<circle cx="12" cy="12" r="8"/><path d="m8 12 3 3 5-6"/>',routines:'<path d="M4 8h12l-3-3m7 11H8l3 3M4 8v5m16 3v-5"/>',history:'<path d="M6 4h12v16H6zM9 8h6m-6 4h6m-6 4h4"/>',diary:'<path d="M5 4h14v16H5zM9 4v16m3-11h4m-4 4h4"/>',compare:'<path d="M4 8h16l-4-4M20 16H4l4 4"/>',review:'<path d="M5 20V10m7 10V4m7 16v-7M3 20h18"/>',favorites:'<path d="m12 3 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1Z"/>',life:'<path d="M20 7c-2-4-6-3-8 0-2-3-6-4-8 0-2 4 2 7 8 12 6-5 10-8 8-12Z"/>',moon:'<path d="M20 14a8 8 0 0 1-10-10 8 8 0 1 0 10 10Z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/>'};
 const icon=name=>`<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]||''}</svg>`;
@@ -13,7 +15,7 @@ document.querySelectorAll('nav [data-view]').forEach(b=>b.innerHTML=icon(b.datas
 let theme='light';try{theme=localStorage.getItem(key+'-theme')==='dark'?'dark':'light'}catch{}
 function applyTheme(){document.documentElement.dataset.theme=theme;const b=$('[data-act=theme]');if(b){b.innerHTML=icon(theme==='light'?'moon':'sun');b.setAttribute('aria-label',theme==='light'?'어두운 화면으로 전환':'밝은 화면으로 전환');b.title=theme==='light'?'어두운 화면':'밝은 화면'}document.querySelector('meta[name=theme-color]').content=theme==='dark'?'#151c27':'#ffffff'}
 applyTheme();
-const photoStore=makePhotoStore(key+'-photos');let editorPhotos=[],editorPhotoToken=0;const photoBusy=new Set();
+let photoStore=makePhotoStore(key+'-photos');let editorPhotos=[],editorPhotoToken=0;const photoBusy=new Set();
 let recovery=null;
 function load(){const raw=localStorage.getItem(key);if(!raw)return emptyState();try{return validateBackup(JSON.parse(raw))}catch{recovery=raw;return emptyState()}}
 let data=load(),date=todayKey(),view='day',filter='전체',query='',undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상';
@@ -25,10 +27,11 @@ const field=(name,title,value='',type='text',extra='')=>`<label>${title}<input n
 const card=(title,body,action='')=>`<section class="card"><div class="card-head"><h2>${title}</h2>${action}</div><div class="card-body">${body}</div></section>`;
 const empty=text=>`<p class="empty">${text}</p>`;
 const features=featureUI({esc,btn,card,empty,field,photoGallery});
+let account=null,needsPaint=false;
 function notify(text,undo=false){$('#notice span').textContent=text;$('#notice [data-act=undo]').hidden=!undo;$('#notice').hidden=false;}
 function commit(fn,{paint=true,undo=false,message=''}={}){
  if(recovery){notify('저장된 기록을 읽지 못해요. 원본을 내보낸 뒤 복원해주세요.');return false}
- try{const latest=load();if(recovery)throw Error('저장된 기록을 읽을 수 없어요.');const before=structuredClone(latest);const original=localStorage.getItem(key);if(original&&!localStorage.getItem(key+'-before-v2')&&JSON.parse(original).schemaVersion!==2)localStorage.setItem(key+'-before-v2',original);fn(latest);const serialized=JSON.stringify(latest);localStorage.setItem(key,serialized);data=latest;if(undo)undoState={before,after:serialized};if(paint)render();if(message)notify(message,undo);return true}catch(e){notify(e.message||'저장하지 못했어요. 내보내기로 기록을 보관해주세요.');return false}
+ try{const latest=load();if(recovery)throw Error('저장된 기록을 읽을 수 없어요.');const before=structuredClone(latest);const original=localStorage.getItem(key);if(original&&!localStorage.getItem(key+'-before-v2')&&JSON.parse(original).schemaVersion!==2)localStorage.setItem(key+'-before-v2',original);fn(latest);const serialized=JSON.stringify(latest);localStorage.setItem(key,serialized);data=latest;account?.changed();if(undo)undoState={before,after:serialized};if(paint)render();if(message)notify(message,undo);return true}catch(e){notify(e.message||'저장하지 못했어요. 내보내기로 기록을 보관해주세요.');return false}
 }
 function render(){
  if(view==='compare'){if(date>todayKey())date=todayKey();if(compareLeft&&compareLeft>date)compareLeft=monthBefore(date)}
@@ -41,7 +44,7 @@ function render(){
  $('#content').innerHTML=({day:dayView,week:weekView,routines:routinesView,history:historyView,diary:diaryView,life:lifeView,tasks:tasksView,compare:()=>features.compare(data,date,compareLeft),review:()=>features.review(data,date),favorites:()=>features.library(data)})[view]();
  if(view==='day')restoreCapture();hydratePhotos();
  const hasSaved=recordedDates(data).length||data.favorites.length||Object.keys(data.weeklyReviews).length||data.routineTemplates.length||data.tasks.length;
- const migration=$('#migration-note');migration.hidden=import.meta.env.DEV||sandbox||!!hasSaved;
+ const migration=$('#migration-note');migration.hidden=import.meta.env.DEV||sandbox||!!hasSaved||!!account?.userId();
  if(recovery)notify('저장된 데이터를 읽지 못했어요. 내보내기에서 원본을 보관할 수 있어요.');
 }
 function stepList(r,disabled=false){return `<div class="steps">${r.steps.map(s=>`<label class="step"><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${r.run?.checked.includes(s.id)?'checked':''} ${disabled?'disabled':''}><span>${esc(s.title)}</span>${s.minutes?`<small>${s.minutes}분</small>`:''}</label>`).join('')}</div>`}
@@ -123,7 +126,7 @@ document.addEventListener('click',async e=>{
  if(act==='open-day'){date=id;view='day';render()}
  if(act==='history-date'){date=id;render()}if(act==='month-prev'||act==='month-next'){const d=new Date(date+'T12:00:00');d.setDate(1);d.setMonth(d.getMonth()+(act==='month-prev'?-1:1));date=todayKey(d);render()}
  if(act==='dismiss')$('#notice').hidden=true;
- if(act==='undo'&&undoState){if(localStorage.getItem(key)!==undoState.after){notify('다른 기록이 저장되어 한 번에 되돌릴 수 없어요. 해당 기록에서 수정해주세요.');return}localStorage.setItem(key,JSON.stringify(undoState.before));data=undoState.before;undoState=null;render();notify('되돌렸어요.')}
+ if(act==='undo'&&undoState){if(localStorage.getItem(key)!==undoState.after){notify('다른 기록이 저장되어 한 번에 되돌릴 수 없어요. 해당 기록에서 수정해주세요.');return}localStorage.setItem(key,JSON.stringify(undoState.before));data=undoState.before;undoState=null;account?.changed();render();notify('되돌렸어요.')}
  if(act.startsWith('routine-')&&!['routine-step'].includes(act)&&!future()){const action={ 'routine-start':'start','routine-done':'done','routine-skip':'skip','routine-reset':'reset'}[act];if(action)commit(d=>routineAction(d,date,id,action,null,executionTime()),{undo:true,message:'이 날짜의 루틴 실행을 저장했어요.'})}
  if(act.startsWith('event-')&&!future())commit(d=>eventAction(d,id,act.slice(6),executionTime()),{undo:true,message:'일정 실행을 저장했어요.'});
  if(act==='delete-log'||act==='delete-legacy'){commit(d=>{if(act==='delete-log')d.logs=d.logs.filter(l=>l.id!==id);else d.exercises=d.exercises.filter(l=>l.id!==id)},{undo:true,message:'기록을 삭제했어요.'})}
@@ -169,8 +172,8 @@ document.addEventListener('submit',async e=>{
 });
 async function generateDiary(button){
  if(!aiReady){notify('AI 연결이 아직 설정되지 않았어요. 직접 쓴 일기와 기록은 저장할 수 있어요.');return}
- const k=date,d=data.diary[k]||{};button.disabled=true;button.textContent='초안 쓰는 중…';
- try{const r=await fetch('/api/journal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:k,mood:d.mood,note:d.note,events:data.events.filter(e=>e.date===k&&e.status==='done').map(e=>({title:e.title,status:'done'})),tasks:data.tasks.filter(t=>t.completedOn===k&&t.done).map(t=>t.title),logs:recordsForDate(data,k).map(l=>({time:l.time,text:l.text,kind:l.kind})),exercises:[]}),signal:AbortSignal.timeout(60000)});const result=await r.json();if(!r.ok||!result.draft)throw Error(result.error||'초안이 비어 있어요.');if(view==='diary'&&date===k){$('#ai-result').innerHTML=`<label>AI 초안 · 확인하고 적용하기<textarea id="ai-draft-text" rows="8">${esc(result.draft)}</textarea></label>${btn('이 초안을 일기에 넣기','use-ai')}`;}else notify('날짜나 화면이 바뀌어 초안을 적용하지 않았어요. 원하는 날짜에서 다시 생성해주세요.');}catch(error){notify(error.name==='TimeoutError'?'AI 응답 시간이 길어졌어요. 잠시 후 다시 시도해주세요.':error.message)}finally{button.disabled=false;button.textContent='AI 일기 초안'}
+ const k=date,requestKey=key,d=data.diary[k]||{};button.disabled=true;button.textContent='초안 쓰는 중…';
+ try{const r=await fetch('/api/journal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:k,mood:d.mood,note:d.note,events:data.events.filter(e=>e.date===k&&e.status==='done').map(e=>({title:e.title,status:'done'})),tasks:data.tasks.filter(t=>t.completedOn===k&&t.done).map(t=>t.title),logs:recordsForDate(data,k).map(l=>({time:l.time,text:l.text,kind:l.kind})),exercises:[]}),signal:AbortSignal.timeout(60000)});const result=await r.json();if(!r.ok||!result.draft)throw Error(result.error||'초안이 비어 있어요.');if(view==='diary'&&date===k&&key===requestKey){$('#ai-result').innerHTML=`<label>AI 초안 · 확인하고 적용하기<textarea id="ai-draft-text" rows="8">${esc(result.draft)}</textarea></label>${btn('이 초안을 일기에 넣기','use-ai')}`;}else notify('날짜나 화면이 바뀌어 초안을 적용하지 않았어요. 원하는 날짜에서 다시 생성해주세요.');}catch(error){notify(error.name==='TimeoutError'?'AI 응답 시간이 길어졌어요. 잠시 후 다시 시도해주세요.':error.message)}finally{button.disabled=false;button.textContent='AI 일기 초안'}
 }
 function download(content,name,type){const url=URL.createObjectURL(content instanceof Blob?content:new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000)}
 async function exportRecords(mode){
@@ -187,8 +190,8 @@ async function exportImage(){
  const pages=[];let page=[],height=0;for(const block of blocks){if(height+block.height>6200&&page.length){pages.push(page);page=[];height=0}page.push(block);height+=block.height}if(page.length)pages.push(page);
  for(let i=0;i<pages.length;i++){canvas.width=width;canvas.height=180+Math.ceil(pages[i].reduce((n,b)=>n+b.height,0));ctx.fillStyle='#faf9fc';ctx.fillRect(0,0,width,canvas.height);ctx.fillStyle='#887599';ctx.font='20px sans-serif';ctx.fillText(`haze flow · ${date}${pages.length>1?` · ${i+1}/${pages.length}`:''}`,pad,65);let y=130;for(const b of pages[i]){if(b.type==='photo'){const blob=await photoStore.get(b.ref.id);if(!blob)throw Error('내보낼 사진을 찾을 수 없어요.');const bitmap=await createImageBitmap(blob);ctx.drawImage(bitmap,pad,y,b.w,b.h);bitmap.close()}else{ctx.fillStyle=b.heading?'#6c587e':'#39313f';ctx.font=`${b.heading?'600':'400'} 24px sans-serif`;ctx.fillText(b.text,pad,y)}y+=b.height}const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('이미지를 만들지 못했어요.');download(blob,`haze-flow-${date}${pages.length>1?'-'+(i+1):''}.png`,'image/png');}
 }
-async function importFile(file){if(!file)return;try{if(file.size>100*1024*1024)throw Error('백업 파일이 너무 커요. 100MB 이하 파일을 선택해주세요.');const payload=JSON.parse(await file.text()),incoming=validateBackup(payload),photos=decodePhotoBundle(payload.photoData,collectPhotoRefs(incoming));for(const [id,blob] of photos){const image=await createImageBitmap(blob),ref=collectPhotoRefs(incoming).find(p=>p.id===id);const valid=image.width===ref.width&&image.height===ref.height;image.close();if(!valid)throw Error('사진 크기 정보가 실제 파일과 일치하지 않아요.')}await photoStore.putBatch(photos);localStorage.setItem(key+'-before-import',localStorage.getItem(key)||JSON.stringify(emptyState()));if(recovery){recovery=null;localStorage.setItem(key,JSON.stringify(incoming));data=incoming;render();notify('백업에서 기록을 복원했어요.')}else commit(d=>Object.assign(d,mergeBackup(d,incoming)),{undo:true,message:'백업을 불러왔어요. 같은 기록은 현재 내용을 유지했어요.'});$('#import-status').textContent='불러오기 완료';}catch(error){$('#import-status').textContent='불러오기 실패: '+error.message+' 기존 기록은 변경하지 않았어요.'}finally{$('#import-file').value=''}}
-window.addEventListener('storage',e=>{if(e.key!==key)return;data=load();undoState=null;if(!document.querySelector('dialog[open]')&&!document.activeElement?.matches('input,textarea,select'))render();notify('다른 화면의 저장 내용을 반영했어요.')});
+async function importFile(file){if(!file)return;const importKey=key,store=photoStore;try{if(file.size>100*1024*1024)throw Error('백업 파일이 너무 커요. 100MB 이하 파일을 선택해주세요.');const payload=JSON.parse(await file.text()),incoming=validateBackup(payload),photos=decodePhotoBundle(payload.photoData,collectPhotoRefs(incoming));for(const [id,blob] of photos){const image=await createImageBitmap(blob),ref=collectPhotoRefs(incoming).find(p=>p.id===id);const valid=image.width===ref.width&&image.height===ref.height;image.close();if(!valid)throw Error('사진 크기 정보가 실제 파일과 일치하지 않아요.')}if(key!==importKey)throw Error('계정이 바뀌어 불러오기를 중단했어요.');await store.putBatch(photos);if(key!==importKey)throw Error('계정이 바뀌어 불러오기를 중단했어요.');localStorage.setItem(key+'-before-import',localStorage.getItem(key)||JSON.stringify(emptyState()));if(recovery){recovery=null;localStorage.setItem(key,JSON.stringify(incoming));data=incoming;account?.changed();render();notify('백업에서 기록을 복원했어요.')}else commit(d=>Object.assign(d,mergeBackup(d,incoming)),{undo:true,message:'백업을 불러왔어요. 같은 기록은 현재 내용을 유지했어요.'});$('#import-status').textContent='불러오기 완료';}catch(error){$('#import-status').textContent='불러오기 실패: '+error.message+' 기존 기록은 변경하지 않았어요.'}finally{$('#import-file').value=''}}
+window.addEventListener('storage',e=>{if(e.key!==key)return;data=load();undoState=null;account?.changed();if(!document.querySelector('dialog[open]')&&!document.activeElement?.matches('input,textarea,select'))render();notify('다른 화면의 저장 내용을 반영했어요.')});
 window.addEventListener('focus',()=>{if(!document.querySelector('dialog[open]')){data=load();if(!document.activeElement?.matches('input,textarea,select'))render()}});
 $('.brand').onclick=e=>{e.preventDefault();view='day';date=todayKey();render()};
 render();
@@ -201,11 +204,12 @@ function photoField(target,photos){return `<div class="photo-field"><label class
 async function hydratePhotos(root=document){for(const img of root.querySelectorAll('img[data-photo-id]')){try{const url=await photoStore.url(img.dataset.photoId);if(!img.isConnected)continue;if(url)img.src=url;else{img.hidden=true;const span=document.createElement('span');span.className='photo-missing';span.textContent='사진 파일을 찾을 수 없어요';img.parentElement.append(span)}}catch{if(img.isConnected){img.alt='사진을 읽지 못했어요.'}}}}
 function refreshPhotoField(target){const host=$('#photo-gallery-'+target);if(!host)return;const refs=target==='capture'?drafts[date]?.photos||[]:target==='diary'?data.diary[date]?.photos||[]:editorPhotos;host.innerHTML=photoGallery(refs,target);hydratePhotos(host)}
 async function addPhotos(input){
+ const photoKey=key,store=photoStore;
  const target=input.dataset.photoInput,k=date,token=editorPhotoToken,slot=target==='editor'?token:k,busyKey=target+':'+slot,files=[...input.files];if(!files.length)return;
  const existing=target==='capture'?drafts[k]?.photos||[]:target==='diary'?data.diary[k]?.photos||[]:editorPhotos;
  if(existing.length+files.length>MAX_PHOTOS){notify(`사진은 기록 하나에 최대 ${MAX_PHOTOS}장까지 붙일 수 있어요.`);input.value='';return}
  if(photoBusy.has(busyKey))return;photoBusy.add(busyKey);input.disabled=true;const status=$('#photo-status-'+target);if(status)status.textContent='사진을 준비하고 있어요…';
- try{const added=[];for(const file of files){const {blob,ref}=await preparePhoto(file);await photoStore.put(ref.id,blob);added.push(ref)}
+ try{const added=[];for(const file of files){const {blob,ref}=await preparePhoto(file);await store.put(ref.id,blob);if(key!==photoKey)throw Error('계정이 바뀌어 사진 첨부를 중단했어요.');added.push(ref)}
  if(target==='capture'){drafts[k]??={};drafts[k].photos=[...(drafts[k].photos||[]),...added];}
  if(target==='diary'){const ok=commit(d=>{d.diary[k]={...d.diary[k],photos:[...(d.diary[k]?.photos||[]),...added]}},{paint:false});if(!ok)throw Error('사진 기록을 저장하지 못했어요.');}
  if(target==='editor'){if(token!==editorPhotoToken||!$('#editor').open)return;editorPhotos=[...editorPhotos,...added];}
@@ -213,4 +217,22 @@ async function addPhotos(input){
  }catch(error){if(status?.isConnected)status.textContent=error.message;notify(error.message)}finally{photoBusy.delete(busyKey);input.disabled=false;input.value=''}
 }
 function removePhoto(target,id){if(target==='capture'){drafts[date]??={};drafts[date].photos=(drafts[date].photos||[]).filter(p=>p.id!==id)}else if(target==='editor')editorPhotos=editorPhotos.filter(p=>p.id!==id);else commit(d=>{if(d.diary[date])d.diary[date].photos=(d.diary[date].photos||[]).filter(p=>p.id!==id)},{paint:false,undo:true,message:'사진 첨부를 해제했어요.'});refreshPhotoField(target)}
-async function openPhoto(id){try{const url=await photoStore.url(id);if(!url)throw Error('사진 파일을 찾을 수 없어요. 사진이 포함된 JSON 백업을 불러와주세요.');const ref=collectPhotoRefs(data).find(p=>p.id===id)||[...(drafts[date]?.photos||[]),...editorPhotos].find(p=>p.id===id);$('#photo-full').src=url;$('#photo-caption').textContent=ref?.name||'첨부 사진';$('#photo-download').dataset.id=id;$('#photo-viewer').showModal()}catch(error){notify(error.message)}}
+async function openPhoto(id){const photoKey=key;try{const url=await photoStore.url(id);if(key!==photoKey)return;if(!url)throw Error('사진 파일을 찾을 수 없어요. 사진이 포함된 JSON 백업을 불러와주세요.');const ref=collectPhotoRefs(data).find(p=>p.id===id)||[...(drafts[date]?.photos||[]),...editorPhotos].find(p=>p.id===id);$('#photo-full').src=url;$('#photo-caption').textContent=ref?.name||'첨부 사진';$('#photo-download').dataset.id=id;$('#photo-viewer').showModal()}catch(error){notify(error.message)}}
+
+
+function repaintWhenIdle(){if(document.querySelector('dialog[open]')||document.activeElement?.matches('input,textarea,select')){needsPaint=true;return}needsPaint=false;render()}
+document.addEventListener('focusout',()=>{if(needsPaint)setTimeout(repaintWhenIdle,0)});
+document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('close',()=>{if(needsPaint)repaintWhenIdle()}));
+function switchAccount(userId){
+ if(key!==(userId?guestKey+'-user-'+userId:guestKey)){
+  for(const dialog of document.querySelectorAll('dialog[open]'))dialog.close();
+  for(const k of Object.keys(drafts))delete drafts[k];editorPhotos=[];editorPhotoToken++;photoBusy.clear();
+  key=userId?guestKey+'-user-'+userId:guestKey;photoStore=makePhotoStore(key+'-photos');recovery=null;undoState=null;data=load();
+  theme=localStorage.getItem(key+'-theme')==='dark'?'dark':'light';applyTheme();$('#notice').hidden=true;render();
+ }
+}
+function cloudContext(){const accountKey=key,store=photoStore;return {photoStore:store,storage:{getItem:()=>localStorage.getItem(accountKey+'-sync'),setItem:value=>localStorage.setItem(accountKey+'-sync',value)},read(){const raw=localStorage.getItem(accountKey);return raw?validateBackup(JSON.parse(raw)):emptyState()},write(state){localStorage.setItem(accountKey,JSON.stringify(state));if(key===accountKey){data=state;undoState=null;repaintWhenIdle()}}}}
+function hasGuest(){try{const raw=localStorage.getItem(guestKey);if(!raw)return false;const d=validateBackup(JSON.parse(raw));return !!(recordedDates(d).length||d.tasks.length||d.routineTemplates.length||d.favorites.length||Object.keys(d.weeklyReviews).length)}catch{return false}}
+async function importGuest(){if(!account?.userId())return;const targetKey=key,targetStore=photoStore,source=validateBackup(JSON.parse(localStorage.getItem(guestKey)||'null')),sourceStore=makePhotoStore(guestKey+'-photos'),photos=[];for(const ref of collectPhotoRefs(source)){const blob=await sourceStore.get(ref.id);if(!blob)throw Error('기기 기록에 없는 사진이 있어요. 사진이 포함된 JSON 백업을 불러와주세요.');photos.push([ref.id,blob])}if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');await targetStore.putBatch(photos);if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');if(!commit(d=>Object.assign(d,mergeBackup(d,source)),{undo:true,message:'기기 기록을 내 계정에 복사했어요.'}))throw Error('기기 기록을 가져오지 못했어요.')}
+account=createAccount({config:cloudConfig(import.meta.env),sandbox,esc,switchAccount,getContext:cloudContext,importGuest,hasGuest,notify});
+account.start().catch(()=>notify('계정 연결을 확인하지 못했어요. 기기 기록은 그대로 남아 있어요.'));

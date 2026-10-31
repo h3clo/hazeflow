@@ -7,7 +7,7 @@ npm install
 npm run dev
 ```
 
-http://localhost:5173 에서 실행된다. 별도 기기에 자동 동기화되지 않으므로 상단 내보내기에서 JSON 백업을 보관한다.
+http://localhost:5173 에서 실행된다. 로그인 전 기록은 브라우저에 저장한다. 로그인하면 계정별로 기기 간 자동 동기화하며 상단 내보내기로 별도 JSON 백업도 보관할 수 있다.
 
 ## 기본 흐름
 
@@ -44,6 +44,17 @@ AI 초안은 로컬 Vite 서버가 OPENAI_API_KEY를 환경 변수로 받은 경
 
 공개 주소: https://h3clo.github.io/hazeflow/
 
-main에 push하면 GitHub Actions가 검사 및 Vite 빌드 후 Pages에 배포한다. Actions 빌드에서는 base=/hazeflow/를 사용한다. 소스 코드만 공개하며 개인 기록과 사진은 서버로 보내지 않는다. 정적 Pages 버전은 AI 일기 서버를 제공하지 않는다.
+main에 push하면 GitHub Actions가 검사 및 Vite 빌드 후 Pages에 배포한다. Actions 빌드에서는 base=/hazeflow/를 사용한다. 소스 코드만 공개한다. 로그인 전 기록은 기기에 남고, 로그인한 계정의 기록과 사진은 Supabase의 계정별 비공개 저장소에 동기화한다. 정적 Pages 버전은 AI 일기 서버를 제공하지 않는다.
 
-localhost와 GitHub Pages의 브라우저 저장소는 별개다. 기존 기록은 localhost의 내보내기 → 전체 기록·복원용 백업(JSON)을 받은 뒤 새 주소의 백업 불러오기로 이동한다. 사진·즐겨찾기·주간 회고도 포함된다. 기기 간 자동 동기화는 제공하지 않는다.
+localhost와 GitHub Pages의 브라우저 저장소는 별개다. 기존 기록은 localhost의 내보내기 → 전체 기록·복원용 백업(JSON)을 받은 뒤 새 주소의 백업 불러오기로 이동한다. 사진·즐겨찾기·주간 회고도 포함된다. 로그인 후 같은 계정을 사용하는 기기끼리 자동 동기화한다. 로그인 전 기록은 계정 창의 가져오기로 계정에 복사할 수 있다.
+
+## 계정 · 자동 로그인 · 동기화
+
+Supabase Auth 이메일 링크(PKCE), 선택 가능한 로그인 유지 및 세션 자동 갱신을 사용한다. 메일 링크는 요청한 브라우저에서 연다. 기본 메일 서비스는 조직 구성원의 이메일과 낮은 발송 한도만 지원하므로 여러 사용자에게 공개하려면 SMTP 또는 다른 인증 제공자를 별도 설정한다.
+
+- `.env.example`의 공개 URL/publishable key를 로컬 `.env.local` 및 GitHub Actions 변수에 설정한다. secret/service-role 키는 브라우저에 넣지 않는다.
+- `supabase/migrations/202610310001_account_sync.sql`이 기록 테이블·버전 검사 RPC·RLS·비공개 사진 버킷·실시간 알림 publication을 설정한다.
+- 계정 ID별 로컬 저장소/사진 저장소를 분리한다. 로그인 전 기록은 자동 업로드하지 않으며 사용자가 가져오기를 누를 때만 복사한다. 로그아웃 후에도 미전송 계정 기록은 해당 계정 캐시에 남아 재로그인 시 전송한다.
+- 수정 단위별 버전과 3-way merge로 다른 기록·다른 필드 변경을 합친다. 같은 필드의 동시 변경 및 삭제/편집 충돌은 계정 창에서 선택한다. 삭제는 tombstone으로 전달한다.
+- 로컬 저장 직후, 실시간 알림, 앱으로 돌아올 때, 재연결 및 30초 확인으로 동기화한다. 사진을 업로드한 뒤 참조를 저장한다. 서버 응답 유실·전송 중 수정·큰 초기 기록·계정 전환의 지연 응답을 처리한다.
+- `tests/sync.test.js`는 두 기기 왕복·오프라인·동시 수정·세션 보관을 검증하고, `tests/database.test.js`는 실제 PostgreSQL 엔진(PGlite)에서 서버 RPC와 계정/사진 RLS를 검증한다.
