@@ -1,3 +1,4 @@
+import {validAsset} from './assets.js';
 import {validMoney} from './money.js';
 import {validPhotoRefs,photoMarkdown} from './photos.js';
 export const weekdays = ['일','월','화','수','목','금','토'];
@@ -83,7 +84,7 @@ export function workoutSummary(log){
 }
 export function inferKind(text,kind='일상'){if(kind!=='일상')return kind;if(workoutSummary({text}))return '운동';if(/^식사\s/.test(text))return '식사';return kind}
 export function recordsForDate(d,date){
- return [...d.logs.filter(l=>l.date===date),...d.exercises.filter(e=>e.date===date).map(e=>({id:e.id,date:e.date,time:'',kind:'운동',text:`${e.name} · ${e.minutes}분${e.effort?' · '+e.effort:''}${e.note?'\n'+e.note:''}`,legacy:true}))].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+ return [...d.logs.filter(l=>l.date===date&&!l.asset),...d.exercises.filter(e=>e.date===date).map(e=>({id:e.id,date:e.date,time:'',kind:'운동',text:`${e.name} · ${e.minutes}분${e.effort?' · '+e.effort:''}${e.note?'\n'+e.note:''}`,legacy:true}))].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
 }
 // Existing manual records also form activity intervals. Source logs and memos never interrupt them.
 export function activityIntervals(d,now=new Date()){
@@ -115,6 +116,7 @@ export function validateBackup(v){
    if(key==='tasks'&&((x.dueDate===undefined?!isDate(x.date):x.dueDate!==null&&!isDate(x.dueDate))||(x.dueTime!==undefined&&x.dueTime!==''&&(!isTime(x.dueTime)||!x.dueDate))||(x.completedOn!=null&&!isDate(x.completedOn))))throw Error('미리알림 날짜와 시간을 확인해주세요.');
    if(key==='events'&&(!isTime(x.start)||!isTime(x.end)||x.end<=x.start))throw Error('일정 시간이 올바르지 않아요.');
    if(key==='logs'&&((x.memo!==undefined&&typeof x.memo!=='boolean')||((x.endTime||x.endDate)&&(!isTime(x.time)||!isTime(x.endTime)||!isDate(x.endDate)||new Date(x.endDate+'T'+x.endTime)<new Date(x.date+'T'+x.time)))))throw Error('활동 종료 시간을 확인해주세요.');
+   if(key==='logs'&&x.asset!==undefined&&(!validAsset(x.asset)||x.kind!=='자산'||!x.memo||x.money!==undefined))throw Error('자산 잔액 기록을 확인해주세요.');
    if(key==='logs'&&x.money!==undefined&&(!validMoney(x.money)||(!x.memo&&x.kind!=='식사')||(x.kind==='식사'&&x.money.type!=='expense')))throw Error('가계부 거래 형식을 확인해주세요.');
    if(key==='logs'&&!validPhotoRefs(x.photos))throw Error('사진 정보를 확인해주세요.');
    if(key==='logs'&&(!(x.time===''||isTime(x.time))||!str(x.text)||!str(x.kind)))throw Error('활동 기록이 올바르지 않아요.');
@@ -141,10 +143,12 @@ export function dayDocument(d,date){
  section('일정 · 계획',d.events.filter(e=>e.date===date).sort((a,b)=>a.start.localeCompare(b.start)).map(e=>`- ${e.start}–${e.end} ${e.title} (${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[e.status]||'예정'})${e.actualStart?' · 실제 시작 '+e.actualStart:''}${e.actualEnd?' · 실제 완료 '+e.actualEnd:''}`));
  section('루틴 · 반복 계획과 실행',routinesForDate(d,date).map(r=>`### ${r.time||'시간 미정'} ${r.title} · ${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[r.run?.status]||'아직 실행 기록 없음'}\n\n${r.steps.map(s=>`- [${r.run?.checked.includes(s.id)?'x':' '}] ${s.title}${s.minutes?' · '+s.minutes+'분':''}`).join('\n')}\n`));
  section('미리알림',d.tasks.filter(t=>t.dueDate===date||t.completedOn===date).map(t=>`- [${t.done?'x':' '}] ${t.title}${t.dueTime?' · '+t.dueTime:''}${t.dueDate?' · 기한 '+t.dueDate:' · 기한 없음'}${t.note?'\n  '+t.note:''}`));
+ section('자산 잔액 기록',d.logs.filter(l=>l.date===date&&l.asset).map(l=>'- '+l.text));
  section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${l.kind}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
  if(d.life[date]?.bodyPhotos?.length)section('인바디 결과지',[photoMarkdown(d.life[date].bodyPhotos)]);
  section('생활 기록',Object.entries(d.life[date]||{}).filter(([k,v])=>k!=='bodyPhotos'&&v!==''&&v!=null).map(([k,v])=>`- ${lifeLabels[k]||k}: ${v}`));
- const diary=d.diary[date];if(diary)section('일기',[diary.mood?'기분: '+({great:'좋았어',okay:'평온해',tired:'지쳤어',hard:'힘들었어'}[diary.mood]||diary.mood):'',diary.note||'',diary.entry||'',photoMarkdown(diary.photos)].filter(Boolean));
+ const diary=d.diary[date];if(diary){if(diary.closedDay)section('하루 마감',['마감 표시됨']);if(diary.tomorrow)section('내일 기억할 일',[diary.tomorrow]);section('일기',[diary.mood?'기분: '+({great:'좋았어',okay:'평온해',tired:'지쳤어',hard:'힘들었어'}[diary.mood]||diary.mood):'',diary.note||'',diary.entry||'',photoMarkdown(diary.photos)].filter(Boolean));}
+
  if(out.length===2)out.push('저장된 기록이 없어요.');return out.join('\n');
 }
 

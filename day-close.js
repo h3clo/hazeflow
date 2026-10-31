@@ -1,0 +1,10 @@
+import {recordsForDate,routinesForDate,activityIntervals} from './domain.js';
+import {workoutSession} from './workout.js';
+import {collectPhotoRefs} from './photos.js';
+import {shiftDate} from './insights.js';
+export function dayCloseSummary(d,date,now=new Date()){
+ const records=recordsForDate(d,date),manual=records.filter(l=>!l.sourceId),events=d.events.filter(e=>e.date===date),routines=routinesForDate(d,date),workouts=manual.filter(l=>l.kind==='운동'),sessions=workouts.map(l=>workoutSession(l.text)),intervals=activityIntervals(d,now),ongoing=manual.filter(l=>intervals.get(l.id)?.ongoing),diary=d.diary[date]||{};
+ const life=Object.fromEntries(['weight','muscle','fat','fatPercent','sleep','energy','stress'].filter(k=>d.life[date]?.[k]!==undefined&&d.life[date]?.[k]!==''&&d.life[date]?.[k]!==null).map(k=>[k,d.life[date][k]]));
+ return {life,date,meals:manual.filter(l=>l.kind==='식사').length,workouts:workouts.length,exercises:sessions.reduce((n,s)=>n+s.exercises.length,0),sets:sessions.reduce((n,s)=>n+s.sets,0),cardioMinutes:sessions.reduce((n,s)=>n+s.cardioMinutes,0),expense:manual.filter(l=>l.money?.type==='expense').reduce((n,l)=>n+l.money.amount,0),photos:collectPhotoRefs(d,[date]).length,events:{total:events.length,done:events.filter(e=>e.status==='done').length,pending:events.filter(e=>!['done','skipped'].includes(e.status)).length},routines:{total:routines.length,done:routines.filter(r=>r.run?.status==='done').length},ongoing,untimed:manual.filter(l=>!l.time&&!l.money).length,closed:!!diary.closedDay,tomorrow:diary.tomorrow||''};
+}
+export function addTomorrowReminder(d,date,title,id){const text=String(title||'').trim();if(!text)throw Error('내일 기억할 일을 먼저 적어주세요.');if(text.length>200)throw Error('미리알림은 200자 이내로 적어주세요.');const origin='day-close:'+date;if(d.tasks.some(t=>t.origin===origin))return false;const dueDate=shiftDate(date,1);d.tasks.push({id,title:text,note:'하루 마감에서 남긴 일',listName:'미리알림',dueDate,date:dueDate,dueTime:'',flagged:false,done:false,createdOn:date,completedOn:null,origin});return true;}

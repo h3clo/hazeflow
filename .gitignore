@@ -10,3 +10,6 @@ docs/*.png
 *.zip
 haze-flow-backup-*.json
 docs/conversation-review.md
+
+/public/ocr/
+/public/qa-*

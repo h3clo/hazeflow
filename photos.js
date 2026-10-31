@@ -27,11 +27,11 @@ async function timed(promise,message,ms=30000){let timer;try{return await Promis
 async function loadPhoto(blob){const url=URL.createObjectURL(blob),image=new Image();try{image.src=url;await timed(image.decode(),'사진을 읽는 시간이 길어졌어요. 다시 선택해주세요.');return image}finally{URL.revokeObjectURL(url)}}
 export async function preparePhoto(file,onProgress=()=>{}){
  if(file.size>25*1024*1024)throw Error('사진 한 장은 25MB 이하로 선택해주세요.');
- const type=await photoFormat(file);let image;
- try{image=await loadPhoto(new Blob([file],{type}))}catch(error){if(!['image/heic','image/heif'].includes(type))throw Error('사진을 열지 못했어요. 다른 JPEG·PNG 사진으로 다시 시도해주세요.');onProgress('아이폰 사진을 변환하고 있어요…');try{const {heicTo}=await import('heic-to/csp');const converted=await timed(heicTo({blob:file,type:'image/jpeg',quality:.85}),'아이폰 사진 변환 시간이 길어졌어요. JPEG로 저장한 사진으로 다시 시도해주세요.',60000);image=await loadPhoto(converted)}catch{throw Error('아이폰 사진을 변환하지 못했어요. 사진 앱에서 JPEG로 저장한 사진으로 다시 시도해주세요.');}}
+ const type=await photoFormat(file);let image,ocrBlob=file;
+ try{image=await loadPhoto(new Blob([file],{type}))}catch(error){if(!['image/heic','image/heif'].includes(type))throw Error('사진을 열지 못했어요. 다른 JPEG·PNG 사진으로 다시 시도해주세요.');onProgress('아이폰 사진을 변환하고 있어요…');try{const {heicTo}=await import('heic-to/csp');const converted=await timed(heicTo({blob:file,type:'image/jpeg',quality:.85}),'아이폰 사진 변환 시간이 길어졌어요. JPEG로 저장한 사진으로 다시 시도해주세요.',60000);ocrBlob=converted;image=await loadPhoto(converted)}catch{throw Error('아이폰 사진을 변환하지 못했어요. 사진 앱에서 JPEG로 저장한 사진으로 다시 시도해주세요.');}}
  if(!image.naturalWidth||image.naturalWidth*image.naturalHeight>50000000)throw Error('사진 크기가 너무 커요.');
  const scale=Math.min(1,1600/Math.max(image.naturalWidth,image.naturalHeight)),width=Math.max(1,Math.round(image.naturalWidth*scale)),height=Math.max(1,Math.round(image.naturalHeight*scale)),canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
- try{const ctx=canvas.getContext('2d');if(!ctx)throw Error('사진 처리 메모리가 부족해요. 한 장씩 다시 선택해주세요.');ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.drawImage(image,0,0,width,height);const blob=await timed(new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.83)),'사진 저장 준비가 지연됐어요. 한 장씩 다시 선택해주세요.');if(!blob||blob.size>3*1024*1024)throw Error('사진을 처리하지 못했어요. 더 작은 사진으로 시도해주세요.');const id=typeof crypto.randomUUID==='function'?crypto.randomUUID():'photo-'+[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');return {blob,ref:{id,name:file.name.slice(0,300),type:'image/jpeg',width,height,bytes:blob.size}};}finally{canvas.width=1;canvas.height=1;image.src='';}
+ try{const ctx=canvas.getContext('2d');if(!ctx)throw Error('사진 처리 메모리가 부족해요. 한 장씩 다시 선택해주세요.');ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.drawImage(image,0,0,width,height);const blob=await timed(new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.83)),'사진 저장 준비가 지연됐어요. 한 장씩 다시 선택해주세요.');if(!blob||blob.size>3*1024*1024)throw Error('사진을 처리하지 못했어요. 더 작은 사진으로 시도해주세요.');const id=typeof crypto.randomUUID==='function'?crypto.randomUUID():'photo-'+[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');return {blob,ocrBlob,ref:{id,name:file.name.slice(0,300),type:'image/jpeg',width,height,bytes:blob.size}};}finally{canvas.width=1;canvas.height=1;image.src='';}
 }
 
 export async function blobDataURL(blob){const bytes=new Uint8Array(await blob.arrayBuffer());let binary='';for(let i=0;i<bytes.length;i+=16384)binary+=String.fromCharCode(...bytes.subarray(i,i+16384));return `data:image/jpeg;base64,${btoa(binary)}`}
@@ -42,3 +42,5 @@ export function decodePhotoBundle(payload,refs){
  result.push([ref.id,new Blob([Uint8Array.from(binary,c=>c.charCodeAt(0))],{type:'image/jpeg'})]);
  }return result;
 }
+
+export async function photoStage(promise,message,ms=45000){let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(message)),ms)})])}finally{clearTimeout(timer)}}
