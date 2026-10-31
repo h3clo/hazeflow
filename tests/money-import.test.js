@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {parseMoneyCSV,planMoneyImport,moneyCSV} from '../money.js';
+const today='2026-10-31',csv='결제일,유형,상호명,금액,카테고리,결제수단,기타\n2025. 8. 17.,지출,"카페, 서울","5,800",카페/간식,카드,원본 링크';
+test('기존 가계부 열 이름·날짜·따옴표를 읽고 제외한 열을 알린다',()=>{const result=parseMoneyCSV(csv,today);assert.equal(result.rows[0].date,'2025-08-17');assert.equal(result.rows[0].money.merchant,'카페, 서울');assert.equal(result.rows[0].money.amount,5800);assert.deepEqual(result.ignored,['기타'])});
+test('잘못된 날짜·미래·외화·음수·잘못된 열과 숫자를 거부한다',()=>{for(const c of ['날짜,상호명,금액\n2026-02-30,카페,100','날짜,상호명,금액\n2027-01-01,카페,100','날짜,상호명,금액,통화\n2026-10-31,카페,100,USD','날짜,상호명,금액\n2026-10-31,카페,-100','날짜,상호명,금액\n2026-10-31,카페,5,800','날짜,상호명,금액\n0099-01-01,카페,100','날짜,금액\n2026-10-31,100'])assert.throws(()=>parseMoneyCSV(c,today))});
+test('재가져오기와 파일 안의 중복을 건너뛰고 명시적으로 중복을 허용할 수 있다',()=>{const rows=parseMoneyCSV(csv,today).rows,logs=[{id:'old',...rows[0]}],before=structuredClone(logs);assert.equal(planMoneyImport(logs,rows).skipped,1);assert.equal(planMoneyImport([],rows.concat(rows)).accepted.length,1);assert.equal(planMoneyImport(logs,rows,true).accepted.length,1);assert.deepEqual(logs,before)});
+test('내보낸 원화 CSV를 다시 읽어 거래 내용을 보존한다',()=>{const rows=parseMoneyCSV(csv,today).rows,round=parseMoneyCSV(moneyCSV(rows),today).rows;assert.deepEqual(round,rows);assert.equal(parseMoneyCSV('date,merchant,amount\n2026-10-31,카페,100',today).rows[0].money.type,'expense')});
