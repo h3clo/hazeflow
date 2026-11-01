@@ -179,7 +179,7 @@ document.addEventListener('click',async e=>{
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.view){view=b.dataset.view;if(view==='compare'&&date>todayKey())date=todayKey();render();return}
  const act=b.dataset.act,id=b.dataset.id;
- 
+
  if(act==='market-chart'){marketChart(id);return}if(act==='refresh-quotes'){if(!assetSummary(data.logs,todayKey()).accounts.some(r=>r.asset.holding?.market==='COIN'))notify('먼저 보유 코인을 추가해주세요.');else await refreshQuotes();return}if(act==='new-holding'){assetEditor('','',true);return}
  if(act==='read-saved-photo'){await rereadPhoto(id,b.dataset.target,b.dataset.read);return}
  if(act==='choose-photo'){if(b.dataset.target==='capture')rememberCapture();photoPicker.open({target:b.dataset.target,read:b.dataset.read||'',source:b.dataset.source,photoKey:key,k:date,token:editorPhotoToken});return}if(!act)return;
