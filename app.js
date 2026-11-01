@@ -1,3 +1,4 @@
+import {setupNative} from './native-app.js';
 import {isGoalTask,planTasks} from './planning.js';
 import {holdingMarkets,validHolding,holdingSymbol,netChartPoints,coinQuotes,mountMarketChart} from './investments.js';
 import {whiteboardTasks} from './whiteboard.js';
@@ -345,7 +346,7 @@ function cloudContext(){const accountKey=key,store=photoStore;return {photoStore
 function hasGuest(){try{const raw=localStorage.getItem(guestKey);if(!raw)return false;const d=validateBackup(JSON.parse(raw));return !!(recordedDates(d).length||d.tasks.length||d.routineTemplates.length||d.favorites.length||Object.keys(d.weeklyReviews).length)}catch{return false}}
 async function importGuest(){if(!account?.userId())return;const targetKey=key,targetStore=photoStore,source=validateBackup(JSON.parse(localStorage.getItem(guestKey)||'null')),sourceStore=makePhotoStore(guestKey+'-photos'),photos=[];for(const ref of collectPhotoRefs(source)){const blob=await sourceStore.get(ref.id);if(!blob)throw Error('기기 기록에 없는 사진이 있어요. 사진이 포함된 JSON 백업을 불러와주세요.');photos.push([ref.id,blob])}if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');await targetStore.putBatch(photos);if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');if(!commit(d=>Object.assign(d,mergeBackup(d,source)),{undo:true,message:'기기 기록을 내 계정에 복사했어요.'}))throw Error('기기 기록을 가져오지 못했어요.')}
 account=createAccount({config:cloudConfig(import.meta.env),sandbox,esc,switchAccount,getContext:cloudContext,importGuest,hasGuest,notify});
-account.start().catch(()=>notify('계정 연결을 확인하지 못했어요. 기기 기록은 그대로 남아 있어요.'));
+const accountReady=account.start().catch(()=>notify('계정 연결을 확인하지 못했어요. 기기 기록은 그대로 남아 있어요.'));
 
 document.addEventListener('toggle',e=>{const target=e.target;if(!target.matches?.('.activity-record-list'))return;activityListOpen=target.open;const label=target.querySelector('summary small');if(label)label.textContent=target.dataset.count+'건 · '+(target.open?'접기':'펼치기')},true);
 
@@ -362,3 +363,5 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&view==='tasks'&&whi
 window.addEventListener('popstate',()=>{whiteboardMode=['#whiteboard','#whiteboard-all'].includes(location.hash);if(whiteboardMode){view='tasks';whiteboardScope=location.hash==='#whiteboard-all'?'all':'today'}else if(view==='tasks')whiteboardMode=false;render()});
 
 setInterval(()=>{if(view==='assets'&&!document.hidden)refreshQuotes()},30000);
+
+setupNative({onUrl:async url=>{await accountReady;await account?.handleAuthUrl(url)},onResume:()=>account?.resume(),onPause:()=>account?.pause(),getBackState:()=>({dialogOpen:!!document.querySelector('dialog[open]'),whiteboard:view==='tasks'&&whiteboardMode,view}),onBack(action){if(action==='close-dialog')document.querySelector('dialog[open]')?.close();else if(action==='leave-board'){whiteboardMode=false;render()}else{view='day';render()}},onError:()=>notify('앱 상태 연결을 확인하지 못했어요. 기록은 기기에 저장돼요.')});

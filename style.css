@@ -110,3 +110,7 @@ body:has(#market-chart) #editor{width:min(1000px,95vw);max-width:1000px}
 .market-unavailable{height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:rgba(128,150,140,.08);padding:25px;border-radius:12px}.market-unavailable h3{font-size:18px}
 .calendar-routine{font-size:10px;border:0;background:transparent;color:var(--muted);padding:5px 2px;display:block}
 @media(max-width:700px){.calendar-event,.calendar-task,.calendar-routine{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.calendar-event small{display:block}.calendar-cell{min-height:92px}.plan-calendar{margin-top:20px}}
+/* Native webview safe areas */
+body.native-app{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+body.native-app dialog{max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px)}
+@media(max-width:760px){body.native-app nav{padding-bottom:max(8px,env(safe-area-inset-bottom))}body.native-app main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}}

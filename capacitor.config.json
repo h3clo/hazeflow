@@ -1,0 +1,7 @@
+{
+  "appId": "io.h3clo.hazeflow",
+  "appName": "Haze Flow",
+  "webDir": "dist",
+  "ios": {"contentInset": "automatic"},
+  "android": {"allowMixedContent": false}
+}

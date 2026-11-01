@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 export default defineConfig({
-  base: process.env.GITHUB_ACTIONS ? "/hazeflow/" : "/",
+  base: process.env.HAZEFLOW_NATIVE === "1" ? "/" : process.env.GITHUB_ACTIONS ? "/hazeflow/" : "/",
   build: { rollupOptions: { input: { main: "index.html", designs: "design-samples.html" } } },
   plugins: [{
     name: 'haze-journal-ai',

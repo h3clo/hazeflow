@@ -13,3 +13,10 @@ docs/conversation-review.md
 
 /public/ocr/
 /public/qa-*
+
+# Native signing and machine-local configuration
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+qa-auth.html
