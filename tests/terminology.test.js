@@ -1,0 +1,5 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {recordKindLabel,dayDocument,emptyState} from '../domain.js';
+test('이전 reminder 분류도 저장값을 바꾸지 않고 같은 이름으로 표시·내보낸다',()=>{for(const kind of ['미리알림','Reminder','reminder','할 일']){assert.equal(recordKindLabel(kind),'할 일');const d=emptyState();d.logs.push({id:'old',date:'2026-11-01',time:'09:00',kind,text:'장보기 완료',memo:true});assert.match(dayDocument(d,'2026-11-01'),/· 할 일/);assert.equal(d.logs[0].kind,kind)}assert.equal(recordKindLabel('운동'),'운동')});
+test('기본 목록의 옛 이름을 통합할 때 할 일 내용과 완료 정보는 보존한다',async()=>{const {migrate}=await import('../domain.js');for(const listName of ['reminder','Reminder','미리알림']){const d=emptyState();d.tasks.push({id:'existing',title:'장보기',listName,dueDate:'2026-11-01',date:'2026-11-01',done:true,completedOn:'2026-11-01'});const t=migrate(d).tasks[0];assert.equal(t.listName,'할 일');assert.equal(t.id,'existing');assert.equal(t.title,'장보기');assert.equal(t.done,true);assert.equal(t.completedOn,'2026-11-01')}});

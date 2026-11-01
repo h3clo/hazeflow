@@ -1,3 +1,4 @@
+import {validWorkoutFeedback} from './workout-feedback.js';
 import {validAsset} from './assets.js';
 import {validMoney} from './money.js';
 import {validPhotoRefs,photoMarkdown} from './photos.js';
@@ -22,7 +23,7 @@ export function migrate(input){
  if(input.schemaVersion!==2)for(const l of d.logs){if(!l.eventId||l.sourceId)continue;const e=d.events.find(e=>e.id===l.eventId);if(!e)continue;if(l.text===e.title+' 시작'){l.sourceId='event-start:'+e.id;e.actualStart=l.time||undefined;}if(l.text===e.title+' 완료'){l.sourceId='event-end:'+e.id;e.actualEnd=l.time||undefined;}}
  for(const t of d.tasks){
   if(t.dueDate===undefined)t.dueDate=t.date||null;
-  t.dueTime??='';t.note??='';t.listName??='reminder';if(['미리알림','Reminder'].includes(t.listName))t.listName='reminder';t.flagged??=false;
+  t.dueTime??='';t.note??='';t.listName??='할 일';if(['미리알림','Reminder','reminder'].includes(t.listName))t.listName='할 일';t.flagged??=false;
   if(t.completedOn===undefined)t.completedOn=t.done?(t.date||null):null;
   t.date=t.dueDate;
  }
@@ -112,12 +113,13 @@ export function validateBackup(v){
   for(const x of v[key]||[]){if(!plain(x)||!safeId(x.id))throw Error('기록 식별자가 올바르지 않아요.');
    if(!['routines','tasks'].includes(key)&&!isDate(x.date))throw Error('기록 날짜가 올바르지 않아요.');
    if(['events','tasks','routines'].includes(key)&&!str(x.title))throw Error('제목이 없어요.');
-   if(key==='tasks'&&(['note','listName'].some(k=>x[k]!==undefined&&!str(x[k]))||['flagged','done'].some(k=>x[k]!==undefined&&typeof x[k]!=='boolean')))throw Error('미리알림 내용 형식을 확인해주세요.');
-   if(key==='tasks'&&((x.dueDate===undefined?!isDate(x.date):x.dueDate!==null&&!isDate(x.dueDate))||(x.dueTime!==undefined&&x.dueTime!==''&&(!isTime(x.dueTime)||!x.dueDate))||(x.completedOn!=null&&!isDate(x.completedOn))))throw Error('미리알림 날짜와 시간을 확인해주세요.');
+   if(key==='tasks'&&(['note','listName'].some(k=>x[k]!==undefined&&!str(x[k]))||['flagged','done'].some(k=>x[k]!==undefined&&typeof x[k]!=='boolean')))throw Error('할 일 내용 형식을 확인해주세요.');
+   if(key==='tasks'&&((x.dueDate===undefined?!isDate(x.date):x.dueDate!==null&&!isDate(x.dueDate))||(x.dueTime!==undefined&&x.dueTime!==''&&(!isTime(x.dueTime)||!x.dueDate))||(x.completedOn!=null&&!isDate(x.completedOn))))throw Error('할 일 날짜와 시간을 확인해주세요.');
    if(key==='events'&&(!isTime(x.start)||!isTime(x.end)||x.end<=x.start))throw Error('일정 시간이 올바르지 않아요.');
    if(key==='logs'&&((x.memo!==undefined&&typeof x.memo!=='boolean')||((x.endTime||x.endDate)&&(!isTime(x.time)||!isTime(x.endTime)||!isDate(x.endDate)||new Date(x.endDate+'T'+x.endTime)<new Date(x.date+'T'+x.time)))))throw Error('활동 종료 시간을 확인해주세요.');
    if(key==='logs'&&x.asset!==undefined&&(!validAsset(x.asset)||x.kind!=='자산'||!x.memo||x.money!==undefined))throw Error('자산 잔액 기록을 확인해주세요.');
    if(key==='logs'&&x.money!==undefined&&(!validMoney(x.money)||(!x.memo&&x.kind!=='식사')||(x.kind==='식사'&&x.money.type!=='expense')))throw Error('가계부 거래 형식을 확인해주세요.');
+   if(key==='logs'&&x.workoutFeedback!==undefined&&!validWorkoutFeedback(x.workoutFeedback))throw Error('운동 느낌 기록을 확인해주세요.');
    if(key==='logs'&&!validPhotoRefs(x.photos))throw Error('사진 정보를 확인해주세요.');
    if(key==='logs'&&(!(x.time===''||isTime(x.time))||!str(x.text)||!str(x.kind)))throw Error('활동 기록이 올바르지 않아요.');
    if(key==='exercises'&&(!str(x.name)||!Number.isFinite(+x.minutes)||+x.minutes<=0))throw Error('운동 기록이 올바르지 않아요.');
@@ -137,14 +139,15 @@ export function mergeBackup(current,incoming){
  for(const [date,runs]of Object.entries(source.routineRuns))result.routineRuns[date]={...runs,...result.routineRuns[date]};
  return result;
 }
-export const lifeLabels={bed:'취침',wake:'기상',sleep:'수면 만족도',energy:'기운',mood:'감정',stress:'스트레스',trigger:'마음에 남은 일',care:'나에게 필요한 것',breakfast:'아침',lunch:'점심',dinner:'저녁',snack:'간식',water:'물 (ml)',weight:'체중 (kg)',muscle:'골격근량 (kg)',fat:'체지방량 (kg)',fatPercent:'체지방률 (%)',condition:'컨디션',progress:'운동 변화',focus:'집중한 일',study:'집중 시간 (분)',next:'다음 행동',home:'살림',people:'관계',expense:'지출 (원)',other:'메모'};
+export const lifeLabels={height:'키 (cm)',fitnessGoal:'운동 목표',bed:'취침',wake:'기상',sleep:'수면 만족도',energy:'기운',mood:'감정',stress:'스트레스',trigger:'마음에 남은 일',care:'나에게 필요한 것',breakfast:'아침',lunch:'점심',dinner:'저녁',snack:'간식',water:'물 (ml)',weight:'체중 (kg)',muscle:'골격근량 (kg)',fat:'체지방량 (kg)',fatPercent:'체지방률 (%)',condition:'컨디션',progress:'운동 변화',focus:'집중한 일',study:'집중 시간 (분)',next:'다음 행동',home:'살림',people:'관계',expense:'지출 (원)',other:'메모'};
+export const recordKindLabel=kind=>['미리알림','Reminder','reminder','할 일'].includes(kind)?'할 일':kind;
 export function dayDocument(d,date){
  const out=[`# ${date} · Haze Flow`,''],section=(name,rows)=>{if(rows.length)out.push(`## ${name}`,'',...rows,'')};
  section('일정 · 계획',d.events.filter(e=>e.date===date).sort((a,b)=>a.start.localeCompare(b.start)).map(e=>`- ${e.start}–${e.end} ${e.title} (${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[e.status]||'예정'})${e.actualStart?' · 실제 시작 '+e.actualStart:''}${e.actualEnd?' · 실제 완료 '+e.actualEnd:''}`));
  section('루틴 · 반복 계획과 실행',routinesForDate(d,date).map(r=>`### ${r.time||'시간 미정'} ${r.title} · ${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[r.run?.status]||'아직 실행 기록 없음'}\n\n${r.steps.map(s=>`- [${r.run?.checked.includes(s.id)?'x':' '}] ${s.title}${s.minutes?' · '+s.minutes+'분':''}`).join('\n')}\n`));
- section('Reminder',d.tasks.filter(t=>t.dueDate===date||t.completedOn===date).map(t=>`- [${t.done?'x':' '}] ${t.title}${t.dueTime?' · '+t.dueTime:''}${t.dueDate?' · 기한 '+t.dueDate:' · 기한 없음'}${t.note?'\n  '+t.note:''}`));
+ section('할 일',d.tasks.filter(t=>t.dueDate===date||t.completedOn===date).map(t=>`- [${t.done?'x':' '}] ${t.title}${t.dueTime?' · '+t.dueTime:''}${t.dueDate?' · 기한 '+t.dueDate:' · 기한 없음'}${t.note?'\n  '+t.note:''}`));
  section('자산 잔액 기록',d.logs.filter(l=>l.date===date&&l.asset).map(l=>'- '+l.text));
- section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${l.kind}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
+ section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${recordKindLabel(l.kind)}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:''):''}${l.workoutFeedback?'\n\n운동 느낌: 자극 '+(l.workoutFeedback.muscles.join(' · ')||'미입력')+(l.workoutFeedback.effort?' · 힘듦 '+l.workoutFeedback.effort+'/5':'')+(l.workoutFeedback.soreness?' · 근육통 '+l.workoutFeedback.soreness:'')+(l.workoutFeedback.note?'\n'+l.workoutFeedback.note:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
  if(d.life[date]?.bodyPhotos?.length)section('인바디 결과지',[photoMarkdown(d.life[date].bodyPhotos)]);
  section('생활 기록',Object.entries(d.life[date]||{}).filter(([k,v])=>k!=='bodyPhotos'&&v!==''&&v!=null).map(([k,v])=>`- ${lifeLabels[k]||k}: ${v}`));
  const diary=d.diary[date];if(diary){if(diary.closedDay)section('하루 마감',['마감 표시됨']);if(diary.tomorrow)section('내일 기억할 일',[diary.tomorrow]);section('일기',[diary.mood?'기분: '+({great:'좋았어',okay:'평온해',tired:'지쳤어',hard:'힘들었어'}[diary.mood]||diary.mood):'',diary.note||'',diary.entry||'',photoMarkdown(diary.photos)].filter(Boolean));}
@@ -164,4 +167,4 @@ export function taskMatches(t,scope,day=todayKey()){
 export function taskComplete(d,id,done,day,time){const t=d.tasks.find(t=>t.id===id);if(!t)return;t.done=done;t.completedOn=done?day:null;syncLog(d,'task:'+id,done?{date:day,time,kind:'미리알림',text:t.title+' 완료'}:null)}
 export function sortTasks(tasks){return [...tasks].sort((a,b)=>Number(!!a.done)-Number(!!b.done)||(a.dueDate||'9999-12-31').localeCompare(b.dueDate||'9999-12-31')||(a.dueTime||'99:99').localeCompare(b.dueTime||'99:99')||Number(!!b.flagged)-Number(!!a.flagged))}
 
-export function allDocument(d){const dates=recordedDates(d),undated=d.tasks.filter(t=>!t.dueDate);const sections=[];if(d.favorites.length)sections.push('# 식사·운동 즐겨찾기\n\n'+d.favorites.map(t=>`## ${t.kind} · ${t.title}\n\n${t.text}`).join('\n\n'));for(const [week,r]of Object.entries(d.weeklyReviews).sort(([a],[b])=>a.localeCompare(b)))sections.push(`# ${week} 주간 회고\n\n`+[['remember','기억할 것'],['adjust','바꾸고 싶은 것'],['next','다음 주 나에게']].filter(([k])=>r[k]).map(([k,title])=>`## ${title}\n\n${r[k]}`).join('\n\n'));if(undated.length)sections.push('# 기한 없는 Reminder\n\n'+undated.map(t=>`- [${t.done?'x':' '}] ${t.title} · ${t.listName}${t.note?'\n  '+t.note:''}`).join('\n'));sections.push(...dates.map(k=>dayDocument(d,k)));return sections.length?sections.join('\n\n---\n\n'):'# Haze Flow\n\n저장된 기록이 없어요.'}
+export function allDocument(d){const dates=recordedDates(d),undated=d.tasks.filter(t=>!t.dueDate);const sections=[];if(d.favorites.length)sections.push('# 식사·운동 즐겨찾기\n\n'+d.favorites.map(t=>`## ${t.kind} · ${t.title}\n\n${t.text}`).join('\n\n'));for(const [week,r]of Object.entries(d.weeklyReviews).sort(([a],[b])=>a.localeCompare(b)))sections.push(`# ${week} 주간 회고\n\n`+[['remember','기억할 것'],['adjust','바꾸고 싶은 것'],['next','다음 주 나에게']].filter(([k])=>r[k]).map(([k,title])=>`## ${title}\n\n${r[k]}`).join('\n\n'));if(undated.length)sections.push('# 기한 없는 할 일\n\n'+undated.map(t=>`- [${t.done?'x':' '}] ${t.title} · ${t.listName}${t.note?'\n  '+t.note:''}`).join('\n'));sections.push(...dates.map(k=>dayDocument(d,k)));return sections.length?sections.join('\n\n---\n\n'):'# Haze Flow\n\n저장된 기록이 없어요.'}

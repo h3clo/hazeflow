@@ -1,5 +1,5 @@
 import {createClient} from '@supabase/supabase-js';
-export function cloudConfig(env={}){const url=env.VITE_SUPABASE_URL,key=env.VITE_SUPABASE_PUBLISHABLE_KEY;if(typeof url!=='string'||!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)||typeof key!=='string')return null;let publicKey=key.startsWith('sb_publishable_');if(key.startsWith('eyJ')){try{publicKey=JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='anon'}catch{}}return publicKey?{url,key}:null}
+export {cloudConfig} from './cloud-config.js';
 export function authStorage(local,temporary,preferenceKey='hazeflow-remember'){
  let remember=local.getItem(preferenceKey)!=='false';
  return {getItem(key){return local.getItem(key)||temporary.getItem(key)},setItem(key,value){local.removeItem(key);temporary.removeItem(key);(remember||key.endsWith('-code-verifier')?local:temporary).setItem(key,value)},removeItem(key){local.removeItem(key);temporary.removeItem(key)},setRemember(value){remember=!!value;local.setItem(preferenceKey,String(remember))},remember:()=>remember};
