@@ -15,7 +15,9 @@
     "app:sync": "npm run build:app && cap sync",
     "app:ios": "cap open ios",
     "app:android": "cap open android",
-    "toss:local": "node server/toss-server.mjs"
+    "toss:local": "node server/toss-server.mjs",
+    "toss:publish": "node server/toss-publisher.mjs --once",
+    "toss:background": "node scripts/install-toss-agent.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.0",

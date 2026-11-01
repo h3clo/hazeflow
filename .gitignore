@@ -20,3 +20,7 @@ docs/conversation-review.md
 *.p12
 *.mobileprovision
 qa-auth.html
+.toss-publisher-status.json
+.toss-publisher-status.tmp
+
+/qa-*.html
