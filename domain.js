@@ -22,7 +22,7 @@ export function migrate(input){
  if(input.schemaVersion!==2)for(const l of d.logs){if(!l.eventId||l.sourceId)continue;const e=d.events.find(e=>e.id===l.eventId);if(!e)continue;if(l.text===e.title+' 시작'){l.sourceId='event-start:'+e.id;e.actualStart=l.time||undefined;}if(l.text===e.title+' 완료'){l.sourceId='event-end:'+e.id;e.actualEnd=l.time||undefined;}}
  for(const t of d.tasks){
   if(t.dueDate===undefined)t.dueDate=t.date||null;
-  t.dueTime??='';t.note??='';t.listName??='미리알림';t.flagged??=false;
+  t.dueTime??='';t.note??='';t.listName??='reminder';if(['미리알림','Reminder'].includes(t.listName))t.listName='reminder';t.flagged??=false;
   if(t.completedOn===undefined)t.completedOn=t.done?(t.date||null):null;
   t.date=t.dueDate;
  }
@@ -142,7 +142,7 @@ export function dayDocument(d,date){
  const out=[`# ${date} · Haze Flow`,''],section=(name,rows)=>{if(rows.length)out.push(`## ${name}`,'',...rows,'')};
  section('일정 · 계획',d.events.filter(e=>e.date===date).sort((a,b)=>a.start.localeCompare(b.start)).map(e=>`- ${e.start}–${e.end} ${e.title} (${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[e.status]||'예정'})${e.actualStart?' · 실제 시작 '+e.actualStart:''}${e.actualEnd?' · 실제 완료 '+e.actualEnd:''}`));
  section('루틴 · 반복 계획과 실행',routinesForDate(d,date).map(r=>`### ${r.time||'시간 미정'} ${r.title} · ${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[r.run?.status]||'아직 실행 기록 없음'}\n\n${r.steps.map(s=>`- [${r.run?.checked.includes(s.id)?'x':' '}] ${s.title}${s.minutes?' · '+s.minutes+'분':''}`).join('\n')}\n`));
- section('미리알림',d.tasks.filter(t=>t.dueDate===date||t.completedOn===date).map(t=>`- [${t.done?'x':' '}] ${t.title}${t.dueTime?' · '+t.dueTime:''}${t.dueDate?' · 기한 '+t.dueDate:' · 기한 없음'}${t.note?'\n  '+t.note:''}`));
+ section('Reminder',d.tasks.filter(t=>t.dueDate===date||t.completedOn===date).map(t=>`- [${t.done?'x':' '}] ${t.title}${t.dueTime?' · '+t.dueTime:''}${t.dueDate?' · 기한 '+t.dueDate:' · 기한 없음'}${t.note?'\n  '+t.note:''}`));
  section('자산 잔액 기록',d.logs.filter(l=>l.date===date&&l.asset).map(l=>'- '+l.text));
  section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${l.kind}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
  if(d.life[date]?.bodyPhotos?.length)section('인바디 결과지',[photoMarkdown(d.life[date].bodyPhotos)]);
@@ -164,4 +164,4 @@ export function taskMatches(t,scope,day=todayKey()){
 export function taskComplete(d,id,done,day,time){const t=d.tasks.find(t=>t.id===id);if(!t)return;t.done=done;t.completedOn=done?day:null;syncLog(d,'task:'+id,done?{date:day,time,kind:'미리알림',text:t.title+' 완료'}:null)}
 export function sortTasks(tasks){return [...tasks].sort((a,b)=>Number(!!a.done)-Number(!!b.done)||(a.dueDate||'9999-12-31').localeCompare(b.dueDate||'9999-12-31')||(a.dueTime||'99:99').localeCompare(b.dueTime||'99:99')||Number(!!b.flagged)-Number(!!a.flagged))}
 
-export function allDocument(d){const dates=recordedDates(d),undated=d.tasks.filter(t=>!t.dueDate);const sections=[];if(d.favorites.length)sections.push('# 식사·운동 즐겨찾기\n\n'+d.favorites.map(t=>`## ${t.kind} · ${t.title}\n\n${t.text}`).join('\n\n'));for(const [week,r]of Object.entries(d.weeklyReviews).sort(([a],[b])=>a.localeCompare(b)))sections.push(`# ${week} 주간 회고\n\n`+[['remember','기억할 것'],['adjust','바꾸고 싶은 것'],['next','다음 주 나에게']].filter(([k])=>r[k]).map(([k,title])=>`## ${title}\n\n${r[k]}`).join('\n\n'));if(undated.length)sections.push('# 기한 없는 미리알림\n\n'+undated.map(t=>`- [${t.done?'x':' '}] ${t.title} · ${t.listName}${t.note?'\n  '+t.note:''}`).join('\n'));sections.push(...dates.map(k=>dayDocument(d,k)));return sections.length?sections.join('\n\n---\n\n'):'# Haze Flow\n\n저장된 기록이 없어요.'}
+export function allDocument(d){const dates=recordedDates(d),undated=d.tasks.filter(t=>!t.dueDate);const sections=[];if(d.favorites.length)sections.push('# 식사·운동 즐겨찾기\n\n'+d.favorites.map(t=>`## ${t.kind} · ${t.title}\n\n${t.text}`).join('\n\n'));for(const [week,r]of Object.entries(d.weeklyReviews).sort(([a],[b])=>a.localeCompare(b)))sections.push(`# ${week} 주간 회고\n\n`+[['remember','기억할 것'],['adjust','바꾸고 싶은 것'],['next','다음 주 나에게']].filter(([k])=>r[k]).map(([k,title])=>`## ${title}\n\n${r[k]}`).join('\n\n'));if(undated.length)sections.push('# 기한 없는 Reminder\n\n'+undated.map(t=>`- [${t.done?'x':' '}] ${t.title} · ${t.listName}${t.note?'\n  '+t.note:''}`).join('\n'));sections.push(...dates.map(k=>dayDocument(d,k)));return sections.length?sections.join('\n\n---\n\n'):'# Haze Flow\n\n저장된 기록이 없어요.'}
