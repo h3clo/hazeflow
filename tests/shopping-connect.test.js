@@ -43,3 +43,26 @@ test('추출 결과의 취소 완료와 상충하는 결제합계는 확인을 �
  const rows=parseOrderBlocks(['2026.11.01\n주문번호 TEST-100\n총 결제 금액 10,000원\n최종 결제 금액 8,000원\n취소 완료'],'네이버');assert.equal(rows[0][4],'');assert.equal(rows[0][6],'취소/환불 완료');
  const code=decodeURIComponent(shoppingBookmarklet().slice('javascript:'.length));assert.doesNotThrow(()=>new Function(code));assert.ok(!/fetch\(|document.cookie|localStorage/.test(code));
 });
+
+test('여러 기간 파일의 열 제목을 각각 찾고 중복 주문은 한 번만 계획한다',async()=>{
+ const {normalizeShoppingBatch}=await import('../shopping-table.js');
+ const row=['2026-11-01','G마켓','BATCH-1','상품 A','10000','','','KRW'];
+ const rows=normalizeShoppingBatch([{name:'1페이지.csv',grid:[headers,row]},{name:'2페이지.csv',grid:[['주문 목록'],headers,row]}],'네이버',today);
+ assert.equal(rows.length,2);assert.equal(rows[1].source,3);assert.equal(rows[1].sourceName,'2페이지.csv');
+ const plan=planShoppingRows([],rows,today);assert.equal(plan.accepted.length,1);assert.equal(plan.skipped.length,1);
+});
+test('여러 파일에서 같은 주문의 합계가 다르면 자동 선택하지 않는다',async()=>{
+ const {normalizeShoppingBatch}=await import('../shopping-table.js');
+ const rows=normalizeShoppingBatch([{name:'A.csv',grid:[headers,['2026-11-01','G마켓','BATCH-2','A','10000','','','KRW']]},{name:'B.csv',grid:[headers,['2026-11-01','G마켓','BATCH-2','A','9000','','','KRW']]}],'네이버',today);
+ assert.ok(rows.every(r=>!r.selected&&r.warning));
+ assert.throws(()=>normalizeShoppingBatch([{name:'잘못된 파일.csv',grid:[['상품명','상품가'],['상품 A','10000']]}],'네이버',today),/잘못된 파일.csv/);
+});
+
+test('지그재그의 짧은 한국어 주문 날짜를 2000년 이후 날짜로 읽는다',()=>{
+ const rows=parseOrderBlocks(['26년 10월 31일 주문상세\n주문번호 TEST-ZIGZAG\n최종 결제 금액 12000원'],'지그재그');
+ assert.equal(rows[0][0],'2026-10-31');assert.equal(rows[0][4],'12000');assert.equal(parseOrderBlocks(['26.10.31 결제\n(주문번호 TEST-ZIGZAG)\n총 결제 금액\n12000원'],'지그재그')[0][0],'2026-10-31');
+});
+
+test('네이버 결제정보의 주문금액 총액을 읽고 상품금액과 혼동하지 않는다',()=>{
+ const text='2026.11.01 주문\n주문번호 TEST-NAVER\n결제정보\n주문금액\n총 10,000원\n상품금액\n12,000원\n쿠폰할인\n-2,000원\n네이버페이 포인트 사용\n1,000원\n카드 간편결제\n9,000원';assert.equal(parseOrderBlocks([text],'네이버')[0][4],'10000');assert.equal(parseOrderBlocks([text.replace('결제정보','상품정보')],'네이버')[0][4],'');
+});
