@@ -96,6 +96,13 @@ export function activityIntervals(d,now=new Date()){
  result.set(l.id,{start,end,ongoing,automatic:!explicit,minutes:Math.max(0,Math.floor(((end||now)-start)/60000)),endDate:end?todayKey(end):'',endTime:end?String(end.getHours()).padStart(2,'0')+':'+String(end.getMinutes()).padStart(2,'0'):''});});
  return result;
 }
+export function activityEndForEdit(current,submitted,opened){
+ if(submitted.mode==='memo')return {endDate:'',endTime:''};
+ const clean=value=>value||'',changed=clean(submitted.endDate)!==clean(opened.endDate)||clean(submitted.endTime)!==clean(opened.endTime);
+ const chosen=changed?submitted:current,endDate=clean(chosen.endDate),endTime=clean(chosen.endTime);
+ if((endDate||endTime)&&(!isDate(endDate)||!isTime(endTime)||!isTime(submitted.time)||new Date(endDate+'T'+endTime)<new Date(submitted.date+'T'+submitted.time)))throw Error('다른 화면에서 저장한 종료 시간과 시작 시간이 맞지 않아요. 시작·종료 시간을 함께 확인해주세요.');
+ return {endDate,endTime};
+}
 export function activityTimeLabel(l,interval){
  if(!interval)return l.time||'시간 미기록';
  const end=interval.end?(interval.endDate!==l.date?interval.endDate+' ':'')+interval.endTime:interval.ongoing?'진행 중':'시작 예정';

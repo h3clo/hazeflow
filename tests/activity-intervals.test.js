@@ -22,3 +22,9 @@ test('백업에 수동 종료와 메모를 보존하고 잘못된 종료를 거�
 test('MD에 실제 활동 구간을 포함한다',()=>{
  const d=emptyState();d.logs=[log('a','12:00'),log('b','12:40')];assert.match(dayDocument(d,'2026-10-31'),/12:00 ~ 12:40 · 40분/);assert.match(activityTimeLabel(d.logs[1],activityIntervals(d,now).get('b')),/진행 중/);
 });
+
+test('수정 화면을 열어둔 사이 다른 기기에서 종료한 활동을 내용 수정으로 되살리지 않는다',async()=>{
+ const {activityEndForEdit}=await import('../domain.js');const current={endDate:'2026-11-02',endTime:'13:00'},submitted={date:'2026-11-02',time:'12:00',mode:'activity',endDate:'',endTime:''};assert.deepEqual(activityEndForEdit(current,submitted,{endDate:'',endTime:''}),current);
+ assert.deepEqual(activityEndForEdit(current,submitted,current),{endDate:'',endTime:''});
+ assert.throws(()=>activityEndForEdit(current,{...submitted,time:'14:00'},{endDate:'',endTime:''}),/시작/);
+});
