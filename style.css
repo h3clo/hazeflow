@@ -182,3 +182,5 @@ main>header .dashboard-launch{display:inline-flex;align-items:center;justify-con
 @media(max-width:480px){.study-hero{padding:18px}.study-subjects{gap:8px}.study-subjects article{padding:12px}.study-session .row-actions>*{max-width:100%}}
 
 .study-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.study-stats span{min-width:0}@media(max-width:480px){.study-stats{gap:6px}.study-stats span{padding:10px;font-size:10px}}
+
+.study-subjects h3{overflow-wrap:anywhere}.study-subject-editor{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;padding:14px 0;border-bottom:1px solid var(--line)}.study-subject-editor label{min-width:0;margin:0}.study-subject-editor input{width:100%;min-width:0}.study-subject-editor .row-actions{flex-wrap:wrap}.study-subject-editor [role=alert]{grid-column:1/-1}@media(max-width:600px){.study-subject-editor{grid-template-columns:1fr}.study-subject-editor>.row-actions{justify-content:flex-start}}

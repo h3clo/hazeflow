@@ -1,3 +1,4 @@
+import {validSubject} from './study-subjects.js';
 import {validStudy,studyMarkdown} from './study.js';
 import {validNutrition,nutritionText} from './nutrition.js';
 import {validWorkoutFeedback} from './workout-feedback.js';
@@ -9,7 +10,7 @@ export const todayKey = (d=new Date()) => `${d.getFullYear()}-${String(d.getMont
 export const uid = () => typeof crypto.randomUUID==='function'?crypto.randomUUID():'record-'+[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
 export const isDate = s => typeof s==='string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s+'T12:00:00')) && todayKey(new Date(s+'T12:00:00'))===s;
 export const isTime = s => typeof s==='string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
-export const emptyState = () => ({schemaVersion:2,events:[],tasks:[],routines:[],checks:{},diary:{},exercises:[],logs:[],life:{},routineTemplates:[],routineRuns:{},favorites:[],weeklyReviews:{}});
+export const emptyState = () => ({schemaVersion:2,events:[],tasks:[],routines:[],checks:{},diary:{},exercises:[],logs:[],life:{},routineTemplates:[],routineRuns:{},favorites:[],weeklyReviews:{},studySubjects:[]});
 const clone = v => structuredClone(v);
 export function migrate(input){
  const d={...emptyState(),...clone(input)};
@@ -137,6 +138,7 @@ export function validateBackup(v){
   }
  }
  for(const key of ['checks','diary','life'])if(v[key]!==undefined){if(!plain(v[key]))throw Error('저장 형식이 올바르지 않아요.');if(key==='checks'){if(Object.values(v[key]).some(x=>typeof x!=='boolean'))throw Error('체크 기록이 올바르지 않아요.')}else for(const [date,row]of Object.entries(v[key]))if(!isDate(date)||!plain(row)||Object.entries(row).some(([k,x])=>((key==='diary'&&k==='photos')||(key==='life'&&k==='bodyPhotos'))?!validPhotoRefs(x):x!==null&&!['string','number','boolean'].includes(typeof x)))throw Error('생활 기록이 올바르지 않아요.');}
+ if(v.studySubjects!==undefined&&(!Array.isArray(v.studySubjects)||v.studySubjects.length>100||v.studySubjects.some(s=>!validSubject(s))||new Set(v.studySubjects.map(s=>s.id)).size!==v.studySubjects.length))throw Error('공부 과목 목록을 확인해주세요.');
  if(v.routineTemplates!==undefined){if(!Array.isArray(v.routineTemplates))throw Error('루틴 형식이 올바르지 않아요.');for(const t of v.routineTemplates)if(!plain(t)||!safeId(t.id)||!Array.isArray(t.versions)||!t.versions.length||!t.versions.every(validVersion))throw Error('루틴 설정이 올바르지 않아요.');}
  if(v.routineRuns!==undefined){if(!plain(v.routineRuns))throw Error('루틴 실행 기록이 올바르지 않아요.');for(const [date,runs]of Object.entries(v.routineRuns)){if(!isDate(date)||!plain(runs))throw Error('루틴 날짜가 올바르지 않아요.');for(const [id,r]of Object.entries(runs))if(!safeId(id)||!plain(r)||!validVersion(r.snapshot)||!Array.isArray(r.checked)||!r.checked.every(x=>r.snapshot.steps.some(s=>s.id===x))||!['pending','doing','done','skipped'].includes(r.status)||![r.startedAt,r.endedAt].every(x=>x==null||x===''||isTime(x)))throw Error('루틴 실행 내용이 올바르지 않아요.');}}
  if(v.favorites?.some?.(t=>t?.nutrition!==undefined&&(t.kind!=='식사'||!validNutrition(t.nutrition))))throw Error('즐겨찾기 영양정보를 확인해주세요.');
@@ -146,7 +148,7 @@ export function validateBackup(v){
 }
 export function mergeBackup(current,incoming){
  const result=clone(current),source=validateBackup(incoming);
- for(const key of ['events','tasks','routines','logs','exercises','routineTemplates','favorites']){const ids=new Set(result[key].map(x=>x.id));result[key].push(...source[key].filter(x=>!ids.has(x.id)));}
+ for(const key of ['events','tasks','routines','logs','exercises','routineTemplates','favorites','studySubjects']){result[key]??=[];const ids=new Set(result[key].map(x=>x.id));result[key].push(...source[key].filter(x=>!ids.has(x.id)));}
  for(const key of ['checks','diary','life','weeklyReviews'])result[key]={...source[key],...result[key]};
  for(const [date,runs]of Object.entries(source.routineRuns))result.routineRuns[date]={...runs,...result.routineRuns[date]};
  return result;
@@ -159,7 +161,7 @@ export function dayDocument(d,date){
  section('루틴 · 반복 계획과 실행',routinesForDate(d,date).map(r=>`### ${r.time||'시간 미정'} ${r.title} · ${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[r.run?.status]||'아직 실행 기록 없음'}\n\n${r.steps.map(s=>`- [${r.run?.checked.includes(s.id)?'x':' '}] ${s.title}${s.minutes?' · '+s.minutes+'분':''}`).join('\n')}\n`));
  section('할 일',d.tasks.filter(t=>t.dueDate===date||t.completedOn===date).map(t=>`- [${t.done?'x':' '}] ${t.title}${t.dueTime?' · '+t.dueTime:''}${t.dueDate?' · 기한 '+t.dueDate:' · 기한 없음'}${t.note?'\n  '+t.note:''}`));
  section('자산 잔액 기록',d.logs.filter(l=>l.date===date&&l.asset).map(l=>'- '+l.text));
- section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${recordKindLabel(l.kind)}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:'')+(l.money.splits?' · '+l.money.splits.map(s=>s.method+' '+s.amount+'원').join(' + '):''):''}${l.study?'\n\n'+studyMarkdown(l):''}${l.nutrition?'\n\n영양정보: '+nutritionText(l.nutrition):''}${l.workoutFeedback?'\n\n운동 느낌: 자극 '+(l.workoutFeedback.muscles.join(' · ')||'미입력')+(l.workoutFeedback.effort?' · 힘듦 '+l.workoutFeedback.effort+'/5':'')+(l.workoutFeedback.soreness?' · 근육통 '+l.workoutFeedback.soreness:'')+(l.workoutFeedback.note?'\n'+l.workoutFeedback.note:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
+ section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${recordKindLabel(l.kind)}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:'')+(l.money.splits?' · '+l.money.splits.map(s=>s.method+' '+s.amount+'원').join(' + '):''):''}${l.study?'\n\n'+studyMarkdown(l,false,d):''}${l.nutrition?'\n\n영양정보: '+nutritionText(l.nutrition):''}${l.workoutFeedback?'\n\n운동 느낌: 자극 '+(l.workoutFeedback.muscles.join(' · ')||'미입력')+(l.workoutFeedback.effort?' · 힘듦 '+l.workoutFeedback.effort+'/5':'')+(l.workoutFeedback.soreness?' · 근육통 '+l.workoutFeedback.soreness:'')+(l.workoutFeedback.note?'\n'+l.workoutFeedback.note:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
  if(d.life[date]?.bodyPhotos?.length)section('인바디 결과지',[photoMarkdown(d.life[date].bodyPhotos)]);
  section('생활 기록',Object.entries(d.life[date]||{}).filter(([k,v])=>k!=='bodyPhotos'&&v!==''&&v!=null).map(([k,v])=>`- ${lifeLabels[k]||k}: ${v}`));
  const diary=d.diary[date];if(diary){if(diary.closedDay)section('하루 마감',['마감 표시됨']);if(diary.tomorrow)section('내일 기억할 일',[diary.tomorrow]);section('일기',[diary.mood?'기분: '+({great:'좋았어',okay:'평온해',tired:'지쳤어',hard:'힘들었어'}[diary.mood]||diary.mood):'',diary.note||'',diary.entry||'',photoMarkdown(diary.photos)].filter(Boolean));}

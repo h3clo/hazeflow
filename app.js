@@ -96,7 +96,7 @@ function render(){
  $('#day-summary').textContent=`일정 ${data.events.filter(e=>e.date===date).length} · 루틴 ${routinesForDate(data,date).length} · 기록 ${recordsForDate(data,date).length}`;
  $('#content').innerHTML=({study:()=>studyView(data,date,todayKey(),activityIntervals(data),{esc,btn,card,empty}),goals:goalsView,assets:assetsView,money:moneyView,day:dayView,week:weekView,routines:routinesView,history:historyView,diary:diaryView,life:lifeView,tasks:tasksView,compare:()=>features.compare(data,date,compareLeft),review:()=>features.review(data,date),favorites:()=>features.library(data)})[view]();
  if(view==='day'&&date<=todayKey())restoreCapture();if(view==='assets'){if(account?.userId()&&!tossBusy&&Date.now()-tossCacheAt>300000)queueMicrotask(refreshToss);paintQuotes();if(Date.now()-quoteLast>30000)refreshQuotes()}hydratePhotos();
- const hasSaved=recordedDates(data).length||data.favorites.length||Object.keys(data.weeklyReviews).length||data.routineTemplates.length||data.tasks.length;
+ const hasSaved=data.studySubjects.length||recordedDates(data).length||data.favorites.length||Object.keys(data.weeklyReviews).length||data.routineTemplates.length||data.tasks.length;
  const migration=$('#migration-note');migration.hidden=import.meta.env.DEV||sandbox||!!hasSaved||!!account?.userId();
  if(recovery)notify('저장된 데이터를 읽지 못했어요. 내보내기에서 원본을 보관할 수 있어요.');
 }
