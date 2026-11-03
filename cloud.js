@@ -2,8 +2,9 @@ import {createRecordCache} from './sync-record-cache.js';
 import {createClient} from '@supabase/supabase-js';
 export {cloudConfig} from './cloud-config.js';
 export function authStorage(local,temporary,preferenceKey='hazeflow-remember'){
- let remember=local.getItem(preferenceKey)!=='false';
- return {getItem(key){return local.getItem(key)||temporary.getItem(key)},setItem(key,value){local.removeItem(key);temporary.removeItem(key);(remember||key.endsWith('-code-verifier')?local:temporary).setItem(key,value)},removeItem(key){local.removeItem(key);temporary.removeItem(key)},setRemember(value){remember=!!value;local.setItem(preferenceKey,String(remember))},remember:()=>remember};
+ const remember=()=>local.getItem(preferenceKey)!=='false';
+ const stores=key=>remember()||key.endsWith('-code-verifier')?[local,temporary]:[temporary,local];
+ return {getItem(key){const [preferred,fallback]=stores(key);return preferred.getItem(key)||fallback.getItem(key)},setItem(key,value){const [preferred,other]=stores(key);preferred.setItem(key,value);other.removeItem(key)},removeItem(key){local.removeItem(key);temporary.removeItem(key)},setRemember(value){local.setItem(preferenceKey,String(!!value))},remember};
 }
 export function makeCloud(config){const sessionStore=authStorage(localStorage,sessionStorage);return {sessionStore,client:createClient(config.url,config.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce',storageKey:'hazeflow-auth-v1',storage:sessionStore}})}}
 export function cloudTransport(client,userId,space='main'){
