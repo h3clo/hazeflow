@@ -66,3 +66,16 @@ test('지그재그의 짧은 한국어 주문 날짜를 2000년 이후 날짜로
 test('네이버 결제정보의 주문금액 총액을 읽고 상품금액과 혼동하지 않는다',()=>{
  const text='2026.11.01 주문\n주문번호 TEST-NAVER\n결제정보\n주문금액\n총 10,000원\n상품금액\n12,000원\n쿠폰할인\n-2,000원\n네이버페이 포인트 사용\n1,000원\n카드 간편결제\n9,000원';assert.equal(parseOrderBlocks([text],'네이버')[0][4],'10000');assert.equal(parseOrderBlocks([text.replace('결제정보','상품정보')],'네이버')[0][4],'');
 });
+
+test('재수집은 같은 주문과 날짜·금액 변경, 환불을 구분하고 기존 상품 정리를 유지한다',async()=>{
+ const {shoppingRefreshReview,applyShoppingRefresh}=await import('../shopping-table.js');
+ const [row]=normalize([['2026-11-01','쿠팡','REFRESH-1','상품','10000','','','KRW']]);
+ const old={id:'original',date:row.date,money:structuredClone(row.money)};old.money.category='직접 분류';old.money.order.item='정리한 상품';
+ assert.equal(shoppingRefreshReview([old],row).kind,'same');row.money.amount=9000;
+ const review=shoppingRefreshReview([old],row);assert.equal(review.kind,'changed');assert.match(review.message,/10,000원 → 9,000원/);
+ applyShoppingRefresh([old],{...review,date:row.date,money:row.money});assert.equal(old.money.amount,9000);assert.equal(old.money.category,'직접 분류');assert.equal(old.money.order.item,'정리한 상품');
+ assert.throws(()=>applyShoppingRefresh([old],{...review,date:row.date,money:row.money}),/바뀌었/);
+ row.blocked=true;assert.equal(shoppingRefreshReview([old],row).kind,'refund');assert.equal(old.money.amount,9000);
+ assert.equal(shoppingRefreshReview([old,{...old,id:'other'}],row).kind,'conflict');
+});
+test('복합 결제의 금액을 재수집으로 덮어쓰지 않는다',async()=>{const {shoppingRefreshReview,applyShoppingRefresh}=await import('../shopping-table.js');const [row]=normalize([['2026-11-01','쿠팡','REFRESH-2','상품','10000','','','KRW']]);const old={id:'split',date:row.date,money:structuredClone(row.money)};old.money.splits=[{method:'카드',amount:10000}];row.money.amount=9000;const p=shoppingRefreshReview([old],row);assert.throws(()=>applyShoppingRefresh([old],{...p,date:row.date,money:row.money}),/복합/);assert.equal(old.money.amount,10000)});

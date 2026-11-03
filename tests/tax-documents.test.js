@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readTaxDocument,validTaxDocument,parseTaxCSV,taxCSV,planTaxImport,taxSeries} from '../tax-documents.js';
+import {validateBackup,recordsForDate,emptyState} from '../domain.js';
+import {barChart} from '../data-charts.js';
+const row=(v={})=>readTaxDocument({year:2025,metric:'credit',amount:'1,234,000',source:'연말정산 간소화',note:'',...v},2026);
+test('세금 자료의 환급은 차감징수세액만 음수 허용, 모르는 금액·미래연도 거부',()=>{assert.equal(row({metric:'nationalSettlement',amount:'-10000'}).amount,-10000);assert.throws(()=>row({amount:'-1'}));assert.throws(()=>row({year:2027}));assert.throws(()=>row({amount:''}));assert.equal(row({amount:'0'}).amount,0);assert.equal(validTaxDocument({...row(),metric:'constructor'}),false)});
+test('CSV 왕복은 환급 부호 유지하고 민감한 추가 열은 저장하지 않는다',()=>{const r=row({metric:'nationalSettlement',amount:'-30000'});assert.deepEqual(parseTaxCSV(taxCSV([r]),2026).rows,[r]);const p=parseTaxCSV('귀속연도,항목,금액,주민번호\n2025,신용카드 사용액,1000,비공개',2026);assert.deepEqual(p.ignored,['주민번호']);assert.equal(Object.keys(p.rows[0]).length,5);assert.throws(()=>parseTaxCSV('귀속연도,항목,금액,금액\n2025,credit,1,2',2026));});
+test('연도·항목별 중복과 변경 보류, 서로 겹치는 소비 항목은 합산하지 않는다',()=>{const r=row(),logs=[{id:'one',taxDocument:r}],p=planTaxImport(logs,[r,row({amount:'100'}),row({metric:'medical',amount:'200'})]);assert.equal(p.skipped,1);assert.equal(p.conflicts.length,1);assert.equal(p.accepted.length,1);assert.equal(taxSeries([...logs,{id:'two',taxDocument:row({metric:'medical',amount:'200'})}],'credit')[0].value,1234000);assert.deepEqual(taxSeries([...logs,...logs],'credit'),[])});
+test('환급 차트는 음수 막대를 정상 높이로 표시한다',()=>{const html=barChart({title:'환급',rows:[{label:'2025년',axisLabel:'2025',value:-10000},{label:'2026년',axisLabel:'2026',value:1000}],unit:'원'});assert.match(html,/<rect/);assert.doesNotMatch(html,/height="-/);assert.doesNotMatch(html,/NaN/);assert.match(html,/-10,000/)});
+test('연간 자료는 백업 검증을 통과하고 일상 활동·가계부가 되지 않는다',()=>{const d=emptyState();d.logs.push({id:'tax-one',date:'2026-11-03',time:'',kind:'세금자료',memo:true,text:'연간 자료',taxDocument:row()});validateBackup(d);assert.equal(recordsForDate(d,'2026-11-03').length,0);d.logs[0].money={};assert.throws(()=>validateBackup(d));});

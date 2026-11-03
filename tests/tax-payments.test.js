@@ -1,0 +1,9 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {readTaxPayment,validTaxPayment,parsePaymentCSV,paymentCSV,planPaymentImport,paymentSeries} from '../tax-payments.js';
+import {emptyState,validateBackup,recordsForDate,dayDocument} from '../domain.js';
+import {monthMoney} from '../money.js';
+const row=(v={})=>readTaxPayment({date:'2025-09-01',kind:'재산세',amount:'10000',direction:'paid',source:'위택스',reference:'a'.repeat(64),note:'',...v},'2026-11-03');
+test('실제 납부·환급일과 양수 금액 및 출처를 검증한다',()=>{assert.equal(row({direction:'refund'}).amount,10000);for(const v of [{date:'2025-02-30'},{date:'2027-01-01'},{amount:'-1000'},{amount:'0'},{direction:'other'},{source:'기타'},{reference:''}])assert.throws(()=>row(v));assert.equal(validTaxPayment({...row(),amount:Infinity}),false)});
+test('납부 CSV 왕복 및 기록키 중복·변경 보류와 서로 다른 실제 납부건 유지',()=>{const r=row();assert.deepEqual(parsePaymentCSV(paymentCSV([r]),'2026-11-03').rows,[r]);const p=planPaymentImport([{id:'one',date:r.date,taxPayment:r}],[r,row({amount:'20000'}),row({reference:'b'.repeat(64)})]);assert.equal(p.skipped,1);assert.equal(p.conflicts.length,1);assert.equal(p.accepted.length,1)});
+test('실제 납부와 환급은 별도 집계하며 올해는 현재까지로 표시한다',()=>{const rows=[row(),row({date:'2026-08-01',reference:'b'.repeat(64)}),row({direction:'refund',reference:'c'.repeat(64)})],logs=rows.map((r,i)=>({id:'r'+i,date:r.date,taxPayment:r}));assert.equal(paymentSeries(logs,'paid','2026-11-03').length,2);assert.match(paymentSeries(logs,'paid','2026-11-03')[1].label,/현재까지/);assert.equal(paymentSeries(logs,'refund','2026-11-03')[0].value,10000)});
+test('실제 세금 보관은 가계부 수입·지출과 활동에 중복 반영하지 않는다',()=>{const d=emptyState(),r=row(),{date,...taxPayment}=r;d.logs.push({id:'tax-paid',date,time:'',kind:'세금납부',memo:true,text:'세금 납부',taxPayment});validateBackup(d);assert.equal(recordsForDate(d,date).length,0);assert.equal(monthMoney(d.logs,'2025-09').totals.expense,0);assert.match(dayDocument(d,date),/실제 세금 납부·환급 자료/);});
