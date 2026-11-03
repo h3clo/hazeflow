@@ -75,7 +75,7 @@ const field=(name,title,value='',type='text',extra='')=>`<label>${title}<input n
 const card=(title,body,action='')=>`<section class="card"><div class="card-head"><h2>${title}</h2>${action}</div><div class="card-body">${body}</div></section>`;
 const empty=text=>`<p class="empty">${text}</p>`;
 const taxPaymentFlow=createTaxPaymentFlow({getData:()=>data,getOwner:()=>key,commit,openEditor,esc,field,btn,notify,download,today:todayKey,uid});
-const taxFlow=createTaxFlow({getData:()=>data,getOwner:()=>key,commit,openEditor,esc,field,btn,notify,download,today:todayKey,uid});
+const taxFlow=createTaxFlow({getData:()=>data,getOwner:()=>key,commit,openEditor,esc,field,btn,notify,download,today:todayKey,uid,render});
 const incomeFlow=createIncomeFlow({getData:()=>data,getOwner:()=>key,commit,openEditor,esc,field,btn,notify,download,today:todayKey,uid});
 const studyFlow=createStudyFlow({getData:()=>data,commit,openEditor,notify,download,esc,field,btn,sync:()=>account?.sync(),onStarted:startDate=>{date=startDate;view='study';render()}});
 const features=featureUI({esc,btn,card,empty,field,photoGallery});
