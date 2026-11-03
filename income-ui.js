@@ -23,5 +23,6 @@ export function createIncomeFlow({getData,getOwner,commit,openEditor,esc,field,b
  if(type==='income-delete')save(d=>{const l=d.logs.find(l=>l.id===f.dataset.id);if(!l||JSON.stringify(l.incomeDocument)!==opened)throw Error('소득 자료가 바뀌었어요. 다시 확인해주세요.');d.logs=d.logs.filter(l=>l.id!==f.dataset.id)},'소득 자료를 삭제했어요.');
  }catch(e){f.querySelector('#form-error').textContent=e.message}return true}
  async function change(e){if(e.target.id!=='income-csv-file')return;const ownerAtStart=owner,input=e.target,area=input.closest('dialog')?.querySelector('#income-csv');try{const file=input.files?.[0];if(!file)return;if(file.size>500000)throw Error('500KB 이하 파일을 선택해주세요.');const text=await file.text();if(getOwner()!==ownerAtStart||!input.isConnected||area!==document.querySelector('#income-csv'))return;area.value=text;plan()}catch(e){const p=document.querySelector('#form-error');if(p)p.textContent=e.message}}
- return {action,submit,change};
+ async function openImport(csv){parseIncomeCSV(csv,Number(today().slice(0,4)));await action('income-import');document.querySelector('#income-csv').value=csv;plan()}
+ return {action,submit,change,openImport};
 }
