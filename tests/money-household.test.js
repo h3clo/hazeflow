@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {moneyScope,validMoney,monthMoney,moneyCSV,parseMoneyCSV,planMoneyImport} from '../money.js';
+import {emptyState,validateBackup} from '../domain.js';
+import {flattenState,unflattenState} from '../sync-state.js';
+const money={type:'expense',merchant:'가족 장보기',amount:30000,currency:'KRW',category:'장보기',payment:'카드',scope:'household',payer:'아빠'};
+const row=(id,m)=>({id,date:'2026-11-01',time:'12:00',kind:'가계부',memo:true,text:'거래',money:m});
+test('가족 구매와 카드 대납 정산을 함께 남겨도 소비와 수입을 중복 합산하지 않는다',()=>{const rows=[row('buy',money),row('settle',{...money,type:'transfer',merchant:'카드값 대납'})];const s=monthMoney(rows,'2026-11');assert.deepEqual(s.totals,{expense:30000,income:0,transfer:30000});assert.deepEqual(s.categories,[['장보기',30000]]);const d=emptyState();d.logs=rows;validateBackup(d);const synced=unflattenState(flattenState(d));assert.deepEqual(synced.logs.map(l=>l.money),rows.map(l=>l.money));});
+test('사용범위·부담자와 정산 유형은 CSV 왕복에서 유지되며 기존 파일도 읽는다',()=>{const rows=[row('a',money),row('b',{...money,type:'transfer'})];assert.deepEqual(parseMoneyCSV(moneyCSV(rows),'2026-11-03').rows.map(r=>r.money),rows.map(r=>r.money));const old=parseMoneyCSV('날짜,상호명,금액\n2026-11-01,장보기,30000','2026-11-03').rows[0];assert.equal(moneyScope(old.money),'unassigned');assert.equal(old.money.scope,undefined);assert.equal(planMoneyImport(rows,[{...rows[0],money:{...money,payer:'본인'}}]).skipped,1);});
+test('기존 범위 미지정 기록은 유효하고 잘못된 범위·부담자는 거부한다',()=>{const {scope,payer,...old}=money;assert.equal(validMoney(old),true);assert.equal(moneyScope(old),'unassigned');for(const patch of [{scope:'other'},{payer:4},{payer:'가'.repeat(81)}])assert.equal(validMoney({...money,...patch}),false);});
