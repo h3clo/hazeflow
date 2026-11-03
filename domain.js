@@ -1,3 +1,4 @@
+import {validIncomeDocument} from './income-documents.js';
 import {validSubject} from './study-subjects.js';
 import {validStudy,studyMarkdown} from './study.js';
 import {validNutrition,nutritionText} from './nutrition.js';
@@ -88,7 +89,7 @@ export function workoutSummary(log){
 }
 export function inferKind(text,kind='일상'){if(kind!=='일상')return kind;if(workoutSummary({text}))return '운동';if(/^식사\s/.test(text))return '식사';return kind}
 export function recordsForDate(d,date){
- return [...d.logs.filter(l=>l.date===date&&!l.asset),...d.exercises.filter(e=>e.date===date).map(e=>({id:e.id,date:e.date,time:'',kind:'운동',text:`${e.name} · ${e.minutes}분${e.effort?' · '+e.effort:''}${e.note?'\n'+e.note:''}`,legacy:true}))].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+ return [...d.logs.filter(l=>l.date===date&&!l.asset&&!l.incomeDocument),...d.exercises.filter(e=>e.date===date).map(e=>({id:e.id,date:e.date,time:'',kind:'운동',text:`${e.name} · ${e.minutes}분${e.effort?' · '+e.effort:''}${e.note?'\n'+e.note:''}`,legacy:true}))].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
 }
 // Existing manual records also form activity intervals. Source logs and memos never interrupt them.
 export function activityIntervals(d,now=new Date()){
@@ -130,6 +131,7 @@ export function validateBackup(v){
    if(key==='logs'&&x.asset!==undefined&&(!validAsset(x.asset)||x.kind!=='자산'||!x.memo||x.money!==undefined))throw Error('자산 잔액 기록을 확인해주세요.');
    if(key==='logs'&&x.money!==undefined&&(!validMoney(x.money)||(!x.memo&&x.kind!=='식사')||(x.kind==='식사'&&x.money.type!=='expense')))throw Error('가계부 거래 형식을 확인해주세요.');
    if(key==='logs'&&x.nutrition!==undefined&&(x.kind!=='식사'||!validNutrition(x.nutrition)))throw Error('식사 영양정보를 확인해주세요.');
+   if(key==='logs'&&x.incomeDocument!==undefined&&(x.kind!=='소득자료'||!x.memo||x.money!==undefined||!validIncomeDocument(x.incomeDocument)))throw Error('연간 소득 자료를 확인해주세요.');
    if(key==='logs'&&x.study!==undefined&&(x.kind!=='공부'||!validStudy(x.study)))throw Error('공부 기록의 과목·복습·링크 형식을 확인해주세요.');
    if(key==='logs'&&x.workoutFeedback!==undefined&&!validWorkoutFeedback(x.workoutFeedback))throw Error('운동 느낌 기록을 확인해주세요.');
    if(key==='logs'&&!validPhotoRefs(x.photos))throw Error('사진 정보를 확인해주세요.');
@@ -160,6 +162,7 @@ export function dayDocument(d,date){
  section('일정 · 계획',d.events.filter(e=>e.date===date).sort((a,b)=>a.start.localeCompare(b.start)).map(e=>`- ${e.start}–${e.end} ${e.title} (${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[e.status]||'예정'})${e.actualStart?' · 실제 시작 '+e.actualStart:''}${e.actualEnd?' · 실제 완료 '+e.actualEnd:''}`));
  section('루틴 · 반복 계획과 실행',routinesForDate(d,date).map(r=>`### ${r.time||'시간 미정'} ${r.title} · ${({done:'완료',doing:'진행 중',skipped:'건너뜀'})[r.run?.status]||'아직 실행 기록 없음'}\n\n${r.steps.map(s=>`- [${r.run?.checked.includes(s.id)?'x':' '}] ${s.title}${s.minutes?' · '+s.minutes+'분':''}`).join('\n')}\n`));
  section('할 일',d.tasks.filter(t=>t.dueDate===date||t.completedOn===date).map(t=>`- [${t.done?'x':' '}] ${t.title}${t.dueTime?' · '+t.dueTime:''}${t.dueDate?' · 기한 '+t.dueDate:' · 기한 없음'}${t.note?'\n  '+t.note:''}`));
+ section('등록한 소득 자료 · 귀속연도는 본문 참고',d.logs.filter(l=>l.date===date&&l.incomeDocument).map(l=>'- '+l.text));
  section('자산 잔액 기록',d.logs.filter(l=>l.date===date&&l.asset).map(l=>'- '+l.text));
  section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${recordKindLabel(l.kind)}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:'')+(l.money.splits?' · '+l.money.splits.map(s=>s.method+' '+s.amount+'원').join(' + '):''):''}${l.study?'\n\n'+studyMarkdown(l,false,d):''}${l.nutrition?'\n\n영양정보: '+nutritionText(l.nutrition):''}${l.workoutFeedback?'\n\n운동 느낌: 자극 '+(l.workoutFeedback.muscles.join(' · ')||'미입력')+(l.workoutFeedback.effort?' · 힘듦 '+l.workoutFeedback.effort+'/5':'')+(l.workoutFeedback.soreness?' · 근육통 '+l.workoutFeedback.soreness:'')+(l.workoutFeedback.note?'\n'+l.workoutFeedback.note:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
  if(d.life[date]?.bodyPhotos?.length)section('인바디 결과지',[photoMarkdown(d.life[date].bodyPhotos)]);
