@@ -11,3 +11,30 @@ test('포장 수가 여러 단계면 총 수량을 임의로 제안하지 않는
 
 test('단위가격 차트는 같은 날의 가격을 수량 가중 평균하고 실제 구매 간격을 보존한다',()=>{const a=purchaseAnalysis([row('a','2021-01-01',5000,[egg(5000)]),row('b','2021-01-01',9000,[{...egg(9000),quantity:60}]),row('c','2021-01-11',9000,[egg(9000)])]);const g=a.trends[0];assert.equal(g.prices[0].value,14000/90);assert.equal(g.prices[1].value,300);assert.deepEqual(g.gaps,[{label:'2021-01-11',value:10}]);assert.equal(g.key,JSON.stringify(['계란','개']))});
 test('소비 패턴은 선택한 품목만 차트로 표시하고 다른 단위와 섞지 않는다',async()=>{const {purchasePanel}=await import('../purchase-analysis.js');const p={name:'샴푸 10L',family:'샴푸',category:'생활용품',quantity:10000,unit:'ml',amount:4500},logs=[row('a','2026-01-01',5000,[egg(5000)]),row('b','2026-02-01',4500,[p])],html=purchasePanel(logs,s=>String(s).replace(/"/g,'&quot;'),JSON.stringify(['샴푸','ml']));assert.match(html,/샴푸 단위가격 변화/);assert.doesNotMatch(html,/계란 단위가격 변화/);assert.match(html,/0\.45원\/ml/);assert.match(html,/<td>0\.45<\/td>/);assert.match(html,/실제 소진 기간과 달라요/);assert.doesNotMatch(html,/NaN|Infinity/)});
+
+
+test('혼합 주문·범위·앞쪽 포장 수는 단위가격의 분모로 추측하지 않는다',async()=>{
+ const {suggestPurchaseQuantity:q}=await import('../purchase-analysis.js');
+ for(const name of ['샴푸 500ml 외 2건','샴푸 500ml 포함 총 3건','샴푸 500ml/면도기','샴푸 500~1000ml','샴푸 500ml 1~2개','2개 샴푸 500ml','샴푸 500ml x 2.5','샴푸 500ml x 10001'])assert.deepEqual(q(name),{},name);
+});
+test('내용 개수와 단순 포장 개수는 한 단계만 곱한다',async()=>{
+ const {suggestPurchaseQuantity:q}=await import('../purchase-analysis.js');
+ assert.deepEqual(q('계란 30구, 2개'),{quantity:60,unit:'개'});
+ assert.deepEqual(q('티슈 180매 6개'),{quantity:1080,unit:'개'});
+ assert.deepEqual(q('음료 24병'),{quantity:24,unit:'개'});
+ assert.deepEqual(q('음료 190ml, 48개'),{quantity:9120,unit:'ml'});
+ assert.deepEqual(q('휴지 30롤, 2개'),{quantity:60,unit:'롤'});
+ assert.deepEqual(q('음료 24병 2팩'),{});
+});
+test('손상된 상품 배분은 전체를 제외해 미배분 금액이 음수가 되지 않는다',()=>{
+ const a=purchaseAnalysis([row('bad','2026-01-01',6000,[egg(4000),egg(4000)]),row('ok','2026-01-02',5000,[egg(5000)])]);
+ assert.equal(a.total,11000);assert.equal(a.covered,5000);assert.equal(a.unallocated,6000);assert.equal(a.trends[0].rows.length,1);
+});
+
+test('발 세정제와 머리 샴푸, 주방세제와 세탁세제는 같은 가격 추이에 섞지 않는다',()=>{
+ assert.equal(suggestPurchase('온더바디 발을씻자 풋샴푸 385ml').family,'발 세정제');
+ assert.equal(suggestPurchase('나드 샴푸 1L').family,'샴푸');
+ assert.equal(suggestPurchase('순샘 주방세제 1.6L').family,'주방세제');
+ assert.equal(suggestPurchase('드럼용 액상세제 3.2L').family,'세탁세제');
+ assert.equal(suggestPurchase('세제 500ml').family,'');
+});

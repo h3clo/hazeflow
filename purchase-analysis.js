@@ -1,8 +1,8 @@
 import {lineChart,barChart,donutChart} from './data-charts.js';
 export const purchaseUnits=['개','롤','ml','g'];
 export function validPurchaseItems(items,total){return items===undefined||Array.isArray(items)&&items.length<=100&&items.every(p=>p&&['name','family','category'].every(k=>typeof p[k]==='string'&&p[k].trim()&&p[k].length<=300)&&purchaseUnits.includes(p.unit)&&Number.isFinite(p.quantity)&&p.quantity>0&&p.quantity<=1e9&&Number.isSafeInteger(p.amount)&&p.amount>0)&&items.reduce((n,p)=>n+p.amount,0)<=total}
-export function suggestPurchase(name){const groups=[['화장지','생활용품',/휴지|화장지/],['샴푸','생활용품',/샴푸/],['계란','식품',/계란|달걀/],['세제','생활용품',/세제/],['치약','생활용품',/치약/]];const found=groups.find(g=>g[2].test(name));return {family:found?.[0]||'',category:found?.[1]||'',...suggestPurchaseQuantity(name)}}
-export function purchaseAnalysis(logs){const groups=new Map(),categories=new Map();let orders=0,covered=0,total=0;for(const l of logs){const m=l.money;if(m?.type!=='expense'||!m.order)continue;orders++;total+=m.amount;for(const p of m.order.items||[]){if(!validPurchaseItems([p],m.amount))continue;covered+=p.amount;categories.set(p.category,(categories.get(p.category)||0)+p.amount);const key=JSON.stringify([p.family.trim().toLowerCase(),p.unit]);if(!groups.has(key))groups.set(key,{family:p.family,unit:p.unit,rows:[]});groups.get(key).rows.push({...p,date:l.date,order:l.id})}}
+export function suggestPurchase(name){const groups=[['발 세정제','생활용품',/풋샴푸|발을\s*씻자|발\s*세정/],['주방세제','생활용품',/주방\s*세제|설거지\s*세제/],['세탁세제','생활용품',/세탁\s*세제|드럼.*세제|액상세제|세제.*드럼/],['화장지','생활용품',/휴지|화장지/],['샴푸','생활용품',/샴푸/],['계란','식품',/계란|달걀/],['치약','생활용품',/치약/]];const found=groups.find(g=>g[2].test(name));return {family:found?.[0]||'',category:found?.[1]||'',...suggestPurchaseQuantity(name)}}
+export function purchaseAnalysis(logs){const groups=new Map(),categories=new Map();let orders=0,covered=0,total=0;for(const l of logs){const m=l.money;if(m?.type!=='expense'||!m.order)continue;orders++;total+=m.amount;if(!validPurchaseItems(m.order.items,m.amount))continue;for(const p of m.order.items||[]){covered+=p.amount;categories.set(p.category,(categories.get(p.category)||0)+p.amount);const key=JSON.stringify([p.family.trim().toLowerCase(),p.unit]);if(!groups.has(key))groups.set(key,{family:p.family,unit:p.unit,rows:[]});groups.get(key).rows.push({...p,date:l.date,order:l.id})}}
 const trends=[...groups.values()].map(g=>{g.rows.sort((a,b)=>a.date.localeCompare(b.date)||a.order.localeCompare(b.order));const days=[...new Set(g.rows.map(r=>r.date))],gaps=days.slice(1).map((d,i)=>(Date.parse(d+'T00:00:00Z')-Date.parse(days[i]+'T00:00:00Z'))/86400000),firstDay=days[0],lastDay=days.at(-1),price=d=>{const a=g.rows.filter(r=>r.date===d);return a.reduce((n,r)=>n+r.amount,0)/a.reduce((n,r)=>n+r.quantity,0)},first=price(firstDay),last=price(lastDay);return {...g,key:JSON.stringify([g.family.trim().toLowerCase(),g.unit]),prices:days.map(label=>({label,value:price(label)})),gaps:days.slice(1).map((label,i)=>({label,value:gaps[i]})),purchases:days.length,averageDays:gaps.length?gaps.reduce((a,b)=>a+b,0)/gaps.length:null,firstDay,lastDay,firstPrice:first,lastPrice:last,change:days.length>1?(last/first-1)*100:null}});return {orders,total,covered,unallocated:total-covered,categories:[...categories].sort((a,b)=>b[1]-a[1]),trends}}
 export const purchaseUnitPrice=n=>n.toLocaleString('ko-KR',{maximumFractionDigits:2})+'원';
 export function purchasePanel(logs,esc,selected=''){
@@ -11,11 +11,17 @@ export function purchasePanel(logs,esc,selected=''){
 }
 
 export function suggestPurchaseQuantity(name){
- const text=String(name).normalize('NFKC');if(/\s[\/|]\s|\+/.test(text))return {};
- const matches=[...text.matchAll(/(\d+(?:\.\d+)?)\s*(ml|kg|g|L|리터|그램|롤|구|개)(?![a-z])/gi)].map(m=>({n:Number(m[1]),u:m[2].toLowerCase(),end:m.index+m[0].length}));
- const volume=matches.filter(m=>['ml','l','리터','kg','g','그램'].includes(m.u)),rolls=matches.filter(m=>m.u==='롤'),pieces=matches.filter(m=>['구','개'].includes(m.u));
- const bases=volume.length?volume:rolls.length?rolls:pieces;if(bases.length!==1||bases[0].n<=0)return {};const base=bases[0];
- let quantity=base.n,unit=base.u==='롤'?'롤':['구','개'].includes(base.u)?'개':['kg','g','그램'].includes(base.u)?'g':'ml';if(['l','리터','kg'].includes(base.u))quantity*=1000;
- const after=text.slice(base.end),explicit=after.match(/^\s*(?:[,·]\s*)?(?:[x×*]\s*(\d+)|(\d+)\s*(?:개|병|팩|판|묶음|세트))/i);if(explicit){if(/(?:[x×*]\s*\d+|\d+\s*(?:개|병|팩|판|묶음|세트))/.test(after.slice(explicit[0].length)))return {};const count=Number(explicit[1]||explicit[2]);if(!count||count>10000)return {};quantity*=count}
+ const text=String(name).normalize('NFKC');
+ // Order summaries, alternatives and ranges do not identify one product's contents.
+ if(/[\/|+]|(?:외|포함\s*총)\s*\d+\s*(?:건|개)|…|\.\.\.|\d\s*[~〜–-]\s*\d/.test(text))return {};
+ const matches=[...text.matchAll(/(\d+(?:\.\d+)?)\s*(ml|kg|g|L|리터|그램|롤|구|매|개|병|캔|팩|봉)(?![a-z])/gi)].map(m=>({n:Number(m[1]),u:m[2].toLowerCase(),start:m.index,end:m.index+m[0].length}));
+ const volume=matches.filter(m=>['ml','l','리터','kg','g','그램'].includes(m.u)),rolls=matches.filter(m=>m.u==='롤'),contents=matches.filter(m=>['구','매'].includes(m.u)),pieces=matches.filter(m=>['개','병','캔','팩','봉'].includes(m.u));
+ const bases=volume.length?volume:rolls.length?rolls:contents.length?contents:pieces;if(bases.length!==1||bases[0].n<=0)return {};const base=bases[0];
+ // A count before the specification may be another pack level; leave it for review.
+ if(matches.some(m=>m.start<base.start))return {};
+ let quantity=base.n,unit=base.u==='롤'?'롤':['구','매','개','병','캔','팩','봉'].includes(base.u)?'개':['kg','g','그램'].includes(base.u)?'g':'ml';if(['l','리터','kg'].includes(base.u))quantity*=1000;
+ const after=text.slice(base.end),explicit=after.match(/^\s*(?:[,·]\s*)?(?:[x×*]\s*(\d+)|(\d+)\s*(?:개|병|캔|팩|판|묶음|세트|봉))/i);
+ if(explicit){const rest=after.slice(explicit[0].length);if(/^\.\d/.test(rest)||/(?:[x×*]\s*\d+|\d+(?:\.\d+)?\s*(?:개|병|캔|팩|판|묶음|세트|봉))/.test(rest))return {};const count=Number(explicit[1]||explicit[2]);if(!count||count>10000)return {};quantity*=count}
+ else if(matches.some(m=>m.start>base.start)||/[x×*]\s*\d/.test(after))return {};
  if(!Number.isFinite(quantity)||quantity>1e9)return {};return {quantity,unit};
 }
