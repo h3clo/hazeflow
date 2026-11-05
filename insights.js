@@ -1,3 +1,4 @@
+import {validFavoriteDays} from './favorite-days.js';
 import {expenseCategoryParts} from './money.js';
 import {validNutrition} from './nutrition.js';
 import {todayKey,isDate,recordsForDate,routinesForDate,recordedDates} from './domain.js';
@@ -28,7 +29,7 @@ export function weekSummary(d,anchor,today=todayKey()){
  const spending=dates=>d.logs.filter(l=>dates.includes(l.date)&&l.money?.type==='expense').reduce((n,l)=>n+l.money.amount,0),categories=new Map();for(const l of d.logs.filter(l=>elapsed.includes(l.date)&&l.money?.type==='expense')){for(const [key,amount] of expenseCategoryParts(l.money))categories.set(key,(categories.get(key)||0)+amount)}const money={expense:spending(elapsed),previousExpense:spending(prevDates),top:[...categories].sort((a,b)=>b[1]-a[1])[0]||null};
  return {money,workoutTotals,start,end:dates[6],days,elapsed:elapsed.length,recordedDays:past.filter(x=>x.hasActual).length,previousRecordedDays:prevDates.filter(k=>hasActual(d,k)).length,workoutDays:past.filter(x=>x.workouts>0).length,meals:past.reduce((n,x)=>n+x.meals,0),events:{total:events.length,done:events.filter(e=>e.status==='done').length,skipped:events.filter(e=>e.status==='skipped').length},routines:{total:routines.length,done:routines.filter(r=>r.run?.status==='done').length,skipped:routines.filter(r=>r.run?.status==='skipped').length},tasks:d.tasks.filter(t=>t.done&&elapsed.includes(t.completedOn)).length,moods,averages};
 }
-export function templateEntry(values,id){const kind=values.kind,title=values.title?.trim(),text=values.text?.trim();if(!['식사','운동'].includes(kind)||!title||title.length>100||!text||text.length>5000)throw Error('분류·이름·내용을 확인해주세요.');if(values.nutrition!==undefined&&(kind!=='식사'||!validNutrition(values.nutrition)))throw Error('식사 영양정보를 확인해주세요.');return {id,kind,title,text,...(values.nutrition?{nutrition:values.nutrition}:{})}}
+export function templateEntry(values,id){const kind=values.kind,title=values.title?.trim(),text=values.text?.trim();if(!['식사','운동'].includes(kind)||!title||title.length>100||!text||text.length>5000)throw Error('분류·이름·내용을 확인해주세요.');if(values.nutrition!==undefined&&(kind!=='식사'||!validNutrition(values.nutrition)))throw Error('식사 영양정보를 확인해주세요.');if(!validFavoriteDays(values.weekdays))throw Error('추천 요일을 확인해주세요.');return {id,kind,title,text,...(values.weekdays?.length?{weekdays:values.weekdays}:{}),...(values.nutrition?{nutrition:values.nutrition}:{})}}
 
 export function nearestRecordedDate(data,target,before){
  const candidates=recordedDates(data).filter(day=>day<before&&day!==target).map(day=>({day,distance:Math.abs(Date.parse(day+'T12:00:00Z')-Date.parse(target+'T12:00:00Z'))})).sort((a,b)=>a.distance-b.distance||a.day.localeCompare(b.day));

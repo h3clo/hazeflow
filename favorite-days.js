@@ -1,0 +1,4 @@
+export const validFavoriteDays=days=>days===undefined||Array.isArray(days)&&days.length<=7&&days.every(day=>Number.isInteger(day)&&day>=0&&day<=6)&&new Set(days).size===days.length;
+export function readFavoriteDays(values){const days=values.map(Number).sort((a,b)=>a-b);if(!validFavoriteDays(days))throw Error('추천 요일을 확인해주세요.');return days;}
+export function favoriteMatchesDay(favorite,date){return !!favorite.weekdays?.includes(new Date(date+'T12:00:00').getDay());}
+export function recommendedFavorites(favorites,kind,date){return favorites.filter(t=>t.kind===kind).map((favorite,index)=>({favorite,index,match:favoriteMatchesDay(favorite,date)})).sort((a,b)=>Number(b.match)-Number(a.match)||a.index-b.index).map(row=>row.favorite);}
