@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {classifyShoppingName,resolvedShoppingCategory,resolvedItemCategory} from '../shopping-classification.js';
+import {expenseCategoryParts,moneyCategory} from '../money.js';
+test('이전에 놓친 실제 상품 종류도 분류하고 수동 분류는 유지한다',()=>{for(const [name,category] of [['농심 사리곰탕면','식품'],['바디워시','생활용품'],['공통수학 개념원리','도서·교육'],['철도승차권','교통'],['80GB 1개월 정기결제','구독·디지털서비스'],['AIRBNB 숙박','여행·문화']])assert.equal(classifyShoppingName(name),category);assert.equal(resolvedItemCategory({name:'계란',category:'내 장보기'}),'내 장보기');});
+test('혼합·대표상품 주문을 식품 하나로 몰아넣지 않는다',()=>{assert.equal(resolvedShoppingCategory({item:'계란 / 샴푸'}),'복합 구매');assert.equal(resolvedShoppingCategory({item:'계란 외 3건'}),'복합 구매');assert.equal(resolvedShoppingCategory({item:'계란 / 우유'}),'식품');assert.equal(resolvedShoppingCategory({item:'Temu.com'}),'쇼핑·상세 미확인');});
+test('상품과 주문의 분류를 연결해도 금액과 원자료는 보존한다',()=>{const m={amount:10000,category:'미분류',order:{platform:'쿠팡',id:'x',item:'계란 / 샴푸',items:[{name:'계란',family:'계란',category:'미분류',unit:'개',quantity:30,amount:6000}]}};const before=structuredClone(m);assert.deepEqual(expenseCategoryParts(m),[['식품',6000],['복합 구매',4000]]);assert.equal(moneyCategory(m),'복합 구매');assert.deepEqual(m,before);});

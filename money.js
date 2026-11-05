@@ -1,3 +1,4 @@
+import {categoryMissing,resolvedShoppingCategory,resolvedItemCategory} from './shopping-classification.js';
 import {validPaymentSplits} from './payment-splits.js';
 import {validOrder} from './shopping-import.js';
 import {csvRows} from './csv.js';
@@ -7,11 +8,12 @@ export function moneyScope(m){return m.scope||'unassigned'}
 export function validMoney(m){return !!m&&typeof m==='object'&&!Array.isArray(m)&&Object.hasOwn(moneyTypes,m.type)&&Number.isSafeInteger(m.amount)&&m.amount>0&&m.amount<=1e12&&m.currency==='KRW'&&['merchant','category','payment'].every(k=>typeof m[k]==='string'&&m[k].length<=200)&&!!m.merchant.trim()&&(m.scope===undefined||Object.hasOwn(moneyScopes,m.scope))&&(m.payer===undefined||typeof m.payer==='string'&&m.payer.length<=80)&&validPaymentSplits(m.splits,m.amount)&&validOrder(m.order,m.amount)}
 export function parseMoney(text){const m=String(text).trim().match(/^(.+?)\s+(\d+|\d{1,3}(?:,\d{3})+)(?:원)?(?:\s+(카드|현금|계좌이체|계좌|이체|온누리상품권|온누리카드|온누리|포인트|상품권))?$/);if(!m)throw Error('예: 스타벅스 5800 카드 · 상호명과 원 단위 금액을 적어주세요.');const amount=Number(m[2].replace(/,/g,''));if(!Number.isSafeInteger(amount)||amount<=0||amount>1e12)throw Error('금액을 확인해주세요.');return {merchant:m[1].trim(),amount,payment:m[3]||''}}
 export function moneyText(m){return `${moneyTypes[m.type]} · ${m.merchant} · ${m.amount.toLocaleString('ko-KR')}원 · ${m.category||'미분류'}${m.payment?' · '+m.payment:''}${m.splits?' · '+m.splits.map(s=>s.method+' '+s.amount.toLocaleString('ko-KR')+'원').join(' + '):''}${m.scope?' · '+moneyScopes[m.scope]:''}${m.payer?' · 부담 '+m.payer:''}${m.order?' · '+m.order.platform+(m.order.id?' 주문 '+m.order.id:'')+(m.order.item?' · '+m.order.item:''):''}`}
+export function moneyCategory(m){return categoryMissing(m.category)&&m.order?resolvedShoppingCategory(m.order):m.category?.trim()||'미분류'}
 export function expenseCategoryParts(m){
- const items=m.order?.items;if(!Array.isArray(items)||!items.length||!validOrder(m.order,m.amount))return [[m.category?.trim()||'미분류',m.amount]];
- const categories=new Map();let allocated=0;for(const item of items){const category=item.category.trim()||'미분류';categories.set(category,(categories.get(category)||0)+item.amount);allocated+=item.amount;}
- if(allocated>m.amount)return [[m.category?.trim()||'미분류',m.amount]];
- if(allocated<m.amount)categories.set('미분류',(categories.get('미분류')||0)+m.amount-allocated);
+ const items=m.order?.items;if(!Array.isArray(items)||!items.length||!validOrder(m.order,m.amount))return [[moneyCategory(m),m.amount]];
+ const categories=new Map();let allocated=0;for(const item of items){const category=resolvedItemCategory(item);categories.set(category,(categories.get(category)||0)+item.amount);allocated+=item.amount;}
+ if(allocated>m.amount)return [[moneyCategory(m),m.amount]];
+ if(allocated<m.amount)categories.set(moneyCategory(m),(categories.get(moneyCategory(m))||0)+m.amount-allocated);
  return [...categories];
 }
 export function monthMoney(logs,month){const rows=logs.filter(l=>l.money&&validMoney(l.money)&&l.date.startsWith(month)).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)),totals={expense:0,income:0,transfer:0},categories=Object.create(null);for(const l of rows){totals[l.money.type]+=l.money.amount;if(l.money.type==='expense'){for(const [k,amount] of expenseCategoryParts(l.money))categories[k]=(categories[k]||0)+amount}}return {rows,totals,categories:Object.entries(categories).sort((a,b)=>b[1]-a[1])}}
