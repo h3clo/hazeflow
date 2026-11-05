@@ -197,3 +197,4 @@ main>header .dashboard-launch{display:inline-flex;align-items:center;justify-con
 .chart-value-tooltip[hidden]{display:none}
 
 .chart-value-tooltip{white-space:pre-line}
+.shopping-coverage td small{display:block;margin-top:5px;color:var(--muted);line-height:1.5}.shopping-coverage th,.shopping-coverage td{vertical-align:top}.shopping-coverage td:nth-child(2){white-space:nowrap}.shopping-coverage .money-row strong{overflow-wrap:anywhere}
