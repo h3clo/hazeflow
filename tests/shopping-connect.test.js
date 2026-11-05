@@ -79,3 +79,12 @@ test('재수집은 같은 주문과 날짜·금액 변경, 환불을 구분하�
  assert.equal(shoppingRefreshReview([old,{...old,id:'other'}],row).kind,'conflict');
 });
 test('복합 결제의 금액을 재수집으로 덮어쓰지 않는다',async()=>{const {shoppingRefreshReview,applyShoppingRefresh}=await import('../shopping-table.js');const [row]=normalize([['2026-11-01','쿠팡','REFRESH-2','상품','10000','','','KRW']]);const old={id:'split',date:row.date,money:structuredClone(row.money)};old.money.splits=[{method:'카드',amount:10000}];row.money.amount=9000;const p=shoppingRefreshReview([old],row);assert.throws(()=>applyShoppingRefresh([old],{...p,date:row.date,money:row.money}),/복합/);assert.equal(old.money.amount,10000)});
+
+test('쇼핑 파일은 별도 시간 열과 날짜에 포함된 시간을 보존하고 현재 시간을 만들지 않는다',async()=>{
+ const {normalizeShoppingGrid,detectShoppingColumns,planShoppingRows}=await import('../shopping-table.js');
+ for(const grid of [[['주문일','결제시간','주문번호','결제금액'],['2026-11-01','9:23','time-a','3000']],[['결제일시','주문번호','결제금액'],['2026-11-01 09:23:45','time-a','3000']]]){const rows=normalizeShoppingGrid(grid,detectShoppingColumns(grid[0]),'네이버','2026-11-05');assert.equal(rows[0].time,'09:23');assert.equal(planShoppingRows([],rows,'2026-11-05').accepted[0].time,'09:23')}
+ const grid=[['주문일','결제시간','주문번호','결제금액'],['2026-11-01','25:00','bad','3000'],['2026-11-01','','blank','3000']];const rows=normalizeShoppingGrid(grid,detectShoppingColumns(grid[0]),'네이버','2026-11-05');assert.equal(rows[0].selected,false);assert.match(rows[0].warning,/결제 시간/);assert.equal(rows[1].time,undefined);
+});
+test('파일 재가져오기는 빈 결제 시간만 보완하고 메모·상품 상세를 보존하며 동시 수정은 거부한다',async()=>{
+ const {shoppingRefreshReview,applyShoppingRefresh}=await import('../shopping-table.js');const money={type:'expense',currency:'KRW',merchant:'네이버',amount:3000,payment:'카드',category:'내 분류',order:{platform:'네이버',id:'time-a',item:'우유',items:[{name:'우유',family:'우유',category:'식품',quantity:1000,unit:'ml',amount:3000}]}};const old={id:'log',date:'2026-11-01',time:'',text:'내 메모',money},row={date:old.date,time:'09:23',money:structuredClone(money)};const review=shoppingRefreshReview([old],row);assert.equal(review.kind,'changed');const before=structuredClone(old);applyShoppingRefresh([old],{...review,...row});assert.deepEqual(old,{...before,time:'09:23'});assert.equal(shoppingRefreshReview([old],{...row,time:'10:00'}).kind,'conflict');assert.throws(()=>applyShoppingRefresh([old],{...review,...row}),/바뀌었/);
+});
