@@ -1,3 +1,4 @@
+import {installChartTooltips} from './chart-tooltips.js';
 import {shoppingOrderLabel} from './shopping-classification.js';
 import {assertRecordUnchanged} from './record-edit.js';
 import {createTaxPaymentFlow} from './tax-payment-ui.js';
@@ -461,3 +462,5 @@ document.addEventListener('change',e=>incomeFlow.change(e));
 document.addEventListener('change',e=>taxFlow.change(e));
 
 document.addEventListener('change',e=>taxPaymentFlow.change(e));
+
+installChartTooltips();

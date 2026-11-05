@@ -8,3 +8,11 @@ test('공부 시간 차트는 종료 활동만 세고 자정 넘는 공부를 �
 test('차트는 접근 가능한 제목·단위·숫자 표를 제공하고 빈 데이터를 꾸며내지 않는다',()=>{assert.match(lineChart({title:'체중',rows:[],unit:'kg'}),/기록을 남기면/);const rows=[{label:'2026-11-01',value:10},{label:'2026-11-03',value:20}];for(const html of [lineChart({title:'체중',rows,unit:'kg'}),barChart({title:'공부',rows,unit:'분'}),donutChart({title:'지출',rows,unit:'원'})]){assert.match(html,/role="img"/);assert.match(html,/수치로 보기/);assert.doesNotMatch(html,/NaN|Infinity/)}assert.doesNotMatch(donutChart({title:'<script>',rows:[],unit:'원'}),/<script>/)});
 
 test('공부 요약은 주 시작 전 시작한 구간을 해당 날짜에 배분하고 미래 날짜에도 오늘까지만 합산한다',()=>{const d=emptyState();d.logs=[{id:'overnight',date:'2026-10-27',time:'23:30',endDate:'2026-10-28',endTime:'00:30',kind:'공부',text:'복습'},{id:'memo',date:'2026-11-03',memo:true,kind:'공부',text:'단어'},{id:'zero',date:'2026-11-03',time:'10:00',endDate:'2026-11-03',endTime:'10:00',kind:'공부',text:'시간 없음'}];const result=studyChartData(d,'2026-11-03',new Date('2026-11-03T12:00:00'));assert.equal(result.minutes,30);assert.equal(result.recordedDays,2);assert.equal(result.completed,3);assert.equal(result.days.reduce((n,r)=>n+r.value,0),result.minutes)});
+
+test('선·막대·도넛 차트의 실제 값에 날짜·단위를 붙이고 툴팁 문구를 안전하게 출력한다',()=>{
+ const rows=[{label:'2026-11-01',value:28110},{label:'2026-11-03',value:28910}];
+ for(const html of [lineChart({title:'가격',rows,unit:'원',digits:0}),barChart({title:'지출',rows,unit:'원'}),donutChart({title:'분류',rows,unit:'원'})]){assert.match(html,/data-chart-value="2026-11-03 · 28,910원"/);assert.match(html,/tabindex="0"/)}
+ const html=lineChart({title:'안전',rows:[{label:'2026-11-01',value:28.91}],unit:'원/g',digits:2});assert.match(html,/28\.91원\/g/);
+ assert.match(donutChart({title:'분류',rows:[{label:'<img onerror="x">',value:1000}],unit:'원'}),/data-chart-value="&lt;img onerror=&quot;x&quot;&gt; · 1,000원"/);
+ assert.match(barChart({title:'지출',rows:[{label:'2026-11-01',value:0},{label:'2026-11-02',value:1000}],unit:'원'}),/data-chart-value="2026-11-01 · 0원"/);
+});
