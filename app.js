@@ -64,7 +64,7 @@ let photoStore=makePhotoStore(key+'-photos');let editorPhotos=[],editorPhotoToke
 let recovery=null;
 function load(){const raw=localStorage.getItem(key);if(!raw)return emptyState();try{return validateBackup(JSON.parse(raw))}catch{recovery=raw;return emptyState()}}
 const boardHashes=['#dashboard','#dashboard-all','#whiteboard','#whiteboard-all'];
-let data=load(),date=todayKey(),view=boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='';
+let data=load(),date=todayKey(),view=boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='',studyHistory={subjectId:'',query:'',limit:60};
 let tossPortfolio=null,tossBusy=false,tossError='',tossCheckedKey='',tossCacheAt=0,tossEligible=false,tossHistory=[];
 let quoteRows=[],quoteError='',quoteBusy=false,quoteLast=0;
 let whiteboardMode=boardHashes.includes(location.hash),whiteboardScope=location.hash.endsWith('-all')?'all':'today',whiteboardDate=todayKey();
@@ -107,7 +107,7 @@ function render(){
  renderNavigation();
  document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===view);b.setAttribute('aria-current',b.dataset.view===view?'page':'false')});
  $('#day-summary').textContent=`일정 ${data.events.filter(e=>e.date===date).length} · 루틴 ${routinesForDate(data,date).length} · 기록 ${recordsForDate(data,date).length}`;
- $('#content').innerHTML=({income:()=>incomeView(data,{esc,btn,card,today:todayKey()}),study:()=>studyView(data,date,todayKey(),activityIntervals(data),{esc,btn,card,empty}),goals:goalsView,assets:assetsView,money:moneyView,day:dayView,week:weekView,routines:routinesView,history:historyView,diary:diaryView,life:lifeView,tasks:tasksView,compare:()=>features.compare(data,date,compareLeft),review:()=>features.review(data,date),favorites:()=>features.library(data)})[view]();
+ $('#content').innerHTML=({income:()=>incomeView(data,{esc,btn,card,today:todayKey()}),study:()=>studyView(data,date,todayKey(),activityIntervals(data),{esc,btn,card,empty},studyHistory),goals:goalsView,assets:assetsView,money:moneyView,day:dayView,week:weekView,routines:routinesView,history:historyView,diary:diaryView,life:lifeView,tasks:tasksView,compare:()=>features.compare(data,date,compareLeft),review:()=>features.review(data,date),favorites:()=>features.library(data)})[view]();
  if(view==='day'&&date<=todayKey())restoreCapture();if(view==='assets'){if(account?.userId()&&!tossBusy&&Date.now()-tossCacheAt>300000)queueMicrotask(refreshToss);paintQuotes();if(Date.now()-quoteLast>30000)refreshQuotes()}hydratePhotos();
  const hasSaved=data.studySubjects.length||recordedDates(data).length||data.favorites.length||Object.keys(data.weeklyReviews).length||data.routineTemplates.length||data.tasks.length;
  const migration=$('#migration-note');migration.hidden=import.meta.env.DEV||sandbox||!!hasSaved||!!account?.userId();
@@ -229,6 +229,8 @@ document.addEventListener('click',async e=>{
  if(b.dataset.group){view=groupDestination(b.dataset.group,lastGroupViews);render();return}
  if(b.dataset.view){view=b.dataset.view;if(view==='compare'&&date>todayKey())date=todayKey();render();return}
  const act=b.dataset.act,id=b.dataset.id;
+ if(act==='study-search-reset'){studyHistory={subjectId:'',query:'',limit:60};render();return}
+ if(act==='study-history-more'){studyHistory.limit+=60;render();return}
  if(act==='study-edit-time'){logEditor(id);return}
  if(act?.startsWith('taxpay-')&&await taxPaymentFlow.action(act,id))return;
  if(act?.startsWith('tax-')&&await taxFlow.action(act,id))return;
@@ -305,6 +307,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('submit',async e=>{
  const form=e.target;if(!form.dataset.form)return;e.preventDefault();const values=Object.fromEntries(new FormData(form)),id=form.dataset.id,type=form.dataset.form,k=date;
+ if(type==='study-search'){studyHistory={subjectId:values.subjectId,query:values.query.trim(),limit:60};render();return}
  if(taxPaymentFlow.submit(form,values))return;
  if(taxFlow.submit(form,values))return;
  if(incomeFlow.submit(form,values))return;

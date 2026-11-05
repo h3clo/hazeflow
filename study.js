@@ -1,4 +1,4 @@
-import {validSubjectName,validSubjectId,studySubjectName} from './study-subjects.js';
+import {validSubjectName,validSubjectId,studySubjectName,studySubjectKey,getStudySubjects} from './study-subjects.js';
 const dateOK=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+'T12:00:00Z'))&&new Date(v+'T12:00:00Z').toISOString().slice(0,10)===v;
 export function studyLink(value,kind='note'){try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password||kind==='note'&&u.protocol==='obsidian:'&&u.hostname==='open'&&!u.username&&!u.password&&['','/'].includes(u.pathname)&&[...u.searchParams.keys()].every(k=>['vault','file','path','paneType'].includes(k))}catch{return false}}
 export function validStudy(s){return !!s&&typeof s==='object'&&!Array.isArray(s)&&validSubjectName(s.subject)&&(s.subjectId===undefined||validSubjectId(s.subjectId))&&['topic','result','next','question','answer','idea','noteUrl','blogUrl','vault','reviewOn','reviewedOn'].every(k=>typeof s[k]==='string'&&s[k].length<=(['answer','result'].includes(k)?5000:1000))&&!!s.topic.trim()&&(!s.reviewOn||dateOK(s.reviewOn)&&!!s.question.trim())&&(!s.reviewedOn||dateOK(s.reviewedOn))&&(!s.noteUrl||studyLink(s.noteUrl))&&(!s.blogUrl||studyLink(s.blogUrl,'blog'))}
@@ -10,3 +10,14 @@ export function studyNoteName(log,data=null){return (log.date+' '+(data?studySub
 export function obsidianStudyURI(log,vault,data=null){if(!vault.trim())throw Error('옵시디언 보관함 이름을 입력해주세요.');const uri='obsidian://new?'+new URLSearchParams({vault:vault.trim(),name:studyNoteName(log,data),content:studyMarkdown(log,false,data)});if(uri.length>7000)throw Error('노트가 길어요. MD 파일로 받아 옵시디언에 넣어주세요.');return uri}
 
 export function mergeStudyEdit(current,submitted,opened){if(!current)return readStudy(submitted);const patch=Object.fromEntries(Object.entries(submitted).filter(([k,v])=>v!==opened[k]));if(patch.question&&!current.question)patch.reviewOn=submitted.reviewOn;return readStudy(patch,current)}
+
+export function searchStudyRows(data,until,{subjectId='',query=''}={}){
+ const names=new Map(getStudySubjects(data).map(subject=>[subject.id,subject.name]));
+ const tokens=String(query).normalize('NFKC').toLocaleLowerCase('ko-KR').trim().split(/\s+/).filter(Boolean);
+ return studyRows(data.logs,until).filter(log=>{
+  if(subjectId&&(subjectId==='unassigned'?!!log.study:studySubjectKey(log.study)!==subjectId))return false;
+  if(!tokens.length)return true;
+  const text=[log.date,log.text,log.study?(names.get(studySubjectKey(log.study))||log.study.subject):'과목 미설정',...['subject','topic','result','next','question','answer','idea'].map(key=>log.study?.[key]||'')].join(' ').normalize('NFKC').toLocaleLowerCase('ko-KR');
+  return tokens.every(token=>text.includes(token));
+ });
+}
