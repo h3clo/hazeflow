@@ -1,3 +1,4 @@
+import {shoppingSuggestion} from '../shopping-import.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {reconcileShoppingReceipts} from '../shopping-receipts.js';
@@ -10,3 +11,5 @@ test('확실한 영수증 ID 중복만 제거하고 번호 없는 동일 금액 
 test('취소목록의 상품 금액을 주문 전체 환급으로 추정해 차감하지 않는다',()=>{const s=audit([base,{...base,item:'휴지',amount:20000}],{cancellations:[{platform:'쿠팡',orderId:'ORDER-A',amount:10000}]});assert.equal(s.orders[0].receiptAmount,30000);assert.equal(s.orders[0].cancellationMatches,1);assert.match(s.orders[0].issues.join(' '),/일부 취소/);assert.equal(s.orders[0].importable,false);});
 test('잘못된 금액·미래일·잘못된 날짜를 분리하고 플랫폼이 다른 주문은 합치지 않는다',()=>{const s=audit([base,{...base,platform:'네이버'},{...base,amount:-10},{...base,amount:1.5},{...base,date:'2026-11-04'},{...base,date:'2026-02-30'}]);assert.equal(s.orderCount,2);assert.equal(s.invalid.length,4);});
 test('미확인을 확인 완료로 오인해 쇼핑 가져오기에서 자동 선택하지 않는다',()=>{const header=['주문일','주문번호','결제금액','금액근거','상태'];for(const [basis,status] of [['미확인',''],['금액 확인 필요',''],['결제합계','상태 미확인']]){const rows=normalizeShoppingGrid([header,['2026-11-01','A','10000',basis,status]],detectShoppingColumns(header),'쿠팡','2026-11-03');assert.equal(rows[0].selected,false);assert.match(rows[0].warning,/확인 필요/)}const rows=normalizeShoppingGrid([header,['2026-11-01','A','10000','실결제 확인','배송완료']],detectShoppingColumns(header),'쿠팡','2026-11-03');assert.equal(rows[0].selected,true);});
+
+test('주문 붙여넣기는 결제 시각을 제안하고 시각 없는 주문에는 현재 시간을 만들지 않는다',()=>{const a=shoppingSuggestion('주문일 2026-11-05 14:23\n주문번호 test-time-1234\n상품명: 우유 1L\n최종 결제금액 3,000원','네이버');assert.equal(a.time,'14:23');assert.equal(shoppingSuggestion('주문일 2026-11-05\n최종 결제금액 3,000원','네이버').time,'')});
