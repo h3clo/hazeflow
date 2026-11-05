@@ -1,3 +1,4 @@
+import {nutritionSummary} from './nutrition.js';
 import {workoutSession} from './workout.js';
 import {shiftDate} from './insights.js';
 const muscles={랫풀다운:['등','이두'],시티드로우:['등','이두'],케이블로우:['등','이두'],바벨로우:['등','이두'],풀업:['등','이두'],체스트프레스:['가슴','삼두'],벤치프레스:['가슴','삼두'],푸시업:['가슴','삼두'],펙덱플라이:['가슴'],숄더프레스:['어깨','삼두'],사이드레터럴레이즈:['어깨'],레터럴레이즈:['어깨'],스쿼트:['허벅지','둔근'],레그프레스:['허벅지','둔근'],레그익스텐션:['허벅지'],레그컬:['햄스트링'],힙쓰러스트:['둔근'],루마니안데드리프트:['햄스트링','둔근'],데드리프트:['둔근','등'],암컬:['이두'],바이셉컬:['이두'],트라이셉스푸시다운:['삼두'],크런치:['복부'],카프레이즈:['종아리']};
@@ -13,5 +14,5 @@ export function measurementReview(data,date){const number=v=>v!==''&&v!==null&&v
  const measurements=Object.entries(data.life).filter(([day,row])=>day<=date&&['muscle','fat','fatPercent'].some(k=>number(row[k])!==null)).sort(([a],[b])=>a.localeCompare(b));
  if(measurements.length<2)return null;
  const [from,a]=measurements.at(-2),[to,b]=measurements.at(-1),logs=data.logs.filter(l=>!l.sourceId&&l.date>from&&l.date<=to),workouts=logs.filter(l=>l.kind==='운동'),meals=logs.filter(l=>l.kind==='식사'),deltas=Object.fromEntries(['weight','muscle','fat','fatPercent'].map(k=>[k,number(a[k])!==null&&number(b[k])!==null?Math.round((Number(b[k])-Number(a[k]))*100)/100:null]));
- return {from,to,a,b,deltas,workoutDays:new Set(workouts.map(l=>l.date)).size,mealDays:new Set(meals.map(l=>l.date)).size,sessions:workouts.length,sets:workouts.reduce((n,l)=>n+workoutSession(l.text).sets,0),cardio:workouts.reduce((n,l)=>n+workoutSession(l.text).cardioMinutes,0),feedback:workouts.filter(l=>l.workoutFeedback).length};
+ return {from,to,a,b,deltas,nutrition:nutritionSummary(meals),workoutDays:new Set(workouts.map(l=>l.date)).size,mealDays:new Set(meals.map(l=>l.date)).size,sessions:workouts.length,sets:workouts.reduce((n,l)=>n+workoutSession(l.text).sets,0),cardio:workouts.reduce((n,l)=>n+workoutSession(l.text).cardioMinutes,0),feedback:workouts.filter(l=>l.workoutFeedback).length};
 }
