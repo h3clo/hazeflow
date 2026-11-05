@@ -65,3 +65,17 @@ test('새 사진 업로드가 멈춰도 사진 없는 활동 종료를 먼저 �
 test('새 공부 과목과 공부 기록은 두 기기로 왕복하고 다른 기기의 이름 변경·보관을 보존한다',async()=>{const {saveStudySubject,archiveStudySubject,selectStudySubject,studySubjectName}=await import('../study-subjects.js');const {readStudy}=await import('../study.js');const server=fakeServer(),a=device(server),b=device(server);try{a.edit(d=>{saveStudySubject(d,{id:'subject-jp',name:'일본어'});d.logs.push({...log(),kind:'공부',study:readStudy({...selectStudySubject(d,'subject-jp'),topic:'인사',question:'안녕하세요는?',answer:'こんにちは',reviewOn:'2026-11-03'})})});await a.engine.sync();await b.engine.sync();assert.equal(b.state.studySubjects[0].name,'일본어');assert.equal(b.state.logs[0].study.subjectId,'subject-jp');b.edit(d=>{saveStudySubject(d,{id:'subject-jp',name:'일본어 회화'});archiveStudySubject(d,'subject-jp')});await b.engine.sync();await a.engine.sync();assert.equal(studySubjectName(a.state,a.state.logs[0].study),'일본어 회화');assert.equal(a.state.studySubjects[0].archived,true);assert.equal(a.state.logs[0].study.reviewOn,'2026-11-03');assert.equal(a.status.phase,'synced')}finally{a.engine.stop();b.engine.stop()}});
 
 test('활동 종료 시각 충돌이 있어도 별도로 추가한 새 활동은 다른 기기에 전달한다',async()=>{const server=fakeServer(),base=row(log()),initial=emptyState();initial.logs=[{...log(),endDate:'2026-10-31',endTime:'13:00'},{...log('새 활동'),id:'new-activity',time:'14:00'}];server.rows[base.item_key]=row({...log(),endDate:'2026-10-31',endTime:'13:30'},2);const a=device(server,initial,{base:{[base.item_key]:base}}),b=device(server);try{await a.engine.sync();assert.equal(a.status.phase,'conflict');assert.equal(a.state.logs.find(l=>l.id==='a').endTime,'13:00');assert.equal(server.rows[itemKey('logs','new-activity')].payload.text,'새 활동');await b.engine.sync();assert.equal(b.state.logs.find(l=>l.id==='new-activity').time,'14:00');assert.equal(b.state.logs.find(l=>l.id==='a').endTime,'13:30')}finally{a.engine.stop();b.engine.stop()}});
+
+test('전송 중 활동을 끝내고 곧바로 앱을 닫아도 재접속 후 종료 시각을 보존한다',async()=>{
+ const server=fakeServer(),initial=emptyState();initial.logs=[log()];let entered,release;
+ const started=new Promise(resolve=>entered=resolve),gate=new Promise(resolve=>release=resolve),push=server.push.bind(server);
+ server.push=async ops=>{entered();await gate;return push(ops)};
+ const a=device(server,initial);let restarted,other;
+ try{
+  const syncing=a.engine.sync();await started;
+  a.edit(s=>Object.assign(s.logs[0],{endDate:'2026-10-31',endTime:'13:00'}));a.engine.schedule(0);
+  const saved=structuredClone(a.state),meta=structuredClone(a.meta);a.engine.stop();release();await syncing;
+  server.push=push;restarted=device(server,saved,meta);await restarted.engine.sync();other=device(server);await other.engine.sync();
+  assert.equal(restarted.status.phase,'synced');assert.equal(other.state.logs[0].endTime,'13:00');assert.equal(server.rows[itemKey('logs','a')].payload.endTime,'13:00');
+ }finally{release();a.engine.stop();restarted?.engine.stop();other?.engine.stop()}
+});
