@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {conflictPreview} from '../sync-conflict-preview.js';
+test('같은 활동 내용이라도 서로 다른 종료 시간을 구별해서 보여준다',()=>{const l={kind:'일상',date:'2026-11-05',time:'00:54',text:'잠'};const open=conflictPreview(l),finished=conflictPreview({...l,endDate:'2026-11-05',endTime:'09:00'});assert.match(open,/시작: 2026-11-05 00:54/);assert.match(open,/자동 종료/);assert.match(finished,/종료: 2026-11-05 09:00/);assert.notEqual(open,finished)});
+test('삭제와 짧은 메모는 진행 중인 활동으로 오해하지 않게 구별한다',()=>{assert.equal(conflictPreview(null,true),'삭제된 기록');assert.match(conflictPreview({kind:'일상',date:'2026-11-05',time:'11:00',text:'메모',memo:true}),/짧은 메모/);assert.equal(conflictPreview({note:'일기'}),'일기')});
