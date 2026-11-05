@@ -1,3 +1,4 @@
+import {escapeRecordFilterKey} from './cloud-query.js';
 import {createRecordCache} from './sync-record-cache.js';
 import {createClient} from '@supabase/supabase-js';
 export {cloudConfig} from './cloud-config.js';
@@ -11,7 +12,7 @@ export function cloudTransport(client,userId,space='main'){
  const table='hazeflow_records',bucket=client.storage.from('hazeflow-photos'),path=ref=>`${userId}/${space}/${ref.id}.jpg`;
  async function pages(columns){const rows=[];for(let page=0;;page++){const {data,error}=await client.from(table).select(columns).eq('user_id',userId).eq('space',space).order('item_key').range(page*500,page*500+499);if(error)throw error;rows.push(...data);if(data.length<500)return rows}}
  const columns='item_key,payload,deleted,version,mutation_id';
- const cache=createRecordCache({loadAll:()=>pages(columns),loadManifest:()=>pages('item_key,version'),async loadKeys(keys){const {data,error}=await client.from(table).select(columns).eq('user_id',userId).eq('space',space).in('item_key',keys);if(error)throw error;return data}});
+ const cache=createRecordCache({loadAll:()=>pages(columns),loadManifest:()=>pages('item_key,version'),async loadKeys(keys){const {data,error}=await client.from(table).select(columns).eq('user_id',userId).eq('space',space).in('item_key',keys.map(escapeRecordFilterKey));if(error)throw error;return data}});
  return {
   pull:()=>cache.pull(),
   async push(ops){const {data,error}=await client.rpc('hazeflow_apply',{p_space:space,p_changes:ops});if(error)throw error;if(data.applied)cache.accept(data.rows);return data},

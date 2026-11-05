@@ -1,3 +1,4 @@
+import {escapeRecordFilterKey} from './cloud-query.js';
 import {validateRows} from './sync-state.js';
 // Keep full records in memory for this account/space. Poll only record versions after boot.
 export function createRecordCache({loadAll,loadManifest,loadKeys}){
@@ -9,7 +10,7 @@ export function createRecordCache({loadAll,loadManifest,loadKeys}){
    const manifest=await loadManifest();if(!Array.isArray(manifest)||manifest.some(r=>typeof r.item_key!=='string'||!Number.isSafeInteger(r.version)||r.version<1))throw Error('동기화 버전 정보를 확인하지 못했어요.');
    const keys=[...new Set(manifest.filter(r=>cache[r.item_key]?.version!==r.version).map(r=>r.item_key))];const fetched=[];let batch=[],bytes=0;
    async function flush(){if(batch.length){fetched.push(...await loadKeys(batch));batch=[];bytes=0}}
-   for(const key of keys){const size=encodeURIComponent(key).length+3;if(batch.length&&(batch.length>=80||bytes+size>5000))await flush();batch.push(key);bytes+=size}await flush();
+   for(const key of keys){const size=encodeURIComponent(escapeRecordFilterKey(key)).length+3;if(batch.length&&(batch.length>=80||bytes+size>5000))await flush();batch.push(key);bytes+=size}await flush();
    const changes=validate(fetched),versions=new Map(manifest.map(r=>[r.item_key,r.version]));
    // Never report a successful pull while a known newer record is absent or stale.
    if(keys.some(key=>!changes[key]||changes[key].version<versions.get(key)))throw Error('새 기록의 상세 내용이 빠졌거나 오래됐어요. 다시 동기화해요.');
