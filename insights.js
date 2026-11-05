@@ -1,6 +1,6 @@
 import {expenseCategoryParts} from './money.js';
 import {validNutrition} from './nutrition.js';
-import {todayKey,isDate,recordsForDate,routinesForDate} from './domain.js';
+import {todayKey,isDate,recordsForDate,routinesForDate,recordedDates} from './domain.js';
 
 export function shiftDate(date,days){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+days);return todayKey(d)}
 export function monthBefore(date,months=1){const d=new Date(date+'T12:00:00'),day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()-months);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return todayKey(d)}
@@ -29,3 +29,8 @@ export function weekSummary(d,anchor,today=todayKey()){
  return {money,workoutTotals,start,end:dates[6],days,elapsed:elapsed.length,recordedDays:past.filter(x=>x.hasActual).length,previousRecordedDays:prevDates.filter(k=>hasActual(d,k)).length,workoutDays:past.filter(x=>x.workouts>0).length,meals:past.reduce((n,x)=>n+x.meals,0),events:{total:events.length,done:events.filter(e=>e.status==='done').length,skipped:events.filter(e=>e.status==='skipped').length},routines:{total:routines.length,done:routines.filter(r=>r.run?.status==='done').length,skipped:routines.filter(r=>r.run?.status==='skipped').length},tasks:d.tasks.filter(t=>t.done&&elapsed.includes(t.completedOn)).length,moods,averages};
 }
 export function templateEntry(values,id){const kind=values.kind,title=values.title?.trim(),text=values.text?.trim();if(!['식사','운동'].includes(kind)||!title||title.length>100||!text||text.length>5000)throw Error('분류·이름·내용을 확인해주세요.');if(values.nutrition!==undefined&&(kind!=='식사'||!validNutrition(values.nutrition)))throw Error('식사 영양정보를 확인해주세요.');return {id,kind,title,text,...(values.nutrition?{nutrition:values.nutrition}:{})}}
+
+export function nearestRecordedDate(data,target,before){
+ const candidates=recordedDates(data).filter(day=>day<before&&day!==target).map(day=>({day,distance:Math.abs(Date.parse(day+'T12:00:00Z')-Date.parse(target+'T12:00:00Z'))})).sort((a,b)=>a.distance-b.distance||a.day.localeCompare(b.day));
+ return candidates.find(({day})=>hasActual(data,day))?.day||'';
+}

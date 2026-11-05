@@ -262,6 +262,8 @@ document.addEventListener('click',async e=>{
  if(act==='plan-tomorrow'){date=shiftDate(todayKey(),1);view='day';render();$('#plan-text')?.focus();return}
  if(act==='focus-capture'){const input=$('#capture-text')||$('#plan-text');input?.scrollIntoView({behavior:'smooth',block:'center'});input?.focus({preventScroll:true});return}
  if(act==='focus-routine'){const target=document.getElementById('routine-run-'+id);target?.scrollIntoView({behavior:'smooth',block:'center'});target?.focus({preventScroll:true});return}
+ if(act==='compare-week'){compareLeft=shiftDate(date,-7);render();return}
+ if(act==='compare-near'){if(isDate(id)&&id<date){compareLeft=id;render()}return}
  if(act==='compare-preset'){compareLeft=monthBefore(date,Number(id));render();return}
  if(act==='review-shift'){date=shiftDate(date,Number(id));render();return}
  if(act==='new-favorite'||act==='edit-favorite'){openEditor('식사·운동 즐겨찾기',features.favoriteEditor(data.favorites.find(t=>t.id===id)));return}
