@@ -16,3 +16,13 @@ export function parseNaverProductDetails(source){
  if(!Number.isSafeInteger(source.total)||source.total<=0||sum+shipping!==source.total)return {items:[],reason:'상품별 할인 후 금액과 주문 합계 불일치'};
  return {items,total:source.total,shipping};
 }
+
+export function parseNaverRetainedProductDetails(source,netTotal,refundText){
+ const refund=Number(String(refundText||'').match(/환불금액\n총 ([\d,]+)원/)?.[1].replaceAll(',','')||0);
+ if(!Number.isSafeInteger(netTotal)||netTotal<=0||!refund||source.total-refund!==netTotal)return {items:[],reason:'환불 후 지출 대조 필요'};
+ const text=String(source.productText||''),names=source.itemNames||[],headers=[...text.matchAll(/^상품가격 ([\d,]+)원[^\n]*상품주문번호\s*:\s*(\d+)[^\n]*$/gm)];
+ if(headers.length!==names.length||!headers.length)return {items:[],reason:'환불 주문의 상품별 정보 확인 필요'};
+ const keep=[],keptNames=[];let removed=0;for(let i=0;i<headers.length;i++){const block=text.slice(headers[i].index,headers[i+1]?.index??text.length);if(/^(?:반품환불완료|반품완료|취소완료)\s*$/m.test(block)){removed++;continue;}keep.push(block);keptNames.push(names[i]);}
+ if(!removed||!keep.length)return {items:[],reason:'남긴 상품 또는 완료된 반품 구분 필요'};
+ return parseNaverProductDetails({...source,productText:text.slice(0,headers[0].index)+keep.join(''),itemNames:keptNames,total:netTotal,hasRefundSection:false});
+}
