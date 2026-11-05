@@ -2,7 +2,7 @@ import {shoppingCategorySuggestion} from './shopping-categories.js';
 import {isDate,isTime} from './domain.js';
 import {csvRows} from './csv.js';
 import {validMoney,moneyText} from './money.js';
-import {duplicateOrder,crossSourceOrderCandidates,shoppingPlatforms} from './shopping-import.js';
+import {duplicateOrder,crossSourceOrderCandidates,shoppingOrderMatches,shoppingPlatforms} from './shopping-import.js';
 export const shoppingColumns={time:['거래시간','결제시간','주문시간','시간','time','paymenttime','ordertime'],category:['카테고리','분류','지출분류','category'],platform:['쇼핑몰','플랫폼','구매처','platform','mall','market'],date:['결제일시','주문일시','날짜','주문일','주문일자','결제일','결제일자','구매일','date','orderdate','paymentdate'],amount:['결제금액','최종결제금액','실결제금액','총결제금액','총주문금액','승인금액','금액','amount','paidamount','paymentamount','totalpaid'],id:['주문번호','주문id','orderid','orderno','ordernumber'],item:['상품명','상품정보','주문상품','품명','구매상품','item','productname','title'],merchant:['거래처','상호명','판매처','판매자','가맹점명','merchant','seller'],payment:['결제수단','결제방법','payment','paymentmethod'],status:['상태','주문상태','결제상태','배송상태','status','orderstatus'],currency:['통화','currency'],basis:['금액근거','amountbasis']};
 const compact=s=>String(s??'').trim().toLowerCase().replace(/[\s_\-()（）]/g,'');
 export function shoppingGrid(text){if(text.length>2000000)throw Error('2MB 이하의 CSV/TSV를 사용해주세요.');const clean=text.replace(/^\uFEFF/,'');let quoted=false,tabs=0;for(let i=0;i<clean.length;i++){const c=clean[i];if(c==='"'){if(quoted&&clean[i+1]==='"')i++;else quoted=!quoted}else if(!quoted){if(c==='\t')tabs++;if(c==='\n'||c==='\r')break}}return csvRows(clean,tabs?'\t':',')}
@@ -30,7 +30,7 @@ export function normalizeShoppingBatch(sources,platform,today){if(!sources.lengt
 
 // Compare only source facts. User classifications and curated item details survive refreshes.
 export function shoppingRefreshReview(logs,row){
- const matches=row.money.order.id?logs.filter(l=>l.money?.order?.platform===row.money.order.platform&&l.money.order.id===row.money.order.id):[];
+ const matches=row.money.order.id?logs.filter(l=>shoppingOrderMatches(l.money?.order,row.money.order)):[];
  if(matches.length>1)return {kind:'conflict',message:'기존 같은 주문이 여러 건이에요. 분할 결제·중복 기록 확인 필요'};
  const old=matches[0];
  if(!old){const candidates=crossSourceOrderCandidates(logs,row.money,row.date);if(!row.blocked&&candidates.length)return {kind:'possible-duplicate',message:'같은 날짜·금액의 '+candidates[0].money.order.platform+' 결제 '+candidates.length+'건이 있어요. 같은 구매인지 확인 후 선택해주세요.'};return {kind:row.blocked?'blocked':'new',message:row.blocked?'취소·환불 상태 · 결제 내역 확인 필요':'새 주문'};}
@@ -46,7 +46,7 @@ export function shoppingRefreshReview(logs,row){
 export function applyShoppingRefresh(logs,patch){
  const old=logs.find(l=>l.id===patch.id);
  if(!old||JSON.stringify({date:old.date,time:old.time||'',money:old.money})!==patch.before)throw Error('기존 주문이 바뀌었어요. 파일을 다시 확인해주세요.');
- if(patch.money.order.id!==old.money.order.id||patch.money.order.platform!==old.money.order.platform)throw Error('주문번호와 쇼핑몰을 확인해주세요.');
+ if(!shoppingOrderMatches(old.money.order,patch.money.order))throw Error('주문번호와 쇼핑몰을 확인해주세요.');
  if(!isDate(patch.date)||(patch.time&&!isTime(patch.time)))throw Error('날짜·결제 시간을 확인해주세요.');
  if(old.money.splits&&patch.money.amount!==old.money.amount)throw Error('복합 결제 주문은 기존 기록에서 결제수단별 금액을 먼저 확인해주세요.');
  if(!validMoney({...old.money,amount:patch.money.amount}))throw Error('상품별 금액 배분이 새 결제금액과 맞지 않아요. 기존 상품 정보를 먼저 확인해주세요.');
