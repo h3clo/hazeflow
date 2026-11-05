@@ -19,7 +19,9 @@ const rules=[
 ];
 export const categoryMissing=c=>!String(c||'').trim()||c==='미분류';
 export function classifyShoppingName(name){const text=String(name||'');return rules.find(([,re])=>re.test(text))?.[0]||'';}
+export function shoppingOrderLabel(order){return String(order?.item||'').trim()||(order?.items||[]).map(i=>i.name).join(' / ')||'상품명 확인 필요';}
 export function resolvedShoppingCategory(order){
+ if(!String(order?.item||'').trim()&&order?.items?.length){const categories=[...new Set(order.items.map(resolvedItemCategory))];return categories.length===1?categories[0]:'복합 구매';}
  const parts=[...new Set(String(order?.item||'').split(/\s+\/\s+/).map(x=>x.replace(/^상품명\s+/, '').trim()).filter(Boolean))];
  const categories=[...new Set(parts.map(classifyShoppingName).filter(Boolean))];
  if(categories.length>1)return '복합 구매';
