@@ -1,3 +1,4 @@
+import {userMessage} from './user-message.js';
 import {moneyEditEntry} from './money-edit.js';
 import {installChartTooltips} from './chart-tooltips.js';
 import {shoppingOrderLabel} from './shopping-classification.js';
@@ -85,7 +86,7 @@ const studyFlow=createStudyFlow({getData:()=>data,commit,openEditor,notify,downl
 const features=featureUI({esc,btn,card,empty,field,photoGallery});
 let account=null,accountLoading=false,needsPaint=false;
 const toast=createToast({show(text,undo){$('#notice span').textContent=text;$('#notice [data-act=undo]').hidden=!undo;$('#notice').hidden=false},hide(){$('#notice').hidden=true}});
-function notify(text,undo=false){toast.present(text,undo)}
+function notify(text,undo=false){toast.present(userMessage(text),undo)}
 $('#notice').addEventListener('pointerenter',()=>toast.setPaused('pointer',true));
 $('#notice').addEventListener('pointerleave',()=>toast.setPaused('pointer',false));
 $('#notice').addEventListener('focusin',()=>toast.setPaused('focus',true));
