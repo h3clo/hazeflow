@@ -1,3 +1,4 @@
+import {replaceFavorite} from './favorite-edit.js';
 import {readFavoriteDays,recommendedFavorites,favoriteMatchesDay} from './favorite-days.js';
 import {searchDiaries,diaryExcerpt} from './diary-search.js';
 import {userMessage} from './user-message.js';
@@ -66,7 +67,7 @@ let photoStore=makePhotoStore(key+'-photos');let editorPhotos=[],editorPhotoToke
 let recovery=null;
 function load(){const raw=localStorage.getItem(key);if(!raw)return emptyState();try{return validateBackup(JSON.parse(raw))}catch{recovery=raw;return emptyState()}}
 const boardHashes=['#dashboard','#dashboard-all','#whiteboard','#whiteboard-all'];
-let data=load(),date=todayKey(),view=boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',historyRecordLimit=100,historyDateLimit=60,diarySearchLimit=30,undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='',studyHistory={subjectId:'',query:'',limit:60};
+let data=load(),date=todayKey(),view=boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',historyRecordLimit=100,historyDateLimit=60,diarySearchLimit=30,undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='',favoriteQuery='',studyHistory={subjectId:'',query:'',limit:60};
 let tossPortfolio=null,tossBusy=false,tossError='',tossCheckedKey='',tossCacheAt=0,tossEligible=false,tossHistory=[];
 let quoteRows=[],quoteError='',quoteBusy=false,quoteLast=0;
 let whiteboardMode=boardHashes.includes(location.hash),whiteboardScope=location.hash.endsWith('-all')?'all':'today',whiteboardDate=todayKey();
@@ -109,7 +110,7 @@ function render(){
  renderNavigation();
  document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===view);b.setAttribute('aria-current',b.dataset.view===view?'page':'false')});
  $('#day-summary').textContent=`일정 ${data.events.filter(e=>e.date===date).length} · 루틴 ${routinesForDate(data,date).length} · 기록 ${recordsForDate(data,date).length}`;
- $('#content').innerHTML=({income:()=>incomeView(data,{esc,btn,card,today:todayKey()}),study:()=>studyView(data,date,todayKey(),activityIntervals(data),{esc,btn,card,empty},studyHistory),goals:goalsView,assets:assetsView,money:moneyView,day:dayView,week:weekView,routines:routinesView,history:historyView,diary:diaryView,life:lifeView,tasks:tasksView,compare:()=>features.compare(data,date,compareLeft),review:()=>features.review(data,date),favorites:()=>features.library(data,date)})[view]();
+ $('#content').innerHTML=({income:()=>incomeView(data,{esc,btn,card,today:todayKey()}),study:()=>studyView(data,date,todayKey(),activityIntervals(data),{esc,btn,card,empty},studyHistory),goals:goalsView,assets:assetsView,money:moneyView,day:dayView,week:weekView,routines:routinesView,history:historyView,diary:diaryView,life:lifeView,tasks:tasksView,compare:()=>features.compare(data,date,compareLeft),review:()=>features.review(data,date),favorites:()=>features.library(data,date,favoriteQuery)})[view]();
  if(view==='day'&&date<=todayKey())restoreCapture();if(view==='assets'){if(account?.userId()&&!tossBusy&&Date.now()-tossCacheAt>300000)queueMicrotask(refreshToss);paintQuotes();if(Date.now()-quoteLast>30000)refreshQuotes()}hydratePhotos();
  const hasSaved=data.studySubjects.length||recordedDates(data).length||data.favorites.length||Object.keys(data.weeklyReviews).length||data.routineTemplates.length||data.tasks.length;
  const migration=$('#migration-note');migration.hidden=import.meta.env.DEV||sandbox||!!hasSaved||!!account?.userId();
@@ -267,6 +268,7 @@ document.addEventListener('click',async e=>{
  if(act==='compare-near'){if(isDate(id)&&id<date){compareLeft=id;render()}return}
  if(act==='compare-preset'){compareLeft=monthBefore(date,Number(id));render();return}
  if(act==='review-shift'){date=shiftDate(date,Number(id));render();return}
+ if(act==='favorite-search-reset'){favoriteQuery='';render();return}
  if(act==='new-favorite'||act==='edit-favorite'){openEditor('식사·운동 즐겨찾기',features.favoriteEditor(data.favorites.find(t=>t.id===id)));return}
  if(act==='favorite-log'){const l=data.logs.find(l=>l.id===id);if(l)openEditor('즐겨찾기로 저장',features.favoriteEditor({kind:l.kind,title:l.text.slice(0,100),text:l.text,...(l.nutrition?{nutrition:l.nutrition}:{})}));return}
  if(act==='favorite-capture'){rememberCapture();const draft=drafts[date];if(!document.querySelector('[data-form=capture]').reportValidity())return;if(!draft.text.trim()){notify('먼저 저장할 내용을 적어주세요.');return}openEditor('즐겨찾기로 저장',features.favoriteEditor({kind:draft.kind,title:draft.text.slice(0,100),text:draft.text,...(draft.kind==='식사'?{nutrition:readNutrition(draft)}:{})}));return}
@@ -316,6 +318,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('submit',async e=>{
  const form=e.target;if(!form.dataset.form)return;e.preventDefault();const values=Object.fromEntries(new FormData(form)),id=form.dataset.id,type=form.dataset.form,k=date;
+ if(type==='favorite-search'){favoriteQuery=values.query.trim();render();return}
  if(type==='study-search'){studyHistory={subjectId:values.subjectId,query:values.query.trim(),limit:60};render();return}
  if(taxPaymentFlow.submit(form,values))return;
  if(taxFlow.submit(form,values))return;
@@ -333,7 +336,7 @@ document.addEventListener('submit',async e=>{
  if(type==='body'){if(k>todayKey()){notify('측정값은 오늘이나 지난 날짜에 남겨주세요.');return}if(photoBusy.has('body:'+k)){notify('사진 처리 후 저장해주세요.');return}const ok=commit(d=>{d.life[k]={...d.life[k],...Object.fromEntries(bodyFields.map(key=>[key,values[key]||'']))}},{undo:true,message:'측정값을 저장했어요.'});if(ok)render();return}
  if(type==='body-import'){try{if(bodyPreviewText!==values.csv){bodyImportPreview();notify('가져올 내용을 확인한 뒤 가져오기 버튼을 다시 눌러주세요.');return}const rows=bodyImportPreview();const ok=commit(d=>{d.life=mergeBodyRows(d.life,rows,!!values.overwrite)},{undo:true,message:rows.length+'일의 측정값을 가져왔어요.'});if(ok)$('#editor').close()}catch(error){$('#form-error').textContent=error.message}return}
  if(type==='compare'){if(isDate(values.left)&&isDate(values.right)&&values.left<=values.right&&values.right<=todayKey()){compareLeft=values.left;date=values.right;render()}else notify('과거 날짜부터 오늘까지의 날짜를 선택해주세요.');return}
- if(type==='favorite'){try{const entry=templateEntry({...values,weekdays:readFavoriteDays(new FormData(form).getAll('weekdays')),...(values.kind==='식사'?{nutrition:readNutrition(values)}:{})},id||uid());const ok=commit(d=>{if(id)d.favorites=d.favorites.map(t=>t.id===id?entry:t);else d.favorites.push(entry)},{undo:true,message:'즐겨찾기를 저장했어요.'});if(ok)$('#editor').close()}catch(error){$('#form-error').textContent=error.message}return}
+ if(type==='favorite'){try{const entry=templateEntry({...values,weekdays:readFavoriteDays(new FormData(form).getAll('weekdays')),...(values.kind==='식사'?{nutrition:readNutrition(values)}:{})},id||uid());const ok=commit(d=>{if(id)d.favorites=replaceFavorite(d.favorites,entry,JSON.parse(form.dataset.original));else d.favorites.push(entry)},{undo:true,message:'즐겨찾기를 저장했어요.'});if(ok)$('#editor').close()}catch(error){$('#form-error').textContent=error.message}return}
  if(type==='weekly-review'){const start=form.dataset.start;if(!isDate(start)||weekStart(start)!==start)return;commit(d=>{d.weeklyReviews[start]={remember:values.remember.trim(),adjust:values.adjust.trim(),next:values.next.trim()}},{undo:true,message:'이 주의 회고를 저장했어요.'});return}
  if(type==='capture'){
   if(future()){notify('실제 활동은 오늘이나 지난 날짜에 남겨주세요. 미래 계획은 일정에 추가해요.');return}
