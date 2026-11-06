@@ -8,3 +8,7 @@ The original MIT license is included in the source and distributed at
 
 Haze Flow supplies its own muscle grouping, selection controls, labels, workout
 history display, and layout. The body map is a visual aid, not a medical diagram.
+
+Apple Health XML parsing uses [saxes 6.0.0](https://github.com/lddubeau/saxes)
+(ISC) and xmlchars (MIT). Their notices are distributed in
+`public/licenses/saxes.txt` and `public/licenses/xmlchars.txt`.
