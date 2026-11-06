@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {assertActivityEditSafe} from '../record-edit.js';import {activityEndForEdit} from '../domain.js';
+const opened={id:'a',date:'2026-11-07',time:'00:00',kind:'일상',text:'독서',photos:[]},submitted={...opened,mode:'activity',text:'내용 보완',endDate:'',endTime:''};
+test('다른 기기의 종료만 바뀌면 내용을 수정하면서 최신 종료를 유지한다',()=>{const current={...opened,endDate:opened.date,endTime:'00:10'};assert.doesNotThrow(()=>assertActivityEditSafe(current,opened,submitted));assert.deepEqual(activityEndForEdit(current,submitted,opened),{endDate:opened.date,endTime:'00:10'});});
+test('내용·사진·식사 연결·공부 정보 변경과 삭제를 오래된 편집으로 덮지 않는다',()=>{for(const current of [{...opened,text:'다른 내용'},{...opened,photos:[{id:'new'}]},{...opened,expenseId:'expense'},{...opened,study:{topic:'changed'}},undefined])assert.throws(()=>assertActivityEditSafe(current,opened,submitted),/다른 기기|삭제된 기록/)});
+test('종료를 양쪽에서 다르게 고친 충돌은 막고 같은 종료 또는 단독 수정은 허용한다',()=>{const current={...opened,endDate:opened.date,endTime:'00:20'},edited={...submitted,endDate:opened.date,endTime:'00:30'};assert.throws(()=>assertActivityEditSafe(current,opened,edited),/종료 시간/);assert.doesNotThrow(()=>assertActivityEditSafe(opened,opened,edited));assert.doesNotThrow(()=>assertActivityEditSafe(current,opened,{...edited,endTime:'00:20'}));});
