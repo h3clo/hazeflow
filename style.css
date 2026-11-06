@@ -205,3 +205,17 @@ main>.datebar{margin-bottom:20px}@media(max-width:740px){main>.datebar{margin-bo
 .section-nav button{display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.4}
 .favorite-item>div:first-child{display:grid;gap:8px;align-content:start;justify-items:start;flex:1}.favorite-item h3{line-height:1.5}.favorite-item>div:first-child>p,.favorite-item>div:first-child>small{margin:0}.favorite-item .badge{line-height:1.5}.favorite-item .row-actions{margin:0;align-self:center}@media(max-width:740px){.favorite-item .row-actions{align-self:flex-start}}
 .log-topline{align-items:center}.log-row .log-actions button{display:inline-flex;align-items:center;justify-content:center;line-height:1.5}
+/* Search controls share a baseline, including custom select triggers. */
+form.feature-toolbar label{display:grid;gap:8px;align-content:end;min-width:0}
+form.feature-toolbar input,form.feature-toolbar .select-trigger,form.feature-toolbar>button{min-height:42px;margin:0;box-sizing:border-box}
+form[data-form="study-search"]{display:grid;grid-template-columns:minmax(140px,1fr) minmax(180px,2fr) auto auto;align-items:end}
+form[data-form="search"]{display:grid;grid-template-columns:minmax(110px,1fr) minmax(160px,2fr) auto;align-items:center}
+#content>.flow-columns+section.card{margin-top:22px}
+.log-topline{align-items:center;gap:12px}.log-topline>small{flex-shrink:0}
+.calendar-routine{display:block;width:100%;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent);background:var(--accent-soft);border-radius:6px;margin-top:4px;padding:5px}
+.tax-record-details{margin-top:16px}
+@media(max-width:700px){form[data-form="study-search"]{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}form[data-form="study-search"]>label{grid-column:span 2}form[data-form="study-search"]>button{width:100%}form[data-form="search"]{grid-template-columns:minmax(0,1fr) auto}form[data-form="search"]>.select-control{grid-column:span 2}.log-row{display:grid;grid-template-columns:1fr}.log-row .log-actions{flex-direction:row;flex-wrap:wrap}.log-content{min-width:0}.log-topline{align-items:center}}
+form.feature-toolbar .haze-select-trigger{min-height:42px;margin:0}
+form[data-form="search"].inline-form{display:grid;grid-template-columns:minmax(110px,1fr) minmax(160px,2fr) auto;align-items:center;gap:10px}
+form[data-form="search"].inline-form input{width:100%;min-width:0;margin:0}
+@media(max-width:700px){form[data-form="search"].inline-form{grid-template-columns:minmax(0,1fr) auto}form[data-form="search"].inline-form>.haze-select{grid-column:1 / -1}}

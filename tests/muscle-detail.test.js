@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {emptyState,validateBackup} from '../domain.js';import {readWorkoutFeedback} from '../workout-feedback.js';import {muscleMap} from '../muscle-map.js';
+test('허벅지 안쪽과 바깥쪽 느낌은 별도로 저장하고 복원한다',()=>{const d=emptyState(),f=readWorkoutFeedback({effort:'3',soreness:'약함',note:''},['내전근','허벅지바깥']);d.logs.push({id:'detail',kind:'운동',date:'2026-11-06',time:'',memo:true,text:'운동',workoutFeedback:f});assert.deepEqual(validateBackup(d).logs[0].workoutFeedback.muscles,f.muscles);const html=muscleMap([],f.muscles);assert.match(html,/data-muscle="내전근"/);assert.match(html,/data-muscle="허벅지바깥"/);assert.match(html,/내전근군/);assert.match(html,/위치 기록/)});
