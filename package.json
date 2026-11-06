@@ -36,6 +36,7 @@
   "type": "module",
   "devDependencies": {
     "@capacitor/cli": "^8.6.0",
-    "@electric-sql/pglite": "^0.5.13"
+    "@electric-sql/pglite": "^0.5.13",
+    "fake-indexeddb": "^6.2.7"
   }
 }

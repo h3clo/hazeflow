@@ -79,3 +79,5 @@ test('전송 중 활동을 끝내고 곧바로 앱을 닫아도 재접속 후 �
   assert.equal(restarted.status.phase,'synced');assert.equal(other.state.logs[0].endTime,'13:00');assert.equal(server.rows[itemKey('logs','a')].payload.endTime,'13:00');
  }finally{release();a.engine.stop();restarted?.engine.stop();other?.engine.stop()}
 });
+
+test('비동기 대기 저장이 실패하면 서버 전송과 완료 표시를 하지 않는다',async()=>{const server=fakeServer(),d=emptyState();d.logs=[log()];let pushed=0;server.push=async()=>{pushed++;throw Error('must not push')};const x=device(server,d,null,{storage:{getItem:()=>null,setItem:async()=>{throw Error('기기 저장 실패')}}});await x.engine.sync();assert.equal(pushed,0);assert.equal(x.status.phase,'error');assert.match(x.status.error,/기기 저장 실패/);x.engine.stop()});
