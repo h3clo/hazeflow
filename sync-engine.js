@@ -2,7 +2,7 @@ import {collectPhotoRefs} from './photos.js';
 import {flattenState,reconcile,pendingChanges,resolveConflict,validateRows,stable} from './sync-state.js';
 
 const refsForRow=(key,value)=>{const kind=JSON.parse(key)[0];return kind==='life'?value?.bodyPhotos||[]:['logs','diary'].includes(kind)?value?.photos||[]:[]};
-export function createSyncEngine({transport,storage,photoStore,read,write,onStatus=()=>{},online=()=>true,now=()=>new Date().toISOString(),timeoutMs=20000}){
+export function createSyncEngine({transport,storage,photoStore,read,write,onStatus=()=>{},online=()=>true,now=()=>new Date().toISOString(),timeoutMs=20000,refresh=null}){
  let stopped=false,running=false,again=false,timer,meta;
  try{meta=JSON.parse(storage.getItem()||'null')}catch{}meta={base:{},pending:{},uploaded:[],lastSync:null,...meta};
  let conflicts=[];const uploaded=new Set(meta.uploaded);
@@ -24,9 +24,9 @@ export function createSyncEngine({transport,storage,photoStore,read,write,onStat
  async function sync(){
   if(stopped)return;if(running){again=true;return}clearTimeout(timer);if(!online()){status('offline');return}running=true;
   try{
-   status('syncing');const remote=validateRows(await bounded(()=>transport.pull(),'기록 불러오기'));active();const previous=read(),merged=reconcile(previous,meta.base,remote,meta.pending);conflicts=merged.conflicts;
+   status('syncing');if(refresh)await refresh();active();const remote=validateRows(await bounded(()=>transport.pull(),'기록 불러오기'));active();const previous=read(),merged=reconcile(previous,meta.base,remote,meta.pending);conflicts=merged.conflicts;
    // Persist data before its baseline: a crash must never turn an unseen remote item into a local deletion.
-   if(stable(flattenState(previous))!==stable(flattenState(merged.state)))await write(merged.state);
+   if(stable(flattenState(previous))!==stable(flattenState(merged.state)))await write(merged.state,previous);
    meta.base=merged.base;for(const [key,op]of Object.entries(meta.pending))if(remote[key]?.mutation_id===op.mutation_id)delete meta.pending[key];await save();
    // A disputed record or missing photo must not block unrelated records (including activity completion).
    const blocked=new Set(conflicts.map(c=>c.key)),ops=pendingChanges(read(),meta.base,meta.pending).filter(op=>!blocked.has(op.item_key));for(const op of ops)meta.pending[op.item_key]=op;await save();
@@ -46,6 +46,6 @@ export function createSyncEngine({transport,storage,photoStore,read,write,onStat
   }catch(error){if(!stopped){status(online()?'error':'offline',{error:error.message});if(online()){timer=setTimeout(sync,15000);timer.unref?.()}}}finally{running=false;if(again&&!stopped){again=false;schedule(150)}}
  }
  async function schedule(delay=700){if(stopped)return;try{await journal();if(stopped)return}catch(error){status('error',{error:'동기화 대기 내용을 보관하지 못했어요. '+error.message});return}if(running){again=true;return}clearTimeout(timer);status(online()?'pending':'offline');timer=setTimeout(sync,delay)}
- async function resolve(key,choice){const conflict=conflicts.find(c=>c.key===key);if(!conflict||!['local','remote'].includes(choice))return;const result=resolveConflict(read(),meta.base,conflict,choice);await write(result.state);meta.base=result.base;conflicts=conflicts.filter(c=>c.key!==key);await save();schedule(0)}
+ async function resolve(key,choice){const conflict=conflicts.find(c=>c.key===key);if(!conflict||!['local','remote'].includes(choice))return;const result=resolveConflict(read(),meta.base,conflict,choice);await write(result.state,read());meta.base=result.base;conflicts=conflicts.filter(c=>c.key!==key);await save();schedule(0)}
  return {sync,schedule,resolve,getStatus:()=>({conflicts,lastSync:meta.lastSync,pending:pendingChanges(read(),meta.base,meta.pending).length}),stop(){stopped=true;clearTimeout(timer);storage.close?.()}};
 }

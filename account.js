@@ -25,9 +25,9 @@ export function createAccount({config,sandbox,cloudFactory=makeCloud,esc,switchA
  }
  async function activate(session){
   const next=session?.user||null;if(next?.id===user?.id&&engine){user=next;if(engine)engine.schedule(0);return}
-  version++;engine?.stop();engine=null;unsubscribe?.();unsubscribe=null;clearInterval(interval);user=next;current={phase:user?'syncing':'local',conflicts:[]};
-  switchAccount(user?.id||null);paint();if(!user)return;
-  const token=version;let context;try{context=await getContext()}catch(error){if(token===version){current={phase:'error',conflicts:[],error:'동기화 저장소를 열지 못했어요. '+error.message};paint()}return}if(token!==version){context.storage.close?.();return}const transport=cloudTransport(auth.client,user.id,sandbox?'sandbox':'main');
+  const token=++version;engine?.stop();engine=null;unsubscribe?.();unsubscribe=null;clearInterval(interval);user=next;current={phase:user?'syncing':'local',conflicts:[]};
+  await switchAccount(user?.id||null);if(token!==version)return;paint();if(!user)return;
+  let context;try{context=await getContext()}catch(error){if(token===version){current={phase:'error',conflicts:[],error:'동기화 저장소를 열지 못했어요. '+error.message};paint()}return}if(token!==version){context.storage.close?.();return}const transport=cloudTransport(auth.client,user.id,sandbox?'sandbox':'main');
   engine=createSyncEngine({...context,transport,onStatus(status){if(version!==token)return;current=status;paint()},online:()=>navigator.onLine});
   unsubscribe=transport.subscribe(()=>engine?.schedule(200));interval=setInterval(()=>{if(document.visibilityState==='visible')engine?.schedule(0)},30000);await engine.sync();
  }
