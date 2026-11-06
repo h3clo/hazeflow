@@ -12,4 +12,5 @@ export function journalDraft(d,date){
 }
 export function applyJournalDraft(existing,draft,replace=false){const value=draft.trim();if(!value)throw Error('초안 내용을 적어주세요.');if(value.length>20000)throw Error('초안은 20,000자 이내로 적어주세요.');if(replace||!existing?.trim())return value;if(existing.includes(value))return existing;return existing+'\n\n'+value;}
 export function assertSameDiary(current,opened){if(stable(current??null)!==stable(opened??null))throw Error('다른 기기나 화면에서 바뀐 기록이에요. 입력 내용을 따로 보관한 뒤 편집창을 다시 열어주세요.');}
+export function toggleDiaryClosed(day,opened){if(!day&&opened)throw Error('다른 화면에서 삭제된 기록이에요. 목록을 다시 확인해주세요.');return {...(day||{}),closedDay:!opened?.closedDay}}
 export function applyOpenedJournalDraft(day,openedEntry,draft,replace=false){const current=day?.entry||'';if(current!==(openedEntry||''))throw Error('다른 기기나 화면에서 바뀐 기록이에요. 입력 내용을 따로 보관한 뒤 편집창을 다시 열어주세요.');return {...(day||{}),entry:applyJournalDraft(current,draft,replace)};}
