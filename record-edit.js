@@ -2,9 +2,27 @@ import {stable} from './sync-state.js';
 // Compare against the record loaded inside the save transaction, not a stale
 // copy from the screen. Deletion must never turn an edit into a new record.
 export function assertRecordUnchanged(current,opened){
+ if(!opened||typeof opened!=='object')throw Error('기록을 다시 확인해주세요.');
  if(!current)throw Error('다른 화면에서 삭제된 기록이에요. 목록을 다시 확인해주세요.');
  const comparable=r=>{const copy={...r};for(const key of ['endDate','endTime'])if(copy[key]===null||copy[key]==='')delete copy[key];return stable(copy)};
  if(comparable(current)!==comparable(opened))throw Error('다른 기기나 화면에서 바뀐 기록이에요. 입력 내용을 따로 보관한 뒤 편집창을 다시 열어주세요.');
+}
+export function removeUnchangedLog(logs,id,opened){
+ assertRecordUnchanged(logs.find(l=>l.id===id),opened);
+ return logs.filter(l=>l.id!==id).map(l=>{if(l.expenseId!==id)return l;const copy={...l};delete copy.expenseId;return copy});
+}
+export function removeUnchangedItem(items,id,opened){
+ assertRecordUnchanged(items.find(item=>item.id===id),opened);
+ return items.filter(item=>item.id!==id);
+}
+export function linkHealthWorkout(logs,{healthId,targetId,openedHealth,openedTarget}){
+ if(!openedTarget)throw Error('연결할 운동을 다시 확인해주세요.');
+ const row=logs.find(l=>l.id===healthId),target=logs.find(l=>l.id===targetId);
+ assertRecordUnchanged(row,openedHealth);
+ assertRecordUnchanged(target,openedTarget);
+ if(row.kind!=='건강운동'||target.kind!=='운동'||row.date!==target.date)throw Error('연결할 운동을 다시 확인해주세요.');
+ target.healthWorkouts=[...(target.healthWorkouts||[]),...(row.healthWorkouts||[]).filter(w=>!target.healthWorkouts?.some(x=>x.id===w.id))];
+ return logs.filter(l=>l.id!==healthId);
 }
 // End-only updates may safely arrive while editing text: keep the latest end via
 // activityEndForEdit. All other concurrent changes must be reviewed first.
