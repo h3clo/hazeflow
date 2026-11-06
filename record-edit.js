@@ -15,6 +15,14 @@ export function removeUnchangedItem(items,id,opened){
  assertRecordUnchanged(items.find(item=>item.id===id),opened);
  return items.filter(item=>item.id!==id);
 }
+export function removeUnchangedAssetAccount(logs,accountId,openedLogs){
+ if(!accountId||!Array.isArray(openedLogs)||!openedLogs.length)throw Error('삭제할 자산을 다시 확인해주세요.');
+ const current=logs.filter(l=>l.asset?.accountId===accountId);
+ if(current.length!==openedLogs.length)throw Error('다른 기기나 화면에서 바뀐 기록이에요. 입력 내용을 따로 보관한 뒤 편집창을 다시 열어주세요.');
+ const opened=new Map(openedLogs.map(l=>[l.id,l]));
+ for(const row of current)assertRecordUnchanged(row,opened.get(row.id));
+ return logs.filter(l=>l.asset?.accountId!==accountId);
+}
 export function linkHealthWorkout(logs,{healthId,targetId,openedHealth,openedTarget}){
  if(!openedTarget)throw Error('연결할 운동을 다시 확인해주세요.');
  const row=logs.find(l=>l.id===healthId),target=logs.find(l=>l.id===targetId);

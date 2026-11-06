@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {replaceFavorite} from '../favorite-edit.js';import {recommendedFavorites} from '../favorite-days.js';
+import {replaceFavorite,removeUnchangedFavorite} from '../favorite-edit.js';import {recommendedFavorites} from '../favorite-days.js';
 const row={id:'f',kind:'운동',title:'등 운동',text:'랫풀다운 15 15 3',weekdays:[2,5]};
 test('does not overwrite weekday or text edits made after the editor opened, or restore deleted favorites',()=>{
  const changed={...row,weekdays:[1]},entry={...row,title:'내 제목'};
@@ -8,6 +8,7 @@ test('does not overwrite weekday or text edits made after the editor opened, or 
  assert.deepEqual(changed.weekdays,[1]);
  assert.deepEqual(replaceFavorite([row],entry,structuredClone(row)),[entry]);
 });
+test('다른 화면에서 바뀌거나 삭제된 즐겨찾기는 오래된 목록에서 지우지 않는다',()=>{const other={...row,id:'g',title:'다른 즐겨찾기'};assert.throws(()=>removeUnchangedFavorite([{...row,text:'다른 내용'}],row.id,row),/바뀐 기록/);assert.throws(()=>removeUnchangedFavorite([],row.id,row),/삭제된 기록/);assert.deepEqual(removeUnchangedFavorite([row,other],row.id,structuredClone(row)),[other]);});
 test('favorite search matches all terms in name and content while retaining weekday priority',()=>{
  const other={...row,id:'other',title:'등 스트레칭',text:'스트레칭',weekdays:undefined};
  assert.deepEqual(recommendedFavorites([other,row],'운동','2026-11-06','등 랫풀다운').map(t=>t.id),['f']);
