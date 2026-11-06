@@ -1,3 +1,4 @@
+import {validHealthDaily,validHealthWorkout,healthWorkoutText,healthDailyText} from './health-data.js';
 import {validFavoriteDays} from './favorite-days.js';
 import {validTaxPayment} from './tax-payments.js';
 import {validTaxDocument} from './tax-documents.js';
@@ -93,11 +94,11 @@ export function workoutSummary(log){
 }
 export function inferKind(text,kind='일상'){if(kind!=='일상')return kind;if(workoutSummary({text}))return '운동';if(/^식사\s/.test(text))return '식사';return kind}
 export function recordsForDate(d,date){
- return [...d.logs.filter(l=>l.date===date&&!l.asset&&!l.incomeDocument&&!l.taxDocument&&!l.taxPayment),...d.exercises.filter(e=>e.date===date).map(e=>({id:e.id,date:e.date,time:'',kind:'운동',text:`${e.name} · ${e.minutes}분${e.effort?' · '+e.effort:''}${e.note?'\n'+e.note:''}`,legacy:true}))].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+ return [...d.logs.filter(l=>l.date===date&&!l.healthDaily&&l.kind!=='건강운동'&&!l.asset&&!l.incomeDocument&&!l.taxDocument&&!l.taxPayment),...d.exercises.filter(e=>e.date===date).map(e=>({id:e.id,date:e.date,time:'',kind:'운동',text:`${e.name} · ${e.minutes}분${e.effort?' · '+e.effort:''}${e.note?'\n'+e.note:''}`,legacy:true}))].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
 }
 // Existing manual records also form activity intervals. Source logs and memos never interrupt them.
 export function activityIntervals(d,now=new Date()){
- const records=d.logs.filter(l=>!l.sourceId&&!l.memo&&isDate(l.date)&&isTime(l.time)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)||a.id.localeCompare(b.id));
+ const records=d.logs.filter(l=>!l.sourceId&&!l.memo&&!l.healthDaily&&l.kind!=='건강운동'&&isDate(l.date)&&isTime(l.time)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)||a.id.localeCompare(b.id));
  const result=new Map();
  records.forEach((l,i)=>{const start=new Date(l.date+'T'+l.time),next=records[i+1],explicit=isDate(l.endDate)&&isTime(l.endTime),end=explicit?new Date(l.endDate+'T'+l.endTime):next?new Date(next.date+'T'+next.time):null,ongoing=!end&&start<=now;
  result.set(l.id,{start,end,ongoing,automatic:!explicit,minutes:Math.max(0,Math.floor(((end||now)-start)/60000)),endDate:end?todayKey(end):'',endTime:end?String(end.getHours()).padStart(2,'0')+':'+String(end.getMinutes()).padStart(2,'0'):''});});
@@ -142,6 +143,8 @@ export function validateBackup(v){
    if(key==='logs'&&x.incomeDocument!==undefined&&(x.kind!=='소득자료'||!x.memo||x.money!==undefined||!validIncomeDocument(x.incomeDocument)))throw Error('연간 소득 자료를 확인해주세요.');
    if(key==='logs'&&x.study!==undefined&&(x.kind!=='공부'||!validStudy(x.study)))throw Error('공부 기록의 과목·복습·링크 형식을 확인해주세요.');
    if(key==='logs'&&x.workoutFeedback!==undefined&&!validWorkoutFeedback(x.workoutFeedback))throw Error('운동 느낌 기록을 확인해주세요.');
+   if(key==='logs'&&x.healthDaily!==undefined&&(!validHealthDaily(x.healthDaily,x.date)||x.kind!=='건강요약'||!x.memo))throw Error('건강 요약의 형식을 확인해주세요.');
+   if(key==='logs'&&x.healthWorkouts!==undefined&&(!Array.isArray(x.healthWorkouts)||x.healthWorkouts.length>100||new Set(x.healthWorkouts.map(w=>w.id)).size!==x.healthWorkouts.length||!x.healthWorkouts.every(validHealthWorkout)))throw Error('건강 운동 측정값을 확인해주세요.');
    if(key==='logs'&&!validPhotoRefs(x.photos))throw Error('사진 정보를 확인해주세요.');
    if(key==='logs'&&(!(x.time===''||isTime(x.time))||!str(x.text)||!str(x.kind)))throw Error('활동 기록이 올바르지 않아요.');
    if(key==='exercises'&&(!str(x.name)||!Number.isFinite(+x.minutes)||+x.minutes<=0))throw Error('운동 기록이 올바르지 않아요.');
@@ -174,7 +177,8 @@ export function dayDocument(d,date){
  section('등록한 연간 소비·세금 자료',d.logs.filter(l=>l.date===date&&l.taxDocument).map(l=>'- '+l.text));
  section('등록한 소득 자료 · 귀속연도는 본문 참고',d.logs.filter(l=>l.date===date&&l.incomeDocument).map(l=>'- '+l.text));
  section('자산 잔액 기록',d.logs.filter(l=>l.date===date&&l.asset).map(l=>'- '+l.text));
- section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${recordKindLabel(l.kind)}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:'')+(l.money.splits?' · '+l.money.splits.map(s=>s.method+' '+s.amount+'원').join(' + '):''):''}${l.expenseId?'\n\n연결된 지출: '+(expenseForMeal(d.logs,l)?.money.merchant||'연결된 거래를 찾을 수 없음')+' · 가계부에서 한 번 집계':''}${l.study?'\n\n'+studyMarkdown(l,false,d):''}${l.nutrition?'\n\n영양정보: '+nutritionText(l.nutrition):''}${l.workoutFeedback?'\n\n운동 느낌: 자극 '+(l.workoutFeedback.muscles.join(' · ')||'미입력')+(l.workoutFeedback.effort?' · 힘듦 '+l.workoutFeedback.effort+'/5':'')+(l.workoutFeedback.soreness?' · 근육통 '+l.workoutFeedback.soreness:'')+(l.workoutFeedback.note?'\n'+l.workoutFeedback.note:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
+ section('Apple 건강 요약',d.logs.filter(l=>l.date===date&&l.healthDaily).map(l=>healthDailyText(l.healthDaily)));
+ section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${recordKindLabel(l.kind)}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:'')+(l.money.splits?' · '+l.money.splits.map(s=>s.method+' '+s.amount+'원').join(' + '):''):''}${l.expenseId?'\n\n연결된 지출: '+(expenseForMeal(d.logs,l)?.money.merchant||'연결된 거래를 찾을 수 없음')+' · 가계부에서 한 번 집계':''}${l.healthWorkouts?.length?'\n\n'+l.healthWorkouts.map(healthWorkoutText).join('\n'):''}${l.study?'\n\n'+studyMarkdown(l,false,d):''}${l.nutrition?'\n\n영양정보: '+nutritionText(l.nutrition):''}${l.workoutFeedback?'\n\n운동 느낌: 자극 '+(l.workoutFeedback.muscles.join(' · ')||'미입력')+(l.workoutFeedback.effort?' · 힘듦 '+l.workoutFeedback.effort+'/5':'')+(l.workoutFeedback.soreness?' · 근육통 '+l.workoutFeedback.soreness:'')+(l.workoutFeedback.note?'\n'+l.workoutFeedback.note:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
  if(d.life[date]?.bodyPhotos?.length)section('인바디 결과지',[photoMarkdown(d.life[date].bodyPhotos)]);
  section('생활 기록',Object.entries(d.life[date]||{}).filter(([k,v])=>k!=='bodyPhotos'&&v!==''&&v!=null).map(([k,v])=>`- ${lifeLabels[k]||k}: ${v}`));
  const diary=d.diary[date];if(diary){if(diary.closedDay)section('하루 마감',['마감 표시됨']);if(diary.tomorrow)section('내일 기억할 일',[diary.tomorrow]);section('일기',[diary.mood?'기분: '+({great:'좋았어',okay:'평온해',tired:'지쳤어',hard:'힘들었어'}[diary.mood]||diary.mood):'',diary.note||'',diary.entry||'',photoMarkdown(diary.photos)].filter(Boolean));}
