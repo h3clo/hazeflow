@@ -246,3 +246,6 @@ form[data-form="search"].inline-form input{width:100%;min-width:0;margin:0}
 .notification-upcoming small{color:var(--muted)}
 #notification-feedback:empty{display:none}
 #notification-feedback{padding:12px;border-radius:10px;background:var(--subtle);line-height:1.5}
+.task-note{margin:4px 0 8px;max-width:100%}
+.task-note summary{cursor:pointer;color:var(--muted);font-size:12px;padding:4px 0}
+.task-note p{white-space:pre-line;margin:8px 0 12px;line-height:1.8}
