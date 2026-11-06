@@ -1,3 +1,4 @@
+import {createReminders} from './reminders-ui.js';
 import {mergeDuringSave} from './record-merge.js';
 import {openSyncJournal} from './sync-journal-store.js';
 import {recordStorage} from './storage-runtime.js';
@@ -75,7 +76,7 @@ let photoStore=makePhotoStore(key+'-photos');let editorPhotos=[],editorPhotoToke
 let recovery=null;
 function load(){const raw=recordStorage.getItem(key);if(!raw)return emptyState();try{return validateBackup(JSON.parse(raw))}catch{recovery=raw;return emptyState()}}
 const boardHashes=['#dashboard','#dashboard-all','#whiteboard','#whiteboard-all'];
-let data=load(),date=todayKey(),view=boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',historyRecordLimit=100,historyDateLimit=60,diarySearchLimit=30,undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='',favoriteQuery='',studyHistory={subjectId:'',query:'',limit:60};
+let data=load(),date=isDate(params.get('notification-date'))?params.get('notification-date'):todayKey(),view=['day','tasks','study'].includes(params.get('notification-view'))?params.get('notification-view'):boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',historyRecordLimit=100,historyDateLimit=60,diarySearchLimit=30,undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='',favoriteQuery='',studyHistory={subjectId:'',query:'',limit:60};
 let tossPortfolio=null,tossBusy=false,tossError='',tossCheckedKey='',tossCacheAt=0,tossEligible=false,tossHistory=[];
 let quoteRows=[],quoteError='',quoteBusy=false,quoteLast=0;
 let whiteboardMode=boardHashes.includes(location.hash),whiteboardScope=location.hash.endsWith('-all')?'all':'today',whiteboardDate=todayKey();
@@ -100,6 +101,7 @@ const healthFlow=createHealthFlow({getData:()=>data,getOwner:()=>key,commit,open
 const toast=createToast({show(text,undo){$('#notice span').textContent=text;$('#notice [data-act=undo]').hidden=!undo;$('#notice').hidden=false},hide(){$('#notice').hidden=true}});
 function notify(text,undo=false){toast.present(userMessage(text),undo)}
 const restTimer=installRestTimer({notify});
+const reminders=createReminders({storage:recordStorage,getOwner:()=>key,getData:()=>data,openEditor,esc,notify,baseURL:import.meta.env.BASE_URL,navigate(nextView,nextDate){if(isDate(nextDate)){date=nextDate;view=nextView;render()}}});
 let exercisePickerRows=[];
 async function exercisePicker(){rememberCapture();exercisePickerRows=workoutLibrary(data.logs,date);await openEditor('내 운동에서 골라 담기',`<form data-form="exercise-picker"><p class="hint">지난 기록의 세트별 중량·횟수를 그대로 담아요. 이미 적은 종목은 유지하고 새 종목만 추가해요.</p><div class="exercise-picker-list">${exercisePickerRows.map((row,i)=>`<label><input type="checkbox" name="exercise" value="${i}"><span><b>${esc(row.name)}</b><small>최근 ${row.date}${row.sets?' · '+row.sets+'세트':''}</small><code>${esc(row.text)}</code></span></label>`).join('')||'<p class="empty">종목을 남기면 이 목록에서 다시 골라 담을 수 있어요.</p>'}</div><p id="form-error" class="error" role="alert"></p>${exercisePickerRows.length?'<button class="primary">선택한 운동 담기</button>':''}</form>`)}
 function restControls(){return `<div class="workout-rest-controls"><span>세트 사이 휴식</span>${[60,90,120].map(n=>btn(n+'초','workout-rest',String(n),'small-button')).join('')}</div>`;}
@@ -250,6 +252,7 @@ document.addEventListener('click',async e=>{
  if(b.dataset.group){view=groupDestination(b.dataset.group,lastGroupViews);await render();return}
  if(b.dataset.view){view=b.dataset.view;if(view==='compare'&&date>todayKey())date=todayKey();await render();return}
  const act=b.dataset.act,id=b.dataset.id,actionDate=date;
+ if(act?.startsWith('notification')&&await reminders.action(act))return;
  if(act==='history-dates-more'){historyDateLimit+=60;await render();return}
  if(act==='history-more'){historyRecordLimit+=100;await render();return}
  if(act==='diary-search-more'){diarySearchLimit+=30;await render();return}
@@ -344,6 +347,7 @@ document.addEventListener('click',async e=>{
 const savingForms=new WeakSet();
 document.addEventListener('submit',async e=>{
  const form=e.target;if(!form.dataset.form)return;e.preventDefault();if(savingForms.has(form))return;savingForms.add(form);try{const values=Object.fromEntries(new FormData(form)),id=form.dataset.id,type=form.dataset.form,k=date;
+ if(await reminders.submit(form,values))return;
  if(type==='favorite-search'){favoriteQuery=values.query.trim();await render();return}
  if(type==='study-search'){studyHistory={subjectId:values.subjectId,query:values.query.trim(),limit:60};await render();return}
  if(await taxPaymentFlow.submit(form,values))return;
@@ -477,6 +481,7 @@ function hasGuest(){try{const raw=recordStorage.getItem(guestKey);if(!raw)return
 async function importGuest(){if(!account?.userId())return;const targetKey=key,targetStore=photoStore,source=validateBackup(JSON.parse(recordStorage.getItem(guestKey)||'null')),sourceStore=makePhotoStore(guestKey+'-photos'),photos=[];for(const ref of collectPhotoRefs(source)){const blob=await sourceStore.get(ref.id);if(!blob)throw Error('기기 기록에 없는 사진이 있어요. 사진이 포함된 JSON 백업을 불러와주세요.');photos.push([ref.id,blob])}if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');await targetStore.putBatch(photos);if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');if(!await commit(d=>Object.assign(d,mergeBackup(d,source)),{undo:true,message:'기기 기록을 내 계정에 복사했어요.'}))throw Error('기기 기록을 가져오지 못했어요.')}
 async function bootAccount(){if(accountLoading)return;accountLoading=true;const button=$('#account-button');button.disabled=true;button.textContent='로그인 확인 중';button.onclick=null;try{const {createAccount}=await import('./account.js');account=createAccount({config:cloudConfig(import.meta.env),sandbox,esc,switchAccount,getContext:cloudContext,importGuest,hasGuest,notify});await account.start()}catch{notify('계정 연결을 확인하지 못했어요. 기기 기록은 그대로 남아 있어요.');if(!account){button.textContent='로그인 다시 확인';button.onclick=bootAccount}}finally{button.disabled=false;accountLoading=false}}
 const accountReady=bootAccount();
+accountReady.then(()=>reminders.tick());setInterval(()=>reminders.tick(),15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)reminders.tick()});
 const localImportSeen=new Set();window.addEventListener('message',async event=>{const payload=localImportPayload(event,{opener:window.opener,enabled:params.get('import')==='local'});if(!payload||localImportSeen.has(payload.token))return;localImportSeen.add(payload.token);try{await accountReady;if(!account?.userId())throw Error('가져올 계정에 먼저 로그인해주세요. 로그인 후 전달 페이지에서 다시 보내주세요.');if(document.querySelector('dialog[open]'))throw Error('열린 창을 닫고 전달 페이지에서 다시 보내주세요.');if(payload.kind==='tax-payment'){view='income';await render();await taxPaymentFlow.openImport(payload.csv)}else if(payload.kind==='tax'){view='income';await render();await taxFlow.openImport(payload.csv)}else if(payload.kind==='income'){view='income';await render();await incomeFlow.openImport(payload.csv)}else{parseMoneyCSV(payload.csv,todayKey());view='money';await render();await moneyImportEditor();$('#money-csv').value=payload.csv;moneyImportPreview()}event.source.postMessage({type:'hazeflow-local-csv-received',token:payload.token},event.origin);notify('로컬 파일을 읽었어요. 계정과 중복 제외 건수를 확인한 뒤 가져오세요.')}catch(error){localImportSeen.delete(payload.token);notify(error.message)}});
 
 
