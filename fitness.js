@@ -23,7 +23,8 @@ export function workoutElapsed(log,now=new Date()){if(!log.endDate||!log.endTime
 
 // Compare completed measurement intervals; a weight-only profile is not an InBody test.
 export function measurementReview(data,date){const number=v=>v!==''&&v!==null&&v!==undefined&&Number.isFinite(Number(v))?Number(v):null;
- const measurements=Object.entries(data.life).filter(([day,row])=>day<=date&&['muscle','fat','fatPercent'].some(k=>number(row[k])!==null)).sort(([a],[b])=>a.localeCompare(b));
+ const healthApplied=new Map(data.logs.filter(l=>l.healthDaily).map(l=>[l.date,l.healthDaily]));
+ const measurements=Object.entries(data.life).filter(([day,row])=>day<=date&&['muscle','fat','fatPercent'].some(k=>number(row[k])!==null&&!(healthApplied.get(day)?.bodyApplied?.includes(k)&&String(row[k])===String(healthApplied.get(day)?.body?.[k])))).sort(([a],[b])=>a.localeCompare(b));
  if(measurements.length<2)return null;
  const [from,a]=measurements.at(-2),[to,b]=measurements.at(-1),logs=data.logs.filter(l=>!l.sourceId&&l.date>from&&l.date<=to),workouts=logs.filter(l=>l.kind==='운동'),meals=logs.filter(l=>l.kind==='식사'),deltas=Object.fromEntries(['weight','muscle','fat','fatPercent'].map(k=>[k,number(a[k])!==null&&number(b[k])!==null?Math.round((Number(b[k])-Number(a[k]))*100)/100:null]));
  return {from,to,a,b,deltas,nutrition:nutritionSummary(meals),workoutDays:new Set(workouts.map(l=>l.date)).size,mealDays:new Set(meals.map(l=>l.date)).size,sessions:workouts.length,sets:workouts.reduce((n,l)=>n+workoutSession(l.text).sets,0),cardio:workouts.reduce((n,l)=>n+workoutSession(l.text).cardioMinutes,0),feedback:workouts.filter(l=>l.workoutFeedback).length};
