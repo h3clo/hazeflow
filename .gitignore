@@ -24,3 +24,6 @@ qa-auth.html
 .toss-publisher-status.tmp
 
 /qa-*.html
+
+# Local-only personal data locations and handoff details
+/.private/
