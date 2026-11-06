@@ -1,3 +1,4 @@
+import {mergeAutosaveFields} from './autosave-fields.js';
 import {mixedWorkoutEnergy} from './workout-energy.js';
 import {nutritionSummary} from './nutrition.js';
 import {workoutSession} from './workout.js';
@@ -5,6 +6,8 @@ import {shiftDate} from './insights.js';
 const muscles={랫풀다운:['등','이두'],시티드로우:['등','이두'],케이블로우:['등','이두'],바벨로우:['등','이두'],풀업:['등','이두'],어시스트풀업:['등','이두'],체스트프레스:['가슴','삼두'],벤치프레스:['가슴','삼두'],푸시업:['가슴','삼두'],펙덱플라이:['가슴'],숄더프레스:['어깨','삼두'],사이드레터럴레이즈:['어깨'],레터럴레이즈:['어깨'],스쿼트:['허벅지','둔근'],레그프레스:['허벅지','둔근'],레그익스텐션:['허벅지'],레그컬:['햄스트링'],힙쓰러스트:['둔근'],루마니안데드리프트:['햄스트링','둔근'],데드리프트:['둔근','등'],암컬:['이두'],바이셉컬:['이두'],트라이셉스푸시다운:['삼두'],크런치:['복부'],카프레이즈:['종아리'],힙어브덕션:['둔근'],힙어덕션:['내전근'],힙어드덕션:['내전근']};
 export function exerciseMuscles(name){const key=String(name).replace(/\s/g,'');return muscles[key]||[]}
 export function relatedExercises(name,limit=3){const key=String(name).replace(/\s/g,''),main=exerciseMuscles(name)[0];return main?Object.keys(muscles).filter(n=>n!==key&&muscles[n][0]===main).slice(0,limit):[]}
+const profileFields=['height','fitnessGoal'];
+export function saveFitnessProfile(current,opened,values,existed){const expected=Object.fromEntries(profileFields.map(key=>[key,opened?.[key]??''])),submitted=Object.fromEntries(profileFields.map(key=>[key,String(values?.[key]??'').trim()])),patch=Object.fromEntries(profileFields.filter(key=>submitted[key]!==expected[key]).map(key=>[key,submitted[key]]));if(!Object.keys(patch).length)return current;return mergeAutosaveFields(current,expected,patch,existed)}
 export function fitnessProfile(data,date){const result={};for(const [day,row]of Object.entries(data.life).filter(([day])=>day<=date).sort(([a],[b])=>a.localeCompare(b)))for(const key of ['height','weight','fitnessGoal']){if(key==='height'&&row[key]===''){delete result.height;continue}if(row[key]!==undefined&&row[key]!=='')result[key]={value:row[key],date:day}};return result}
 export function strengthCalories(data,log){
  const session=workoutSession(log.text),profile=fitnessProfile(data,log.date).weight,weight=Number(profile?.value);

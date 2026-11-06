@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseBodyCSV,mergeBodyRows,bodyHistory} from '../body.js';
+import {parseBodyCSV,mergeBodyRows,bodyHistory,saveBodyMeasurement} from '../body.js';
 import {emptyState,validateBackup,dayDocument} from '../domain.js';
 import {collectPhotoRefs} from '../photos.js';
 import {flattenState,unflattenState} from '../sync-state.js';
@@ -8,6 +8,7 @@ const csv='날짜,체중,골격근량,체지방량,체지방률\n2026-10-01,60,2
 test('한글 CSV와 BOM·따옴표·빈 칸을 읽으며 없는 값을 만들지 않는다',()=>{const r=parseBodyCSV('\uFEFF'+csv,'2026-10-31');assert.equal(r.length,2);assert.equal(r[1].muscle,'25.5');assert.equal(r[1].fat,undefined);assert.equal(parseBodyCSV('date,weight,fatPercent\r\n"2026/10/01","60","25"','2026-10-31')[0].weight,'60')});
 test('잘못된 날짜·중복 날짜·숫자·범위·제목은 가져오지 않는다',()=>{for(const c of ['날짜,체중\n2026-02-30,60','날짜,체중\n2026-11-01,60','날짜,체중\n2026-10-01,60\n2026-10-01,61','날짜,체중\n2026-10-01,abc','날짜,체지방률\n2026-10-01,101','날짜,체중\n2026-10-01,','날짜,체중,weight\n2026-10-01,60,61'])assert.throws(()=>parseBodyCSV(c,'2026-10-31'))});
 test('기본 가져오기는 빈 값만 채우고 명시적 덮어쓰기만 기존 측정값을 바꾼다',()=>{const life={'2026-10-31':{weight:'58',sleep:'4',bodyPhotos:[]}},before=structuredClone(life),rows=parseBodyCSV(csv,'2026-10-31');const result=mergeBodyRows(life,rows);assert.equal(result['2026-10-31'].weight,'58');assert.equal(result['2026-10-31'].muscle,'25.5');assert.equal(result['2026-10-31'].sleep,'4');assert.deepEqual(life,before);assert.equal(mergeBodyRows(life,rows,true)['2026-10-31'].weight,'59')});
+test('측정값 저장은 고친 항목만 반영하고 다른 화면의 같은 항목과 사진을 덮지 않는다',()=>{const current={weight:'60',muscle:'25',sleep:'4',bodyPhotos:[{id:'p'}]},opened={weight:'60',muscle:'25',fat:'',fatPercent:''};assert.deepEqual(saveBodyMeasurement(current,opened,{weight:'61',muscle:'25',fat:'',fatPercent:''},true),{weight:'61',muscle:'25',sleep:'4',bodyPhotos:[{id:'p'}]});assert.throws(()=>saveBodyMeasurement({...current,weight:'62'},opened,{weight:'61',muscle:'25',fat:'',fatPercent:''},true),/같은 항목/);assert.throws(()=>saveBodyMeasurement(undefined,opened,{weight:'61',muscle:'25',fat:'',fatPercent:''},true),/삭제된 기록/);assert.equal(saveBodyMeasurement(undefined,{weight:'',muscle:'',fat:'',fatPercent:''},{weight:'60',muscle:'',fat:'',fatPercent:''},false).weight,'60')});
 test('결과지 사진을 백업·동기화·사진 수집·MD에서 보존한다',()=>{const d=emptyState(),ref={id:'body-photo',name:'result.jpg',type:'image/jpeg',width:100,height:100,bytes:100};d.life['2026-10-31']={weight:'60',fatPercent:'25',bodyPhotos:[ref]};assert.deepEqual(validateBackup(d).life,d.life);assert.deepEqual(unflattenState(flattenState(d)).life,d.life);assert.equal(collectPhotoRefs(d).length,1);assert.equal(collectPhotoRefs(d,['2026-10-30']).length,0);assert.match(dayDocument(d,'2026-10-31'),/photos\/body-photo.jpg/);assert.doesNotMatch(dayDocument(d,'2026-10-31'),/\[object Object\]/);d.life['2026-10-31'].bodyPhotos=[{id:'invalid'}];assert.throws(()=>validateBackup(d))});
 test('측정 이력은 선택일까지의 실제 측정일만 반환한다',()=>{const life={'2026-10-01':{weight:'60'},'2026-10-02':{sleep:'4'},'2026-11-01':{weight:'59'}};assert.deepEqual(bodyHistory(life,'2026-10-31').map(r=>r.date),['2026-10-01'])});
 

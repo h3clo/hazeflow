@@ -1,3 +1,4 @@
+import {mergeAutosaveFields} from './autosave-fields.js';
 import {validFavoriteDays} from './favorite-days.js';
 import {expenseCategoryParts} from './money.js';
 import {validNutrition} from './nutrition.js';
@@ -6,6 +7,8 @@ import {todayKey,isDate,recordsForDate,routinesForDate,recordedDates} from './do
 export function shiftDate(date,days){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+days);return todayKey(d)}
 export function monthBefore(date,months=1){const d=new Date(date+'T12:00:00'),day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()-months);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return todayKey(d)}
 export function weekStart(date){const d=new Date(date+'T12:00:00');return shiftDate(date,-((d.getDay()+6)%7))}
+const reviewFields=['remember','adjust','next'];
+export function saveWeeklyReview(current,opened,values,existed){const expected=Object.fromEntries(reviewFields.map(key=>[key,opened?.[key]??''])),submitted=Object.fromEntries(reviewFields.map(key=>[key,String(values?.[key]??'').trim()])),patch=Object.fromEntries(reviewFields.filter(key=>submitted[key]!==expected[key]).map(key=>[key,submitted[key]]));if(!Object.keys(patch).length)return current;return mergeAutosaveFields(current,expected,patch,existed)}
 export const moodNames={great:'😊 좋았어',okay:'😌 평온해',tired:'😮‍💨 지쳤어',hard:'🌧 힘들었어'};
 export function hasActual(d,date){const diary=d.diary[date]||{};return !!(recordsForDate(d,date).length||diary.note?.trim()||diary.entry?.trim()||diary.mood||diary.photos?.length||Object.values(d.life[date]||{}).some(x=>Array.isArray(x)?x.length>0:x!==''&&x!=null)||Object.keys(d.routineRuns[date]||{}).length||d.events.some(e=>e.date===date&&['doing','done','skipped'].includes(e.status))||d.tasks.some(t=>t.done&&t.completedOn===date))}
 export function parseWorkout(log){
