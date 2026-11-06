@@ -204,3 +204,4 @@ main>header .dashboard-launch{display:inline-flex;align-items:center;justify-con
 main>.datebar{margin-bottom:20px}@media(max-width:740px){main>.datebar{margin-bottom:16px}}
 .section-nav button{display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.4}
 .favorite-item>div:first-child{display:grid;gap:8px;align-content:start;justify-items:start;flex:1}.favorite-item h3{line-height:1.5}.favorite-item>div:first-child>p,.favorite-item>div:first-child>small{margin:0}.favorite-item .badge{line-height:1.5}.favorite-item .row-actions{margin:0;align-self:center}@media(max-width:740px){.favorite-item .row-actions{align-self:flex-start}}
+.log-topline{align-items:center}.log-row .log-actions button{display:inline-flex;align-items:center;justify-content:center;line-height:1.5}
