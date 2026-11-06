@@ -230,6 +230,7 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('click',async e=>{
  const region=e.target.closest('[data-muscle]');if(region){toggleMuscle(region.dataset.muscle);return}
+ if(e.target.id==='selected-date'){try{e.target.showPicker?.()}catch{}return}
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.group){view=groupDestination(b.dataset.group,lastGroupViews);render();return}
  if(b.dataset.view){view=b.dataset.view;if(view==='compare'&&date>todayKey())date=todayKey();render();return}
