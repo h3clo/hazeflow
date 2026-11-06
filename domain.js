@@ -111,9 +111,9 @@ export function activityEndForEdit(current,submitted,opened){
  return {endDate,endTime};
 }
 export function activityTimeLabel(l,interval){
- if(!interval)return l.time||'시간 미기록';
+ if(!interval)return l.time?(l.timeEstimated?'약 ':'')+l.time:'시간 미기록';
  const end=interval.end?(interval.endDate!==l.date?interval.endDate+' ':'')+interval.endTime:interval.ongoing?'진행 중':'시작 예정';
- return l.time+' ~ '+end+' · '+interval.minutes+'분';
+ return (l.timeEstimated?'약 ':'')+l.time+' ~ '+end+' · '+interval.minutes+'분';
 }
 export function recordedDates(d){return [...new Set([...d.events.map(x=>x.date),...d.tasks.flatMap(x=>[x.dueDate||x.date,x.completedOn]),...d.logs.map(x=>x.date),...d.exercises.map(x=>x.date),...Object.keys(d.diary),...Object.keys(d.life),...Object.keys(d.routineRuns)])].filter(isDate).sort()}
 const plain = v => v&&typeof v==='object'&&!Array.isArray(v);
@@ -131,6 +131,7 @@ export function validateBackup(v){
    if(key==='tasks'&&(['note','listName'].some(k=>x[k]!==undefined&&!str(x[k]))||['flagged','done'].some(k=>x[k]!==undefined&&typeof x[k]!=='boolean')))throw Error('할 일 내용 형식을 확인해주세요.');
    if(key==='tasks'&&((x.dueDate===undefined?!isDate(x.date):x.dueDate!==null&&!isDate(x.dueDate))||(x.dueTime!==undefined&&x.dueTime!==''&&(!isTime(x.dueTime)||!x.dueDate))||(x.completedOn!=null&&!isDate(x.completedOn))))throw Error('할 일 날짜와 시간을 확인해주세요.');
    if(key==='events'&&(!isTime(x.start)||!isTime(x.end)||x.end<=x.start))throw Error('일정 시간이 올바르지 않아요.');
+   if(key==='logs'&&x.timeEstimated!==undefined&&(typeof x.timeEstimated!=='boolean'||x.timeEstimated&&!isTime(x.time)))throw Error('추정 시간과 시작 시각을 확인해주세요.');
    if(key==='logs'&&((x.memo!==undefined&&typeof x.memo!=='boolean')||((x.endTime||x.endDate)&&(!isTime(x.time)||!isTime(x.endTime)||!isDate(x.endDate)||new Date(x.endDate+'T'+x.endTime)<new Date(x.date+'T'+x.time)))))throw Error('활동 종료 시간을 확인해주세요.');
    if(key==='logs'&&x.asset!==undefined&&(!validAsset(x.asset)||x.kind!=='자산'||!x.memo||x.money!==undefined))throw Error('자산 잔액 기록을 확인해주세요.');
    if(key==='logs'&&x.money!==undefined&&(!validMoney(x.money)||(!x.memo&&x.kind!=='식사')||(x.kind==='식사'&&x.money.type!=='expense')))throw Error('가계부 거래 형식을 확인해주세요.');
