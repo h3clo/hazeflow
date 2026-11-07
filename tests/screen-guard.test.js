@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {renderedOriginal,originalAttribute,applyShownFlag,applyShownClose,draftContext,controlFromMarkup} from '../screen-guard.js';
+import {setTaskFlag} from '../domain.js';
+import {removeUnchangedItem} from '../record-edit.js';
+import {toggleDiaryClosed,applyOpenedJournalDraft} from '../journal.js';
+const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+test('화면 재그리기가 보류된 삭제 버튼은 갱신된 최신 기록을 지우지 않는다',()=>{const painted={id:'t',title:'예전'},live={id:'t',title:'최신'},html=`<button data-act="delete-task" data-id="t" ${originalAttribute(esc,painted)}></button>`,opened=renderedOriginal(controlFromMarkup(html),live),tasks=[live];assert.equal(opened.title,'예전');assert.throws(()=>removeUnchangedItem(tasks,'t',opened),/바뀐 기록/);assert.equal(tasks[0].title,'최신')});
+test('중요 표시와 하루 마감은 화면에 보인 값의 반대로 저장하고 원격 값을 다시 뒤집지 않는다',()=>{const tasks=[{id:'t',title:'최신',flagged:true}];applyShownFlag(tasks,'t',controlFromMarkup('<button data-act="flag-task" aria-pressed="false"></button>'),setTaskFlag);assert.equal(tasks[0].flagged,true);assert.equal(tasks[0].title,'최신');const closed=applyShownClose({entry:'다른 화면',closedDay:true},controlFromMarkup('<button data-act="close-day" data-closed="0" data-existed="1"></button>'),toggleDiaryClosed);assert.equal(closed.closedDay,true);assert.equal(closed.entry,'다른 화면');assert.throws(()=>applyShownClose(undefined,controlFromMarkup('<button data-closed="0" data-existed="1"></button>'),toggleDiaryClosed),/삭제된 기록/)});
+test('본문 없이 지워진 일기는 초안으로 다시 만들지 않는다',()=>{const ctx=draftContext(controlFromMarkup('<form data-entry="" data-existed="1"></form>'));assert.equal(ctx.existed,true);assert.throws(()=>applyOpenedJournalDraft(undefined,ctx.entry,'초안',false,ctx.existed),/삭제된 기록/);const kept=applyOpenedJournalDraft({note:'메모',photos:[{id:'p'}]},'','초안',false,true);assert.equal(kept.note,'메모');assert.equal(kept.photos[0].id,'p');assert.equal(applyOpenedJournalDraft(undefined,'','초안',false,false).entry,'초안')});

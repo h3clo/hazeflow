@@ -1,0 +1,7 @@
+// The value painted on a control outranks a record refreshed in memory while the screen waits to redraw.
+export function originalAttribute(esc,value){return `data-original="${esc(JSON.stringify(value))}"`}
+export function renderedOriginal(control,live=null){const own=control?.getAttribute?.('data-original');if(own)return JSON.parse(own);const form=control?.closest?.('form[data-original]');const painted=form?.getAttribute?.('data-original');if(painted)return JSON.parse(painted);return live}
+export function applyShownFlag(tasks,id,control,setTaskFlag){const shown=control?.getAttribute?.('aria-pressed');if(shown!=='true'&&shown!=='false')throw Error('화면의 중요 표시를 다시 확인해주세요.');return setTaskFlag(tasks,id,{id,flagged:shown==='true'})}
+export function applyShownClose(day,control,toggleDiaryClosed){const closed=control?.getAttribute?.('data-closed');if(closed!=='0'&&closed!=='1')throw Error('화면의 마감 표시를 다시 확인해주세요.');return toggleDiaryClosed(day,{closedDay:closed==='1',existed:control.getAttribute('data-existed')==='1'})}
+export function draftContext(control){return {entry:control?.getAttribute?.('data-entry')??'',existed:control?.getAttribute?.('data-existed')==='1'}}
+export function controlFromMarkup(html){const attrs={};for(const match of html.matchAll(/\s([:\w-]+)="([^"]*)"/g))attrs[match[1]]=match[2].replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');return {attrs,getAttribute(name){return attrs[name]??null},closest(){return null}}}
