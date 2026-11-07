@@ -166,7 +166,7 @@ export function mergeBackup(current,incoming){
  for(const [date,runs]of Object.entries(source.routineRuns))result.routineRuns[date]={...runs,...result.routineRuns[date]};
  return result;
 }
-export const lifeLabels={height:'키 (cm)',fitnessGoal:'운동 목표',bed:'취침',wake:'기상',sleep:'수면 만족도',energy:'기운',mood:'감정',stress:'스트레스',trigger:'마음에 남은 일',care:'나에게 필요한 것',breakfast:'아침',lunch:'점심',dinner:'저녁',snack:'간식',water:'물 (ml)',weight:'체중 (kg)',muscle:'골격근량 (kg)',fat:'체지방량 (kg)',fatPercent:'체지방률 (%)',condition:'컨디션',progress:'운동 변화',focus:'집중한 일',study:'집중 시간 (분)',next:'다음 행동',home:'살림',people:'관계',expense:'지출 (원)',other:'메모'};
+export const lifeLabels={height:'키 (cm)',fitnessGoal:'운동 목표',bed:'취침',wake:'기상',sleep:'수면 만족도',energy:'기운',mood:'감정',stress:'스트레스',trigger:'마음에 남은 일',care:'나에게 필요한 것',breakfast:'아침',lunch:'점심',dinner:'저녁',snack:'간식',water:'물 (ml)',waterGoal:'내 수분 목표 (ml)',weight:'체중 (kg)',muscle:'골격근량 (kg)',fat:'체지방량 (kg)',fatPercent:'체지방률 (%)',condition:'컨디션',progress:'운동 변화',focus:'집중한 일',study:'집중 시간 (분)',next:'다음 행동',home:'살림',people:'관계',expense:'지출 (원)',other:'메모'};
 export const recordKindLabel=kind=>['미리알림','Reminder','reminder','할 일'].includes(kind)?'할 일':kind;
 export function dayDocument(d,date){
  const out=[`# ${date} · Haze Flow`,''],section=(name,rows)=>{if(rows.length)out.push(`## ${name}`,'',...rows,'')};
