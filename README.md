@@ -2,7 +2,7 @@
 
 이 폴더를 코딩 AI에서 열고 **“프로젝트 이어서 진행해줘”**라고 요청하면 공통 지침과 [현재 시작점](docs/PROJECT_GUIDE.md)을 읽어 미완료 작업을 이어간다.
 
-어떤 AI든 [AI_START_HERE.md](AI_START_HERE.md)에서 시작한다. 개발을 이어받는 AI/작업자는 먼저 [공통 작업 지침](AGENTS.md)과 [프로젝트 가이드·현재 상태·남은 작업](docs/PROJECT_GUIDE.md)을 읽는다. 작업 후 가이드를 갱신하며 개발 로드맵은 앱의 개인 할 일에 등록하지 않는다.
+어떤 AI든 [AI_START_HERE.md](AI_START_HERE.md)에서 시작한다. 개발을 이어받는 AI/작업자는 먼저 [공통 작업 지침](AGENTS.md), [프로젝트 가이드·현재 상태·남은 작업](docs/PROJECT_GUIDE.md), [제품 비전과 UX 원칙](docs/PRODUCT_VISION.md)을 읽는다. 작업 후 가이드를 갱신하며 개발 로드맵은 앱의 개인 할 일에 등록하지 않는다.
 
 계획과 반복 루틴을 확인하고, 실제 생활 기록을 남긴 뒤 날짜별로 돌아보는 로컬 웹앱.
 
