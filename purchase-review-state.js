@@ -4,7 +4,7 @@ import {validMoney} from './money.js';
 const reviewedOrder=log=>log?.money?.order?{
  id:log.id,date:log.date,type:log.money.type,currency:log.money.currency,
  amount:log.money.amount,platform:log.money.order.platform,
- orderId:log.money.order.id,item:log.money.order.item,items:log.money.order.items||[]
+ orderId:log.money.order.id,item:log.money.order.item,items:log.money.order.items||[],charges:log.money.order.charges
 }:null;
 
 export function applyReviewedPurchase(current,opened,items){

@@ -6,7 +6,7 @@ const today='2026-11-02';
 const headers=['주문일','쇼핑몰','주문번호','상품명','결제금액','상태','금액근거','통화'];
 const normalize=data=>normalizeShoppingGrid([headers,...data],detectShoppingColumns(headers),'네이버',today);
 test('다섯 쇼핑몰의 CSV·TSV와 날짜·원화 열을 읽는다',()=>{
- assert.equal(canonicalShoppingPlatform('지마켓'),'G마켓');assert.equal(canonicalShoppingPlatform('zigzag'),'지그재그');
+ assert.equal(canonicalShoppingPlatform('지마켓'),'G마켓');assert.equal(canonicalShoppingPlatform('zigzag'),'지그재그');assert.equal(canonicalShoppingPlatform('아성다이소'),'다이소');
  const grid=shoppingGrid('\uFEFF주문일\t쇼핑몰\t결제금액\t주문번호\n2026. 11. 01.\t쿠팡\t12,300원\tTEST-123');
  const rows=normalizeShoppingGrid(grid,detectShoppingColumns(grid[0]),'네이버',today);
  assert.equal(rows[0].date,'2026-11-01');assert.equal(rows[0].money.amount,12300);assert.equal(rows[0].money.order.platform,'쿠팡');assert.equal(rows[0].selected,true);
