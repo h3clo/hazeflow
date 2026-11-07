@@ -1,4 +1,5 @@
 import {stable} from './sync-state.js';
+import {renderedOriginal} from './screen-guard.js';
 // Compare against the record loaded inside the save transaction, not a stale
 // copy from the screen. Deletion must never turn an edit into a new record.
 export function assertRecordUnchanged(current,opened){
@@ -22,6 +23,23 @@ export function removeUnchangedAssetAccount(logs,accountId,openedLogs){
  const opened=new Map(openedLogs.map(l=>[l.id,l]));
  for(const row of current)assertRecordUnchanged(row,opened.get(row.id));
  return logs.filter(l=>l.asset?.accountId!==accountId);
+}
+export function promotePaintedHealth(logs,control){
+ const opened=renderedOriginal(control);
+ if(!opened)throw Error('연결할 건강 운동을 찾지 못했어요.');
+ const row=logs.find(l=>l.id===opened.id);
+ assertRecordUnchanged(row,opened);
+ if(row.kind!=='건강운동')throw Error('연결할 건강 운동을 찾지 못했어요.');
+ row.kind='운동';row.memo=false;
+ return logs;
+}
+export function paintedHealthLink(control){
+ const row=renderedOriginal(control);
+ if(!row||row.kind!=='건강운동')throw Error('연결할 건강 운동을 찾지 못했어요.');
+ let choices=[];
+ try{choices=JSON.parse(control.getAttribute('data-targets')||'[]')}catch{throw Error('연결할 운동을 다시 확인해주세요.')}
+ if(!Array.isArray(choices))throw Error('연결할 운동을 다시 확인해주세요.');
+ return {row,choices};
 }
 export function linkHealthWorkout(logs,{healthId,targetId,openedHealth,openedTarget}){
  if(!openedTarget)throw Error('연결할 운동을 다시 확인해주세요.');

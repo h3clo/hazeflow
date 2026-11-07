@@ -1,4 +1,5 @@
 import {validHealthDaily,validHealthWorkout,healthWorkoutText,healthDailyText} from './health-data.js';
+import {lifeScaleText} from './life-checkin.js';
 import {validFavoriteDays} from './favorite-days.js';
 import {validTaxPayment} from './tax-payments.js';
 import {validTaxDocument} from './tax-documents.js';
@@ -180,7 +181,7 @@ export function dayDocument(d,date){
  section('Apple 건강 요약',d.logs.filter(l=>l.date===date&&l.healthDaily).map(l=>healthDailyText(l.healthDaily)));
  section('실제 활동',recordsForDate(d,date).map(l=>`### ${activityTimeLabel(l,activityIntervals(d).get(l.id))} · ${recordKindLabel(l.kind)}\n\n${l.text}${l.kind==='식사'&&l.money?'\n\n식사 지출: '+l.money.amount.toLocaleString('ko-KR')+'원 · '+l.money.merchant+' · '+l.money.category+(l.money.payment?' · '+l.money.payment:'')+(l.money.splits?' · '+l.money.splits.map(s=>s.method+' '+s.amount+'원').join(' + '):''):''}${l.expenseId?'\n\n연결된 지출: '+(expenseForMeal(d.logs,l)?.money.merchant||'연결된 거래를 찾을 수 없음')+' · 가계부에서 한 번 집계':''}${l.healthWorkouts?.length?'\n\n'+l.healthWorkouts.map(healthWorkoutText).join('\n'):''}${l.study?'\n\n'+studyMarkdown(l,false,d):''}${l.nutrition?'\n\n영양정보: '+nutritionText(l.nutrition):''}${l.workoutFeedback?'\n\n운동 느낌: 자극 '+(l.workoutFeedback.muscles.join(' · ')||'미입력')+(l.workoutFeedback.effort?' · 힘듦 '+l.workoutFeedback.effort+'/5':'')+(l.workoutFeedback.soreness?' · 근육통 '+l.workoutFeedback.soreness:'')+(l.workoutFeedback.note?'\n'+l.workoutFeedback.note:''):''}${l.photos?.length?'\n\n'+photoMarkdown(l.photos):''}${workoutSummary(l)?'\n\n운동 정리: '+workoutSummary(l):''}\n`));
  if(d.life[date]?.bodyPhotos?.length)section('인바디 결과지',[photoMarkdown(d.life[date].bodyPhotos)]);
- section('생활 기록',Object.entries(d.life[date]||{}).filter(([k,v])=>k!=='bodyPhotos'&&v!==''&&v!=null).map(([k,v])=>`- ${lifeLabels[k]||k}: ${v}`));
+ section('생활 기록',Object.entries(d.life[date]||{}).filter(([k,v])=>k!=='bodyPhotos'&&v!==''&&v!=null).map(([k,v])=>`- ${lifeLabels[k]||k}: ${lifeScaleText(k,v)}`));
  const diary=d.diary[date];if(diary){if(diary.closedDay)section('하루 마감',['마감 표시됨']);if(diary.tomorrow)section('내일 기억할 일',[diary.tomorrow]);section('일기',[diary.mood?'기분: '+({great:'좋았어',okay:'평온해',tired:'지쳤어',hard:'힘들었어'}[diary.mood]||diary.mood):'',diary.note||'',diary.entry||'',photoMarkdown(diary.photos)].filter(Boolean));}
 
  if(out.length===2)out.push('저장된 기록이 없어요.');return out.join('\n');
