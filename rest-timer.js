@@ -58,6 +58,24 @@ export function pruneSetDoneMap(map,ongoingIds){
  const keep=new Set(ongoingIds||[]);
  return Object.fromEntries(Object.entries(readSetDoneMap(map)).filter(([mark])=>keep.has(mark.split(':').slice(0,-2).join(':'))));
 }
+/** Drop a removed set and close the gap so a later set does not inherit its completion. */
+export function shiftSetDoneMarks(map,itemIndex,removedSetIndex,logId=''){
+ if(!map||typeof map!=='object'||Array.isArray(map))return {};
+ if(!Number.isInteger(itemIndex)||itemIndex<0||!Number.isInteger(removedSetIndex)||removedSetIndex<0)return {...map};
+ const next={};
+ for(const [mark,on] of Object.entries(map)){
+  if(!on)continue;
+  const parts=String(mark).split(':');
+  if(parts.length<2)continue;
+  const set=Number(parts.pop()),item=Number(parts.pop()),id=parts.join(':');
+  if(!Number.isInteger(set)||!Number.isInteger(item))continue;
+  if(id!==logId||item!==itemIndex){next[mark]=true;continue}
+  if(set===removedSetIndex)continue;
+  const shifted=set>removedSetIndex?set-1:set;
+  next[id?`${id}:${item}:${shifted}`:`${item}:${shifted}`]=true;
+ }
+ return next;
+}
 
 export function installRestTimer({notify,storage,hasNextIncompleteSet,onCompleteNextSet}={}){
  const key='hazeflow-workout-rest-v1';

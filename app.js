@@ -8,7 +8,7 @@ import {openSyncJournal} from './sync-journal-store.js';
 import {recordStorage} from './storage-runtime.js';
 import {healthPanel,healthDayStrip,workoutHealthCard,hasFullHealthMeasurement,watchGuide,createHealthFlow} from './health-ui.js';
 import {workoutLibrary,appendWorkoutSelection} from './workout-library.js';
-import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave,readSetDoneMap,pruneSetDoneMap} from './rest-timer.js';
+import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave,readSetDoneMap,pruneSetDoneMap,shiftSetDoneMarks} from './rest-timer.js';
 import {exerciseGuide} from './exercise-guide.js';
 import {recentMeals,reuseMealDraft} from './meal-reuse.js';
 import {replaceFavorite,removeUnchangedFavorite} from './favorite-edit.js';
@@ -121,6 +121,7 @@ let exercisePickerTarget={source:'capture',logId:''};
 let workoutAppendBusy=false;
 const liveWorkoutDone={};
 function persistLiveWorkoutDone(){try{sessionStorage.setItem(key+'-workout-set-done',JSON.stringify(liveWorkoutDone))}catch{}}
+function replaceLiveWorkoutDone(next){for(const mark of Object.keys(liveWorkoutDone))delete liveWorkoutDone[mark];Object.assign(liveWorkoutDone,next);persistLiveWorkoutDone()}
 function loadLiveWorkoutDone(){for(const mark of Object.keys(liveWorkoutDone))delete liveWorkoutDone[mark];try{Object.assign(liveWorkoutDone,readSetDoneMap(JSON.parse(sessionStorage.getItem(key+'-workout-set-done')||'{}')))}catch{}}
 function pruneLiveWorkoutDone(){const next=pruneSetDoneMap(liveWorkoutDone,ongoingActivityLogs().map(l=>l.id));const marks=Object.keys(liveWorkoutDone);if(marks.length===Object.keys(next).length&&marks.every(mark=>next[mark]))return;for(const mark of marks)delete liveWorkoutDone[mark];Object.assign(liveWorkoutDone,next);persistLiveWorkoutDone()}
 loadLiveWorkoutDone();
@@ -531,7 +532,13 @@ document.addEventListener('click',async e=>{
   return;
  }
  if(act==='workout-set-remove'){
-  try{await mutateWorkoutSets(b.dataset.source||'capture',b.dataset.log||'',items=>removeStrengthSet(items,Number(b.dataset.item),Number(b.dataset.set)));notify('세트를 삭제했어요.');}
+  try{
+   const source=b.dataset.source||'capture',logId=b.dataset.log||'',itemIndex=Number(b.dataset.item),setIndex=Number(b.dataset.set);
+   await mutateWorkoutSets(source,logId,items=>removeStrengthSet(items,itemIndex,setIndex));
+   if(source==='log'&&logId){replaceLiveWorkoutDone(shiftSetDoneMarks(liveWorkoutDone,itemIndex,setIndex,logId));await render()}
+   else{const draft=drafts[date]||{};drafts[date]={...draft,workoutSetDone:shiftSetDoneMarks(draft.workoutSetDone||{},itemIndex,setIndex)};scheduleDrafts();refreshWorkoutSetsHost()}
+   notify('세트를 삭제했어요.');
+  }
   catch(error){notify(error.message)}
   return;
  }

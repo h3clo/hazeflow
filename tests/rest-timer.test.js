@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer,captureRestAfterSave,restoreRestSession,readSetDoneMap,pruneSetDoneMap} from '../rest-timer.js';
+import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer,captureRestAfterSave,restoreRestSession,readSetDoneMap,pruneSetDoneMap,shiftSetDoneMarks} from '../rest-timer.js';
 
 test('휴식 시간은 종료시각 기준이라 화면을 떠나도 오차가 누적되지 않는다',()=>{
  assert.equal(remainingSeconds(61000,1000),60);
@@ -64,4 +64,11 @@ test('세트 완료 표시는 진행 중 기록만 남기고 백업 필드가 �
  assert.deepEqual(readSetDoneMap(map),{'w1:0:0':true,'w2:1:0':true});
  assert.deepEqual(pruneSetDoneMap(map,['w1']),{'w1:0:0':true});
  assert.deepEqual(pruneSetDoneMap(null,['w1']),{});
+});
+
+test('세트를 지우면 완료 표시가 뒤 세트로 옮겨 붙지 않는다',()=>{
+ const live={'w1:0:0':true,'w1:0:2':true,'w2:0:0':true};
+ assert.deepEqual(shiftSetDoneMarks(live,0,0,'w1'),{'w1:0:1':true,'w2:0:0':true});
+ assert.deepEqual(shiftSetDoneMarks({'0:1':true,'0:2':true},0,0),{'0:0':true,'0:1':true});
+ assert.deepEqual(shiftSetDoneMarks({'1:0':true},0,0),{'1:0':true});
 });
