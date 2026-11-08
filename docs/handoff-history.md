@@ -2,11 +2,11 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
-### 2026-11-08 Cursor · Q0 합치기 + Q1–Q2 활동 UX
+### 2026-11-08 Cursor · Q0–Q2 + Q3-A
 
-- Q0: `backup/pre-q0-local-wip`에 WIP 보존 → `main`을 `origin/main` FF → cherry-pick으로 분류기·계획 문서 통합. 강제 reset 없음.
-- 기준선 483 pass·빌드 후 Q1–Q2: `captureView` 한 줄 UX, `manualKind`/`classifyActivity`, `capture-drafts`·CSS. 검사 **484**·빌드 통과. sandbox에서 자동 분류 배지 확인. **푸시·배포 없음.**
-- 다음: Q3-A 자극 부위 교차.
+- Q0: 백업 브랜치 → `origin/main` FF → UX/계획 cherry-pick. Q1–Q2 활동 한 줄 UX·자동 분류. sandbox에서 「영어 공부 시작」→ 공부 배지 확인.
+- Q3-A: 자극 교차는 UI/저장이 기록당 공유여서 발생. `exerciseMuscles` 종목별 분리 + `muscles` 합집합. 검사 **485**·빌드. **푸시·배포 없음.**
+- 다음: Q3-B 세트 목표/실제.
 
 ### 2026-11-08 Cursor · 2주 개발 계획 (문서만)
 
