@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · Pages 배포
+
+- 사전 점검 통과 후 `bb06cfc`→`340a8ff` 일반 push (force 없음).
+- Actions Run **#99** `42474818597` success · build 25s · deploy 9s · 총 41s.
+- URL: https://h3clo.github.io/hazeflow/ · sandbox 스모크: 기록 진단·CSV 미리보기·공부 자동 분류.
+- **계정 데이터 수정·마이그레이션·Q4-B 2·4~6 없음.** 실기기 미확인. 다음: P0.
+
 ### 2026-11-08 Cursor · Q5 통합 회귀
 
 - 자동: `npm test` **496** · `build` · `diff --check`.

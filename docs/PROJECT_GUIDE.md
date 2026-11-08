@@ -26,7 +26,7 @@
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Q5 **웹·자동 회귀 완료**(배포 미함). 사용자 승인 후 `main` push로 Pages 배포 가능. 실기기는 **P0**. Q4-B 2·4~6 **미승인**.
+**다음 시작점:** 배포 완료(`340a8ff` → Pages). 다음은 **P0 실기기** 또는 Q4-B 2·4~6(미승인). 계정 데이터·마이그레이션 자동 진행 금지.
 
 **Q0 · 완료 (2026-11-08)**
 - 백업 `backup/pre-q0-local-wip` → `origin/main` FF → 로컬 UX/계획 cherry-pick. 강제 reset 없음.
@@ -51,7 +51,7 @@
 - sandbox: 활동 자동/수동 분류·저장, 운동 세트 수정·추가·삭제·한 줄 추가·휴식 경과 위젯, 가계부 진단·CSV 미리보기(저장 없음), 375폭 넘침 없음, 다크모드 전환.
 - 사진·동기화·오프라인: **단위 테스트**로 확인. **실기기·계정 왕복 미확인.**
 
-**배포 후보:** 로컬 `main` tip. Pages는 `.github/workflows/pages.yml` — **`push` to `main`** 또는 `workflow_dispatch` → `npm test`→`build`→deploy. **푸시 = 배포.** 기존 데이터: optional `workoutPlan`/`exerciseMuscles` 추가만, money·쇼핑 스키마·마이그레이션 없음.
+**배포 (2026-11-08):** `bb06cfc`→`340a8ff` 일반 push. Actions [Run #99](https://github.com/h3clo/hazeflow/actions/runs/42474818597) success (build 25s · deploy 9s). URL https://h3clo.github.io/hazeflow/ . sandbox 스모크: 가계부「기록 진단」·CSV 미리보기 버튼, 활동「영어 공부 시작」→공부 배지. **실기기·로그인 왕복 미확인.**
 
 ## 작업 대기열
 
@@ -109,4 +109,4 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근 (2026-11-08):** Q5 통합 회귀 완료(자동 496·sandbox·배포 후보 정리). **푸시·배포·계정 변경 없음.** 다음: 배포 승인 또는 P0 실기기. Q4-B 2·4~6 대기.
+**최근 (2026-11-08):** `340a8ff` Pages 배포 성공(Actions #99). 계정 데이터·마이그레이션·Q4-B 2·4~6 미실시. 다음: P0 실기기.
