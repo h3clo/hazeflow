@@ -38,7 +38,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 실사용 UX 로컬 완료(`2236adf`). Cursor Browser 옆 패널에 일반 앱(`http://127.0.0.1:5173/`) 연결·HMR 유지. 다음은 배포 승인 또는 P0 실기기. Q4-B 2·4~6·계정·마이그레이션 자동 진행 금지.
+**다음 시작점:** UX Pages 배포 완료(`94317ce`, 포함 `2236adf`). URL https://h3clo.github.io/hazeflow/ · Actions #100 success. 다음은 **iPhone 실기기**로 세션 카드·종료 바 확인. Q4-B 2·4~6·계정·마이그레이션 자동 진행 금지.
 
 **Q0 · 완료 (2026-11-08)**
 - 백업 `backup/pre-q0-local-wip` → `origin/main` FF → 로컬 UX/계획 cherry-pick. 강제 reset 없음.

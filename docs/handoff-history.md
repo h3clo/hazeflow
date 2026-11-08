@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · UX Pages 배포 (`94317ce`)
+
+- 일반 push `79a070d`→`94317ce` (force 없음). tip에 `2236adf` UX + `94317ce` 문서.
+- Actions [Run #100](https://github.com/h3clo/hazeflow/actions/runs/42484621115) success (build ~20s · deploy ~10s).
+- Pages https://h3clo.github.io/hazeflow/ · 배포 번들에 `live-workout-session`·`ongoing-finish-bar` 확인.
+- 계정·마이그레이션·Q4-B 2·4~6 없음. 다음: iPhone에서 진행 중 운동 종목 추가·종료 바·캐시 새로고침.
+
 ### 2026-11-08 Cursor · 실사용 UX(세션 카드·종료 바)
 
 - 승인 범위: 새 탭/스키마 없음. `app.js`·`style.css`·관련 테스트·가이드.
