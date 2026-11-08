@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer} from '../rest-timer.js';
+import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer,captureRestAfterSave} from '../rest-timer.js';
 
 test('휴식 시간은 종료시각 기준이라 화면을 떠나도 오차가 누적되지 않는다',()=>{
  assert.equal(remainingSeconds(61000,1000),60);
@@ -36,5 +36,16 @@ test('활동이 끝나면 해당 종목 휴식 타이머를 유지하지 않는�
  assert.equal(shouldKeepRestTimer({source:'log',logId:'w1',itemIndex:0},intervals),true);
  assert.equal(shouldKeepRestTimer({source:'log',logId:'w2',itemIndex:0},intervals),false);
  assert.equal(shouldKeepRestTimer({source:'capture',logId:'',itemIndex:0},intervals),true);
+ assert.equal(shouldKeepRestTimer({source:'capture',logId:'',itemIndex:0},intervals,false),false);
  assert.equal(shouldKeepRestTimer(null,intervals),false);
+});
+
+test('캡처 초안을 저장하면 진행 중 근력만 새 기록으로 휴식을 옮긴다',()=>{
+ const anchor={source:'capture',logId:'',itemIndex:0};
+ assert.equal(captureRestAfterSave({anchor,kind:'운동',mode:'activity',ended:false,itemKind:'strength'}),'retarget');
+ assert.equal(captureRestAfterSave({anchor,kind:'운동',mode:'activity',ended:true,itemKind:'strength'}),'stop');
+ assert.equal(captureRestAfterSave({anchor,kind:'운동',mode:'memo',ended:false,itemKind:'strength'}),'stop');
+ assert.equal(captureRestAfterSave({anchor,kind:'일상',mode:'activity',ended:false,itemKind:'strength'}),'stop');
+ assert.equal(captureRestAfterSave({anchor,kind:'운동',mode:'activity',ended:false,itemKind:'cardio'}),'stop');
+ assert.equal(captureRestAfterSave({anchor:{source:'log',logId:'w1',itemIndex:0},kind:'운동',mode:'activity',ended:true,itemKind:'strength'}),'keep');
 });

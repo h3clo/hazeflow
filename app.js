@@ -8,7 +8,7 @@ import {openSyncJournal} from './sync-journal-store.js';
 import {recordStorage} from './storage-runtime.js';
 import {healthPanel,healthDayStrip,workoutHealthCard,hasFullHealthMeasurement,watchGuide,createHealthFlow} from './health-ui.js';
 import {workoutLibrary,appendWorkoutSelection} from './workout-library.js';
-import {installRestTimer,shouldKeepRestTimer} from './rest-timer.js';
+import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave} from './rest-timer.js';
 import {exerciseGuide} from './exercise-guide.js';
 import {recentMeals,reuseMealDraft} from './meal-reuse.js';
 import {replaceFavorite,removeUnchangedFavorite} from './favorite-edit.js';
@@ -269,10 +269,22 @@ async function render(){
  if(recovery)notify('저장된 데이터를 읽지 못했어요. 내보내기에서 원본을 보관할 수 있어요.');
  syncRestWithSession();
 }
+function captureDraftHostsRest(anchor){
+ if(!anchor||anchor.source==='log')return true;
+ if(date!==todayKey()||view!=='day')return false;
+ return workoutItems(drafts[date]?.text||'')[anchor.itemIndex]?.kind==='strength';
+}
 function syncRestWithSession(){
  if(restTimer.mode==='idle')return;
- if(!shouldKeepRestTimer(restTimer.anchor,activityIntervals(data))){restTimer.stop();return}
+ const anchor=restTimer.anchor;
+ if(!shouldKeepRestTimer(anchor,activityIntervals(data),captureDraftHostsRest(anchor))){restTimer.stop();return}
  restTimer.attach();
+}
+function settleCaptureRest(logId,kind,text,mode,end){
+ const anchor=restTimer.anchor;
+ const decision=captureRestAfterSave({anchor,kind,mode,ended:!!(end?.endDate&&end?.endTime),itemKind:workoutItems(text)[anchor?.itemIndex]?.kind});
+ if(decision==='stop')restTimer.stop();
+ else if(decision==='retarget')restTimer.retarget({source:'log',logId,itemIndex:anchor.itemIndex});
 }
 function stepList(r,disabled=false){return `<div class="steps">${r.steps.map(s=>`<label class="step"><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${r.run?.checked.includes(s.id)?'checked':''} ${disabled?'disabled':''}><span>${esc(s.title)}</span>${s.minutes?`<small>${s.minutes}분</small>`:''}</label>`).join('')}</div>`}
 function routineCard(r){const status=r.run?.status||'pending';return `<article class="routine-run ${status}" id="routine-run-${esc(r.id)}" tabindex="-1"><div class="row"><div><small>${r.time||'시간 미정'} · 반복 루틴</small><h3>${esc(r.title)}</h3></div><span class="badge">${stateName(status)}</span></div>${stepList(r,future()||status==='skipped')}<div class="routine-progress"><progress aria-label="${esc(r.title)} 단계 완료" value="${r.run?.checked.length||0}" max="${r.steps.length}"></progress><small>${r.run?.checked.length||0} / ${r.steps.length} 단계 완료</small></div>${r.run?.startedAt||r.run?.endedAt?`<p class="hint">실제 ${r.run.startedAt?'시작 '+r.run.startedAt:''} ${r.run.endedAt?'완료 '+r.run.endedAt:''}</p>`:''}<div class="row-actions">${future()?'<span class="hint">미래의 실행 체크는 해당 날짜에 할 수 있어요.</span>':`${status==='pending'?btn('지금 시작','routine-start',r.id):''}${status==='doing'||status==='pending'?btn('모두 완료','routine-done',r.id):''}${status==='pending'||status==='doing'?btn('오늘 건너뛰기','routine-skip',r.id):btn('실행 초기화','routine-reset',r.id)}`}</div></article>`}
@@ -615,7 +627,7 @@ document.addEventListener('submit',async e=>{
  if(type==='weekly-review'){const start=form.dataset.start;if(!isDate(start)||weekStart(start)!==start)return;try{const opened=JSON.parse(form.dataset.original||'{}');const ok=await commit(d=>{const next=saveWeeklyReview(d.weeklyReviews[start],opened,values,form.dataset.existed==='1');if(next)d.weeklyReviews[start]=next;else delete d.weeklyReviews[start]},{undo:true,message:'이 주의 회고를 저장했어요.'});if(ok)await render()}catch(error){const status=$('#review-status');if(status)status.textContent=error.message;else notify(error.message)}return}
  if(type==='capture'){
   if(future()){notify('실제 활동은 오늘이나 지난 날짜에 남겨주세요. 미래 계획은 일정에 추가해요.');return}
-  if(photoBusy.has('capture:'+k)){notify('사진을 처리하고 있어요. 잠시 후 저장해주세요.');return}const text=values.text.trim(),photos=drafts[k]?.photos||[];if(!text&&!photos.length){notify('내용이나 사진을 추가해주세요.');return}const kind=drafts[k]?.manualKind?values.kind:(text?classifyActivity(text):values.kind||'일상');let money,nutrition,end;try{money=mealExpense({...values,kind,text});if(kind==='식사')nutrition=readNutrition(values);end=captureActivityEnd({mode:values.mode,date:k,time:values.time||'',endDate:values.endDate||'',endTime:values.endTime||''})}catch(error){notify(error.message);return}const workoutPlan=kind==='운동'?snapshotWorkoutPlan(drafts[k]?.workoutPlan,text):'';if(await commit(d=>d.logs.push({id:uid(),date:k,time:values.time||'',kind,text,photos,memo:values.mode==='memo',...end,...(money?{money}:{} ),...(nutrition?{nutrition}:{}),...(workoutPlan?{workoutPlan}:{})}),{paint:false})){delete drafts[k];photoFeedback.delete(photoStatusKey({target:'capture',k}));await render();notify(end.endTime?'끝난 활동을 기록했어요.':'기록을 남겼어요.')}
+  if(photoBusy.has('capture:'+k)){notify('사진을 처리하고 있어요. 잠시 후 저장해주세요.');return}const text=values.text.trim(),photos=drafts[k]?.photos||[];if(!text&&!photos.length){notify('내용이나 사진을 추가해주세요.');return}const kind=drafts[k]?.manualKind?values.kind:(text?classifyActivity(text):values.kind||'일상');let money,nutrition,end;try{money=mealExpense({...values,kind,text});if(kind==='식사')nutrition=readNutrition(values);end=captureActivityEnd({mode:values.mode,date:k,time:values.time||'',endDate:values.endDate||'',endTime:values.endTime||''})}catch(error){notify(error.message);return}const workoutPlan=kind==='운동'?snapshotWorkoutPlan(drafts[k]?.workoutPlan,text):'';const savedId=uid();if(await commit(d=>d.logs.push({id:savedId,date:k,time:values.time||'',kind,text,photos,memo:values.mode==='memo',...end,...(money?{money}:{} ),...(nutrition?{nutrition}:{}),...(workoutPlan?{workoutPlan}:{})}),{paint:false})){settleCaptureRest(savedId,kind,text,values.mode,end);delete drafts[k];photoFeedback.delete(photoStatusKey({target:'capture',k}));await render();notify(end.endTime?'끝난 활동을 기록했어요.':'기록을 남겼어요.')}
  }
  if(type==='task-editor'){
   const dueDate=values.hasDate?values.dueDate:null,dueTime=values.hasDate?values.dueTime||'':'';

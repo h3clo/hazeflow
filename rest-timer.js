@@ -14,12 +14,19 @@ export function restPrimaryControl(mode){
  return {action:'start-next',label:'다음 세트 시작'};
 }
 export function restModeAfterStartNext(hasNext){return hasNext?'ready':'idle'}
-/** Keep rest only while its log activity is still ongoing (or capture draft). */
-export function shouldKeepRestTimer(anchor,intervals){
+/** Keep rest only while its log activity is still ongoing, or the capture draft still hosts that set. */
+export function shouldKeepRestTimer(anchor,intervals,captureLive=true){
  const current=normalizeRestAnchor(anchor);
  if(!current)return false;
- if(current.source!=='log')return true;
+ if(current.source!=='log')return captureLive!==false;
  return !!intervals?.get?.(current.logId)?.ongoing;
+}
+/** After the capture draft is saved, move an in-progress rest onto the new ongoing log or stop it. */
+export function captureRestAfterSave({anchor,kind,mode,ended,itemKind}={}){
+ const current=normalizeRestAnchor(anchor);
+ if(!current||current.source==='log')return 'keep';
+ if(kind==='운동'&&mode!=='memo'&&!ended&&itemKind==='strength')return 'retarget';
+ return 'stop';
 }
 
 export function installRestTimer({notify,storage,hasNextIncompleteSet,onCompleteNextSet}={}){
@@ -111,6 +118,11 @@ export function installRestTimer({notify,storage,hasNextIncompleteSet,onComplete
  function arm(){clearInterval(timer);timer=setInterval(tick,1000);tick()}
 
  function setAnchor(next){anchor=normalizeRestAnchor(next)}
+ function retarget(nextAnchor){
+  const next=normalizeRestAnchor(nextAnchor);
+  if(mode==='idle'||!next)return false;
+  anchor=next;save();return true;
+ }
 
  function currentRestSeconds(){
   if(mode==='elapsed')return elapsedSeconds(startedAt);
@@ -204,5 +216,5 @@ export function installRestTimer({notify,storage,hasNextIncompleteSet,onComplete
  });
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&mode!=='idle')tick()});
  if(mode!=='idle')arm();
- return {start,startElapsed,stop,attach,matches,beginReady,get mode(){return mode},get startedAt(){return startedAt},get anchor(){return anchor}};
+ return {start,startElapsed,stop,attach,matches,beginReady,retarget,get mode(){return mode},get startedAt(){return startedAt},get anchor(){return anchor}};
 }
