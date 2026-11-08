@@ -47,11 +47,11 @@
 **iCloud:** 별도 큐 I0–I3. 규모 미확인. 요청 없이 접근·변경하지 않음.
 
 **Q5 · 통합 회귀 (2026-11-08) · 자동·sandbox 완료, 배포·실기기 미함**
-- `npm test` **496** · `build` · `diff --check`. 로컬 `main` = `296c271`, `origin/main`보다 **7커밋 ahead**.
+- `npm test` **496** · `build` · `diff --check`. 로컬 `main`이 `origin/main`보다 **8커밋 ahead**(Q5 문서 포함).
 - sandbox: 활동 자동/수동 분류·저장, 운동 세트 수정·추가·삭제·한 줄 추가·휴식 경과 위젯, 가계부 진단·CSV 미리보기(저장 없음), 375폭 넘침 없음, 다크모드 전환.
 - 사진·동기화·오프라인: **단위 테스트**로 확인. **실기기·계정 왕복 미확인.**
 
-**배포 후보:** 로컬 HEAD `296c271`(문서 커밋 후 갱신). Pages는 `.github/workflows/pages.yml` — **`push` to `main`** 또는 `workflow_dispatch` → `npm test`→`build`→deploy. **푸시 = 배포.** 기존 데이터: optional `workoutPlan`/`exerciseMuscles` 추가만, money·쇼핑 스키마·마이그레이션 없음.
+**배포 후보:** 로컬 `main` tip. Pages는 `.github/workflows/pages.yml` — **`push` to `main`** 또는 `workflow_dispatch` → `npm test`→`build`→deploy. **푸시 = 배포.** 기존 데이터: optional `workoutPlan`/`exerciseMuscles` 추가만, money·쇼핑 스키마·마이그레이션 없음.
 
 ## 작업 대기열
 
