@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext} from '../rest-timer.js';
+import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer} from '../rest-timer.js';
 
 test('휴식 시간은 종료시각 기준이라 화면을 떠나도 오차가 누적되지 않는다',()=>{
  assert.equal(remainingSeconds(61000,1000),60);
@@ -29,4 +29,12 @@ test('다음 세트 시작 후 같은 자리 버튼이 세트 완료로 바뀐�
  assert.deepEqual(restPrimaryControl('ready'),{action:'complete-set',label:'세트 완료'});
  assert.deepEqual(restPrimaryControl('elapsed'),{action:'start-next',label:'다음 세트 시작'});
  assert.deepEqual(restPrimaryControl('countdown'),{action:'start-next',label:'다음 세트 시작'});
+});
+
+test('활동이 끝나면 해당 종목 휴식 타이머를 유지하지 않는다',()=>{
+ const intervals=new Map([['w1',{ongoing:true}],['w2',{ongoing:false}]]);
+ assert.equal(shouldKeepRestTimer({source:'log',logId:'w1',itemIndex:0},intervals),true);
+ assert.equal(shouldKeepRestTimer({source:'log',logId:'w2',itemIndex:0},intervals),false);
+ assert.equal(shouldKeepRestTimer({source:'capture',logId:'',itemIndex:0},intervals),true);
+ assert.equal(shouldKeepRestTimer(null,intervals),false);
 });

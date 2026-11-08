@@ -2,6 +2,15 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · 전체 UX·기술 품질 감사 (로컬)
+
+- 범위: Today·계획·기록·돈·돌아보기, 375/1280, 콘솔·a11y·저장 경로. sandbox `ux-audit-nov8`. 실계정·스키마·데이터 삭제 없음.
+- **P0 수정:** 활동 종료 후에도 휴식 위젯이 남는 문제 → `shouldKeepRestTimer` + render/`finish-activity`의 `syncRestWithSession`. 테스트 추가.
+- **P1 수정:** sticky `.ongoing-finish-bar`와 아젠다 `■ 활동 끝내기` 중복 제거(대표 진행 중만 sticky) · 하위 메뉴 `aria-current="false"` 제거(`renderNavigation`만 유지) · 다크모드 primary 대비 `--accent-fill:#3f6fd0`(측정 4.78:1).
+- 검사: `npm test` **505** · build · `diff --check` · sandbox 종료→rest hidden·아젠다 finish 0·finance 비활성 aria null.
+- **P1/P2 제안(미구현):** 캡처 종료시각이「추가 설정」접힘 · 오늘 화면 스크롤 길이 · 가계부 상단 도구 밀도 · Q4-B 2·4~6 · 공부 일시정지.
+- **미검증:** 실기기·백그라운드 타이머·실계정 동기화·사진. **push·Pages 없음.**
+
 ### 2026-11-08 Cursor · Pages 배포 (`b17f5cf`)
 
 - 사전: 스키마 bump 없음 · `captureActivityEnd`는 기존 `endDate`/`endTime` · `workoutSetDone` 비동기화 · 기록 삭제/실계정 시험 없음.

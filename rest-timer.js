@@ -14,6 +14,13 @@ export function restPrimaryControl(mode){
  return {action:'start-next',label:'다음 세트 시작'};
 }
 export function restModeAfterStartNext(hasNext){return hasNext?'ready':'idle'}
+/** Keep rest only while its log activity is still ongoing (or capture draft). */
+export function shouldKeepRestTimer(anchor,intervals){
+ const current=normalizeRestAnchor(anchor);
+ if(!current)return false;
+ if(current.source!=='log')return true;
+ return !!intervals?.get?.(current.logId)?.ongoing;
+}
 
 export function installRestTimer({notify,storage,hasNextIncompleteSet,onCompleteNextSet}={}){
  const key='hazeflow-workout-rest-v1';

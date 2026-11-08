@@ -44,9 +44,16 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** `b17f5cf` Pages 배포 완료. **사용성만 사용자 확인. 실기기·계정 왕복·Health·소요분만·Q4-B 2·4~6 미승인.**
+**다음 시작점:** 전체 UX·기술 감사 후 **로컬 수정 커밋만** 반영. **push·Pages 배포 금지(미승인).** 사용성만 사용자 확인. 실기기·계정 왕복·Health·소요분만·Q4-B 2·4~6 미승인.
 
-**배포 (2026-11-08):** `731cbbc`→`b17f5cf` 일반 push (force 없음). Actions [Run #101](https://github.com/h3clo/hazeflow/actions/runs/42489282618) success (build 26s · deploy 10s). URL https://h3clo.github.io/hazeflow/ . Pages 번들 `app-CtR-TtyP.js`·account에 `b17f5cf`·`운동 중`·`data-rest-primary`/`complete-set` 확인. **실기기·로그인 왕복 미확인.**
+**전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
+- 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
+- **수정:** 종료 후 휴식 위젯 잔존(`shouldKeepRestTimer`+`syncRestWithSession`) · sticky와 아젠다 끝내기 중복 제거 · `aria-current="false"` 제거 · 다크 primary 대비(`--accent-fill` 4.78:1) · 무라벨 `＋` 제거(이전).
+- 검사: `npm test` **505** · build · `diff --check` · sandbox 재현.
+- **제안(미구현):** 캡처「추가 설정」접힘·하루 화면 길이·돈 관리 도구 밀도·Q4-B 2·4~6.
+- **미검증:** 실기기·백그라운드 타이머·실계정 Supabase 왕복·사진 실기기.
+
+**배포 (2026-11-08):** `731cbbc`→`b17f5cf` 일반 push (force 없음). Actions [Run #101](https://github.com/h3clo/hazeflow/actions/runs/42489282618) success (build 26s · deploy 10s). URL https://h3clo.github.io/hazeflow/ . Pages 번들 `app-CtR-TtyP.js`·account에 `b17f5cf`·`운동 중`·`data-rest-primary`/`complete-set` 확인. **실기기·로그인 왕복 미확인. 감사 수정분은 미배포.**
 
 **배포 전 자체 QA (2026-11-08, `54bdc39`→`b17f5cf` · sandbox `qa-predeploy-54b`)**
 - 자동: `npm test` **504** · `build` · `diff --check`. 스키마 bump·기록 삭제·실계정 시험 없음. `endDate`/`endTime` 재사용, `workoutSetDone` 비동기화.
@@ -100,7 +107,8 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [x] 세션 제목·휴식·사후 기록·세트 없는 UI(2026-11-08): `운동 중`/`운동`+요약. 자유 휴식·목표 details. 캡처 선택 `endDate`/`endTime`(`captureActivityEnd`). 종목 추가 유지·골라 담기 details·느낌은 strength/기존 feedback. 스키마/Health/소요분만 없음. **푸시·배포·실기기 미함.**
 - [x] 한 손 조작(2026-11-08): 휴식 위젯 같은 자리 `다음 세트 시작`↔`세트 완료`, 세션 한 줄 추가를 세트 아래, 종료된 오늘 기록에서 세트 완료/휴식 숨김, primary 대비. **푸시·배포·실기기 미함.**
 - [x] QA 책임 분리(2026-11-08): 사용자는 UX만, Cursor가 회귀·저장·동기화 위험·경계·375/다크·콘솔을 자체 검증([AGENTS.md](../AGENTS.md)).
-- [ ] 헬스장 실기기·백그라운드 타이머·배포 후 확인. **전면 개편 자동 승인 아님. 기술 QA는 사용자에게 넘기지 않음.**
+- [x] 전체 UX·품질 감사 1차(2026-11-08): 종료→휴식 정리·끝내기 중복·aria-current·다크 primary 대비. **로컬만 · 푸시·배포 없음.**
+- [ ] 헬스장 실기기·백그라운드 타이머·감사 수정분 배포 후 확인. **전면 개편 자동 승인 아님. 기술 QA는 사용자에게 넘기지 않음.**
 
 ### P1 · 소비 데이터 구조 전환
 - [x] Q4-A 매핑·안전 단계 0~6 제안. 계정·`.private` 실데이터는 미확인.
@@ -139,4 +147,4 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근 (2026-11-08):** `340a8ff` Pages 배포 성공(Actions #99). 계정 데이터·마이그레이션·Q4-B 2·4~6 미실시. 다음: P0 실기기.
+**최근 (2026-11-08):** `b17f5cf` Pages 배포 성공(Actions #101). 이후 전체 UX 감사 수정은 **로컬 커밋만**(push·배포 미승인). 계정 데이터·마이그레이션·Q4-B 2·4~6 미실시. 다음: 배포 승인 또는 P0 실기기.
