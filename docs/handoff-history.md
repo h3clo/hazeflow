@@ -2,6 +2,15 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · Q5 통합 회귀
+
+- 자동: `npm test` **496** · `build` · `diff --check`.
+- vs `origin/main`: **7커밋 ahead** (`009e6d6`…`296c271` + 본 Q5 문서 커밋). 변경 핵심: 활동 UX, 운동 자극/세트/휴식, money 진단·CSV 미리보기, 문서.
+- sandbox `q5reg`/`q5w`(5176): 「영어 공부 시작」→공부·저장, 수동 분류 유지, `스쿼트 60 10 3` 세트 수정·추가·삭제·한 줄 추가·「휴식 경과」위젯, 진단·CSV 미리보기(저장 버튼 없음), 375 넘침 없음, 다크모드 `light`→`dark`.
+- 사진·동기화·오프라인: 기존 단위 테스트 통과. **실기기·계정·푸시·배포 없음.**
+- Pages: `push` to `main` / `workflow_dispatch`. 데이터: optional `workoutPlan`·`exerciseMuscles`만. Q4-B 2·4~6 미구현.
+- 다음: 배포 승인 또는 P0 실기기.
+
 ### 2026-11-08 Cursor · Q4-B 단계 1+3
 
 - 단계 1: `money-diagnose.js` — 중복·같은 날·금액·주문 충돌·식사 orphan 등 **후보만** 보고. 원본 불변. 가계부「기록 진단」.
