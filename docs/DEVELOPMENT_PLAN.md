@@ -196,7 +196,7 @@
 | **상태** | **웹·자동 회귀 완료** (2026-11-08). 배포·실기기 **미함** |
 | **검사** | `npm test` 496 · `build` · `diff --check` |
 | **sandbox** | 활동 분류·저장, 운동 세트/휴식 경과, 가계부 진단·CSV 미리보기, 375·다크모드 |
-| **배포 조건** | `main` push → Pages Actions(`pages.yml`). 로컬 8커밋 ahead of `origin/main` |
+| **배포 조건** | `main` push → Pages Actions(`pages.yml`). 로컬 `main` ahead of `origin/main` |
 | **데이터 영향** | optional 필드 추가만. money/쇼핑 쓰기·마이그레이션 없음. Q4-B 2·4~6 미구현 |
 | **실기기** | P0 항목 **미확인** — 웹 회귀로 대체하지 않음 |
 
