@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · Q3-B + Q3-C
+
+- Q3-B: `workout-sets.js`로 한 줄 문법 유지·세트별 수정/추가/삭제·종목 한 줄 추가. optional `workoutPlan`(목표 스냅샷). text가 정본, 파괴적 마이그레이션 없음.
+- Q3-C: `rest-timer.js` `startElapsed` — 오늘 세트 완료 시 경과 시작, 다음 세트 시작/완료 취소 시 종료. 과거·일괄 입력 미시작. 백그라운드 미보장.
+- 검사 **490**·빌드. **푸시·배포·계정 변경 없음.** 다음: **Q4-A**.
+
 ### 2026-11-08 Cursor · Q0–Q2 + Q3-A
 
 - Q0: 백업 브랜치 → `origin/main` FF → UX/계획 cherry-pick. Q1–Q2 활동 한 줄 UX·자동 분류. sandbox에서 「영어 공부 시작」→ 공부 배지 확인.
