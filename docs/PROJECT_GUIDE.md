@@ -8,7 +8,19 @@
 2. 아래 **현재 시작점**과 **작업 대기열**을 확인한다. 2주 실행 큐는 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md).
 3. `git status --short`, 현재 브랜치·최근 커밋·관련 코드/테스트를 확인한다. GitHub에 없는 로컬 작업을 완료 또는 유실로 단정하지 않는다.
 4. 해당 작업의 문서만 읽는다. 제품 원칙은 [PRODUCT_VISION.md](PRODUCT_VISION.md), 소비 데이터는 [payment-ledger-plan.md](payment-ledger-plan.md), 활동 UX 인계는 [UX_HANDOFF.md](UX_HANDOFF.md).
-5. 작업 후 완료/미완료, 검증 근거, 배포 여부, 다음 시작점을 갱신한다. 긴 경과는 [handoff-history.md](handoff-history.md)에 남긴다.
+5. UI·화면 작업이면 아래 **실시간 화면 확인**을 먼저 맞춘다.
+6. 작업 후 완료/미완료, 검증 근거, 배포 여부, 다음 시작점을 갱신한다. 긴 경과는 [handoff-history.md](handoff-history.md)에 남긴다.
+
+## 실시간 화면 확인 (Cursor Browser · 기본)
+
+Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. HMR이 유지되도록 Vite를 한 개만 둔다.
+
+1. `git branch`·`HEAD`를 확인하고, `lsof`/`curl`로 **5173에 리스너가 하나인지** 본다. `127.0.0.1:5173`과 `*:5173`이 동시에 있으면 localhost는 오래된 쪽을 탈 수 있으니 중복을 종료한다.
+2. 최신 로컬 코드로 `npm run dev -- --host 127.0.0.1 --port 5173 --strictPort` (또는 동일 조건의 단일 서버)를 실행한다.
+3. Cursor 내장 Browser를 **오른쪽(side) 패널**에 `http://127.0.0.1:5173/` 로 연다. **쿼리 없는 일반 앱**이 기본이다(`hazeflow-v1`). 사용자가 바로 클릭·조작할 수 있게 잠금만 필요한 자동화 구간에 짧게 쓴다.
+4. 코드 저장 시 Vite HMR로 화면이 갱신되는지 확인한다. CSS가 안 바뀌면 스타일시트 하드 리로드만 하고, IndexedDB·계정 데이터는 지우지 않는다.
+5. 위험·재현·회귀 점검은 `?sandbox&device=작업별이름`을 **별도 탭/세션**에서 한다. sandbox는 실제 기록과 저장 키가 다르다.
+6. 서버를 다시 띄울 때 기존 기록·사진·Supabase 데이터를 초기화·삭제하지 않는다. push·배포는 승인 후에만.
 
 ## 제품 목표 — 모든 작업의 판단 기준
 
@@ -26,7 +38,7 @@
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 실사용 UX(세션 카드·종료 바) **로컬 구현·검사 완료**, 푸시·Pages·실기기 미함. 다음은 배포 승인 또는 P0 실기기. Q4-B 2·4~6·계정 데이터·마이그레이션 자동 진행 금지.
+**다음 시작점:** 실사용 UX 로컬 완료(`2236adf`). Cursor Browser 옆 패널에 일반 앱(`http://127.0.0.1:5173/`) 연결·HMR 유지. 다음은 배포 승인 또는 P0 실기기. Q4-B 2·4~6·계정·마이그레이션 자동 진행 금지.
 
 **Q0 · 완료 (2026-11-08)**
 - 백업 `backup/pre-q0-local-wip` → `origin/main` FF → 로컬 UX/계획 cherry-pick. 강제 reset 없음.
