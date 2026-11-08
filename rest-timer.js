@@ -9,10 +9,15 @@ export function sameRestAnchor(a,b){
  const left=normalizeRestAnchor(a),right=normalizeRestAnchor(b);
  return !!(left&&right&&left.source===right.source&&left.logId===right.logId&&left.itemIndex===right.itemIndex);
 }
+export function restPrimaryControl(mode){
+ if(mode==='ready')return {action:'complete-set',label:'세트 완료'};
+ return {action:'start-next',label:'다음 세트 시작'};
+}
+export function restModeAfterStartNext(hasNext){return hasNext?'ready':'idle'}
 
-export function installRestTimer({notify,storage}={}){
+export function installRestTimer({notify,storage,hasNextIncompleteSet,onCompleteNextSet}={}){
  const key='hazeflow-workout-rest-v1';
- let mode='idle',deadline=0,startedAt=0,targetSeconds=0,timer=null,lastSeconds=-1,anchor=null;
+ let mode='idle',deadline=0,startedAt=0,targetSeconds=0,timer=null,lastSeconds=-1,anchor=null,readyRestSeconds=0;
  try{
   storage??=globalThis.sessionStorage;
   const raw=storage.getItem(key);
@@ -31,7 +36,7 @@ export function installRestTimer({notify,storage}={}){
  widget.className='workout-rest-widget';
  widget.hidden=true;
  widget.setAttribute('aria-label','운동 휴식');
- widget.innerHTML='<div class="workout-rest-status"><small>휴식</small><b class="rest-title">휴식 중</b><strong class="rest-countdown" aria-live="polite"></strong></div><div class="workout-rest-actions"><button type="button" class="small-button primary" data-rest-action="start-next">다음 세트 시작</button><button type="button" class="small-button" data-rest-action="extend" hidden>+30초</button><details class="workout-rest-target"><summary>목표 휴식</summary><div class="workout-rest-controls">'+[60,90,120].map(n=>`<button type="button" class="small-button" data-rest-action="target" data-seconds="${n}">${n}초</button>`).join('')+'</div><p class="hint">끝나도 다음 세트는 자동으로 시작되지 않아요.</p></details><button type="button" data-rest-action="close" aria-label="휴식 닫기">✕</button></div>';
+ widget.innerHTML='<div class="workout-rest-status"><small>휴식</small><b class="rest-title">휴식 중</b><strong class="rest-countdown" aria-live="polite"></strong></div><div class="workout-rest-actions"><button type="button" class="small-button primary" data-rest-primary data-rest-action="start-next">다음 세트 시작</button><button type="button" class="small-button" data-rest-action="extend" hidden>+30초</button><details class="workout-rest-target"><summary>목표 휴식</summary><div class="workout-rest-controls">'+[60,90,120].map(n=>`<button type="button" class="small-button" data-rest-action="target" data-seconds="${n}">${n}초</button>`).join('')+'</div><p class="hint">끝나도 다음 세트는 자동으로 시작되지 않아요.</p></details><button type="button" data-rest-action="close" aria-label="휴식 닫기">✕</button></div>';
  document.body.append(widget);
 
  const save=()=>{
@@ -42,20 +47,41 @@ export function installRestTimer({notify,storage}={}){
   }catch{}
  };
 
+ const primaryButton=()=>widget.querySelector('[data-rest-primary]');
+
+ function setPrimary(action,label){
+  const button=primaryButton();
+  if(!button)return;
+  const next=action&&label?{action,label}:restPrimaryControl(mode);
+  button.dataset.restAction=next.action;
+  button.textContent=next.label;
+ }
+
  function stop(){
-  mode='idle';deadline=0;startedAt=0;targetSeconds=0;anchor=null;clearInterval(timer);timer=null;lastSeconds=-1;widget.hidden=true;widget.classList.remove('is-inline');save();
+  mode='idle';deadline=0;startedAt=0;targetSeconds=0;readyRestSeconds=0;anchor=null;clearInterval(timer);timer=null;lastSeconds=-1;widget.hidden=true;widget.classList.remove('is-inline','is-ready');save();
+  setPrimary('start-next','다음 세트 시작');
+  const target=widget.querySelector('.workout-rest-target');
+  if(target)target.hidden=false;
   if(widget.parentElement!==document.body)document.body.append(widget);
  }
 
- function paint(seconds,title,showExtend){
+ function paint(seconds,title,showExtend,{ready=false}={}){
   widget.querySelector('.rest-title').textContent=title;
   widget.querySelector('.rest-countdown').textContent=formatRestClock(seconds);
   widget.querySelector('[data-rest-action=extend]').hidden=!showExtend;
+  const target=widget.querySelector('.workout-rest-target');
+  if(target)target.hidden=ready;
+  widget.classList.toggle('is-ready',ready);
+  setPrimary();
   widget.hidden=false;
   attach();
  }
 
  function tick(){
+  if(mode==='ready'){
+   paint(readyRestSeconds,'다음 세트',false,{ready:true});
+   return;
+  }
   if(mode==='countdown'){
    const seconds=remainingSeconds(deadline);
    if(seconds!==lastSeconds){paint(seconds,'목표 휴식',true);lastSeconds=seconds}
@@ -79,10 +105,23 @@ export function installRestTimer({notify,storage}={}){
 
  function setAnchor(next){anchor=normalizeRestAnchor(next)}
 
+ function currentRestSeconds(){
+  if(mode==='elapsed')return elapsedSeconds(startedAt);
+  if(mode==='countdown')return Math.max(0,(targetSeconds||0)-remainingSeconds(deadline));
+  return readyRestSeconds;
+ }
+
+ function beginReady(){
+  readyRestSeconds=currentRestSeconds();
+  mode='ready';deadline=0;startedAt=0;targetSeconds=0;lastSeconds=-1;clearInterval(timer);timer=null;save();
+  paint(readyRestSeconds,'다음 세트',false,{ready:true});
+ }
+
  /** Optional target countdown. Does not change set completion state. */
  function start(seconds,nextAnchor){
   if(!Number.isFinite(seconds)||seconds<1||seconds>3600)return;
   if(nextAnchor)setAnchor(nextAnchor);
+  readyRestSeconds=0;
   targetSeconds=Math.floor(seconds);
   mode='countdown';
   startedAt=Date.now();
@@ -94,6 +133,7 @@ export function installRestTimer({notify,storage}={}){
  function startElapsed(at=Date.now(),nextAnchor){
   if(!Number.isFinite(at))return;
   if(nextAnchor)setAnchor(nextAnchor);
+  readyRestSeconds=0;
   mode='elapsed';startedAt=at;deadline=0;targetSeconds=0;lastSeconds=-1;save();arm();
  }
 
@@ -121,10 +161,32 @@ export function installRestTimer({notify,storage}={}){
  widget.addEventListener('click',e=>{
   const action=e.target.closest('[data-rest-action]')?.dataset.restAction;
   if(!action)return;
-  if(action==='close'||action==='start-next'){
-   const ending=action==='start-next';
+  if(action==='close'){
    stop();
-   if(ending)notify?.('휴식 측정을 끝냈어요.');
+   return;
+  }
+  if(action==='start-next'){
+   if(mode!=='elapsed'&&mode!=='countdown')return;
+   const current=normalizeRestAnchor(anchor);
+   if(restModeAfterStartNext(!!(current&&hasNextIncompleteSet?.(current)))==='ready'){
+    beginReady();
+    notify?.('휴식을 끝냈어요. 같은 자리의 세트 완료를 누르세요.');
+    return;
+   }
+   stop();
+   notify?.('휴식 측정을 끝냈어요.');
+   return;
+  }
+  if(action==='complete-set'){
+   if(mode!=='ready')return;
+   const current=normalizeRestAnchor(anchor);
+   if(!current){stop();return}
+   // Leave ready immediately so a double tap cannot complete two sets.
+   mode='idle';clearInterval(timer);timer=null;lastSeconds=-1;setPrimary();
+   Promise.resolve(onCompleteNextSet?.(current)).catch(error=>{
+    stop();
+    notify?.(error?.message||'세트를 완료하지 못했어요.');
+   });
    return;
   }
   if(action==='extend'&&mode==='countdown'&&deadline){deadline+=30000;targetSeconds+=30;save();tick();return}
@@ -135,5 +197,5 @@ export function installRestTimer({notify,storage}={}){
  });
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&mode!=='idle')tick()});
  if(mode!=='idle')arm();
- return {start,startElapsed,stop,attach,matches,get mode(){return mode},get startedAt(){return startedAt},get anchor(){return anchor}};
+ return {start,startElapsed,stop,attach,matches,beginReady,get mode(){return mode},get startedAt(){return startedAt},get anchor(){return anchor}};
 }

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
  workoutItems,serializeWorkoutItems,updateStrengthSet,addStrengthSet,removeStrengthSet,
- appendWorkoutLine,formatStrengthSets,applyPlanGoals,snapshotWorkoutPlan
+ appendWorkoutLine,formatStrengthSets,applyPlanGoals,snapshotWorkoutPlan,nextIncompleteSetIndex
 } from '../workout-sets.js';
 import {workoutSession} from '../workout.js';
 
@@ -89,4 +89,13 @@ test('일괄 등록 후 한 줄 추가·중간 수정·순서 무시가 가능�
  const labeled=applyPlanGoals(workoutItems(afterMore),plan);
  assert.equal(labeled[1].planLabel,'랫풀다운 20 10 3');
  assert.equal(labeled[3].planLabel,undefined);
+});
+
+test('같은 자리 세트 완료는 해당 종목의 첫 미완료 세트만 고른다',()=>{
+ const items=workoutItems('랫풀다운 20 10 3\n체스트프레스 40 8 2');
+ assert.equal(nextIncompleteSetIndex(items,{},0),0);
+ assert.equal(nextIncompleteSetIndex(items,{'0:0':true},0),1);
+ assert.equal(nextIncompleteSetIndex(items,{'0:0':true,'0:1':true,'0:2':true},0),null);
+ assert.equal(nextIncompleteSetIndex(items,{'0:0':true},1),0);
+ assert.equal(nextIncompleteSetIndex(items,{'1:0':true},1),1);
 });

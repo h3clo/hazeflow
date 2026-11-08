@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor} from '../rest-timer.js';
+import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext} from '../rest-timer.js';
 
 test('휴식 시간은 종료시각 기준이라 화면을 떠나도 오차가 누적되지 않는다',()=>{
  assert.equal(remainingSeconds(61000,1000),60);
@@ -21,4 +21,12 @@ test('휴식 앵커는 종목 카드에만 붙이고 서로 다른 종목과 섞
  assert.equal(sameRestAnchor({source:'log',logId:'a',itemIndex:1},{source:'log',logId:'a',itemIndex:1}),true);
  assert.equal(sameRestAnchor({source:'log',logId:'a',itemIndex:1},{source:'log',logId:'a',itemIndex:2}),false);
  assert.equal(sameRestAnchor({source:'capture',logId:'',itemIndex:0},{source:'log',logId:'',itemIndex:0}),false);
+});
+
+test('다음 세트 시작 후 같은 자리 버튼이 세트 완료로 바뀐다',()=>{
+ assert.equal(restModeAfterStartNext(true),'ready');
+ assert.equal(restModeAfterStartNext(false),'idle');
+ assert.deepEqual(restPrimaryControl('ready'),{action:'complete-set',label:'세트 완료'});
+ assert.deepEqual(restPrimaryControl('elapsed'),{action:'start-next',label:'다음 세트 시작'});
+ assert.deepEqual(restPrimaryControl('countdown'),{action:'start-next',label:'다음 세트 시작'});
 });

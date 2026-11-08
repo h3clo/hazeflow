@@ -143,3 +143,13 @@ export function snapshotWorkoutPlan(existingPlan,text){
  const body=String(text||'').trim();
  return workoutSession(body).exercises.length?body:'';
 }
+
+/** First unfinished set in one strength item. Used by the same-spot rest → complete button. */
+export function nextIncompleteSetIndex(items,doneMap={},itemIndex=0){
+ const item=(items||[])[itemIndex];
+ if(!item?.sets?.length)return null;
+ for(let setIndex=0;setIndex<item.sets.length;setIndex++){
+  if(!doneMap[`${itemIndex}:${setIndex}`])return setIndex;
+ }
+ return null;
+}
