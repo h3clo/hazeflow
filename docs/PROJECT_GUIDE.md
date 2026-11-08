@@ -44,12 +44,14 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 한 손 휴식 흐름·한 줄 추가 하단 배치·QA 책임 분리·배포 전 자체 QA 로컬 완료. **사용성만 사용자 확인. 푸시·Pages·실기기·계정·Health·소요분만 없음.** Q4-B 2·4~6 미승인.
+**다음 시작점:** `b17f5cf` Pages 배포 완료. **사용성만 사용자 확인. 실기기·계정 왕복·Health·소요분만·Q4-B 2·4~6 미승인.**
 
-**배포 전 자체 QA (2026-11-08, `54bdc39`+후속 · sandbox `qa-predeploy-54b`) · 푸시 미함**
-- 자동: `npm test` **504** · `build` · `diff --check`.
-- sandbox: 세트 완료→같은 자리 `다음 세트 시작`→`세트 완료`로 1세트만 추가 완료, 한 줄 추가가 세트 아래, 제목 `운동 중`, 캡처 종료 `10:00~14:00·240분`, 새로고침 후 text 유지, 종료 기록에 세트 완료 버튼 없음, 375 넘침 없음, 다크 primary 대비, 콘솔 오류 없음.
-- 동기화·사진·실기기·백그라운드 타이머·실계정 Supabase 왕복: **미검증**(단위 테스트만 / 격리 불가 항목).
+**배포 (2026-11-08):** `731cbbc`→`b17f5cf` 일반 push (force 없음). Actions [Run #101](https://github.com/h3clo/hazeflow/actions/runs/42489282618) success (build 26s · deploy 10s). URL https://h3clo.github.io/hazeflow/ . Pages 번들 `app-CtR-TtyP.js`·account에 `b17f5cf`·`운동 중`·`data-rest-primary`/`complete-set` 확인. **실기기·로그인 왕복 미확인.**
+
+**배포 전 자체 QA (2026-11-08, `54bdc39`→`b17f5cf` · sandbox `qa-predeploy-54b`)**
+- 자동: `npm test` **504** · `build` · `diff --check`. 스키마 bump·기록 삭제·실계정 시험 없음. `endDate`/`endTime` 재사용, `workoutSetDone` 비동기화.
+- sandbox: 같은 자리 휴식 흐름·한 줄 추가 하단·캡처 종료·새로고침 text 유지·종료 후 set-done 없음·375/다크.
+- 동기화·사진·실기기·백그라운드 타이머·실계정 Supabase 왕복: **미검증**(단위 테스트만).
 
 **Q0 · 완료 (2026-11-08)**
 - 백업 `backup/pre-q0-local-wip` → `origin/main` FF → 로컬 UX/계획 cherry-pick. 강제 reset 없음.

@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · Pages 배포 (`b17f5cf`)
+
+- 사전: 스키마 bump 없음 · `captureActivityEnd`는 기존 `endDate`/`endTime` · `workoutSetDone` 비동기화 · 기록 삭제/실계정 시험 없음.
+- 일반 push `731cbbc`→`b17f5cf` (force 없음). tip `54bdc39`+`b17f5cf`.
+- Actions [Run #101](https://github.com/h3clo/hazeflow/actions/runs/42489282618) success (build 26s · deploy 10s).
+- Pages https://h3clo.github.io/hazeflow/ · `assets/app-CtR-TtyP.js`에 `b17f5cf`·`운동 중`·`data-rest-primary`/`complete-set` 확인. account 버지도 `b17f5cf`.
+- **실기기·로그인 왕복 미확인.** 운영 데이터 초기화/자동 복구 없음.
+
 ### 2026-11-08 Cursor · 한 손 휴식·QA 책임·배포 전 자체 QA
 
 - QA 책임: 사용자는 UX만. Cursor가 회귀/IndexedDB/동기화 위험/통계/날짜·시간/375·다크/콘솔·test·build를 자체 검증. 격리 sandbox만. 미검증은 완료로 쓰지 않음. `AGENTS.md`·`PROJECT_GUIDE.md`.
@@ -9,7 +17,7 @@
 - 수정: 종료된 오늘 기록에서 세트 완료/휴식 숨김(진행 중·캡처만). `complete-set` 연속 탭 가드.
 - 검사: `npm test` **504** · build · `diff --check`. sandbox `qa-predeploy-54b`: 같은 자리 흐름·추가 하단·캡처 종료 240분·새로고침 text 유지·종료 후 set-done 0·375/다크·콘솔 없음.
 - **미검증:** 실기기·백그라운드 타이머·실계정 Supabase 왕복·사진 실기기. ready 상태는 sessionStorage 미저장(새로고침 시 세트 행으로 이어감).
-- **로컬 커밋만. 푸시·Pages·계정 없음.**
+- 후속: `b17f5cf` Pages 배포 완료(위 항목).
 
 ### 2026-11-08 Cursor · 세션 제목·휴식·사후 종료·세트 없는 UI
 
