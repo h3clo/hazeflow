@@ -39,6 +39,17 @@ test('새 운동 한 줄을 붙일 때 기존 원문을 다시 쓰지 않는다'
  assert.throws(()=>appendWorkoutLine(base,'그냥 메모'));
 });
 
+test('연속으로 종목을 붙여도 앞선 세트 기록이 유지된다',()=>{
+ const first=appendWorkoutLine('랫풀다운 20 10 3','체스트프레스 40 10 3');
+ const second=appendWorkoutLine(first,'러닝머신 5 5');
+ assert.equal(second,'랫풀다운 20 10 3\n체스트프레스 40 10 3\n러닝머신 5 5');
+ const items=workoutItems(second);
+ assert.equal(items[0].sets.length,3);
+ assert.equal(items[0].sets[0].kg,20);
+ assert.equal(items[1].name,'체스트프레스');
+ assert.throws(()=>appendWorkoutLine(second,'   '));
+});
+
 test('세트 추가·삭제와 목표 스냅샷을 유지한다',()=>{
  const items=workoutItems('랫풀다운 15 15 2');
  const added=addStrengthSet(items,0);

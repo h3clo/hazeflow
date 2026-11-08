@@ -66,6 +66,24 @@ body[data-view=day] header{margin-bottom:18px}body[data-view=day] #subtitle{disp
 /* Running activities stay distinct from planned events and finished records. */
 .activity-ongoing{border:1px solid var(--accent,#77b6a2)!important;border-left:4px solid var(--accent,#77b6a2)!important;background:color-mix(in srgb,var(--accent,#77b6a2) 13%,var(--surface,#fff))!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#77b6a2) 9%,transparent)}
 .ongoing-badge{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:4px 8px;background:#286450;color:#fff;font-size:11px;font-weight:700;white-space:nowrap}.ongoing-badge i{width:6px;height:6px;border-radius:50%;background:#a8f0cd;box-shadow:0 0 0 3px #ffffff20}.activity-range{font-size:11px;color:var(--muted);margin:7px 0;font-variant-numeric:tabular-nums}.activity-ongoing .activity-range{font-weight:650}.finish-activity{margin:2px 0 8px}.capture-mode{display:flex;gap:8px;align-items:center;font-size:12px;margin:0 0 12px}.capture-mode select{min-width:0;flex:1}.log-row>time{overflow-wrap:anywhere;font-size:11px}
+.live-workout-session{margin-bottom:16px}.live-workout-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}.live-workout-heading small{display:block;font-size:10px;color:var(--muted);letter-spacing:.4px}.live-workout-heading h2{font-size:17px;margin:4px 0 0;overflow-wrap:anywhere;line-height:1.4}.live-workout-session .workout-append-row{margin-top:0}.agenda-session-hint{margin:8px 0 0!important}
+.ongoing-finish-bar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--surface,#fff) 92%,var(--accent,#77b6a2));box-shadow:0 -6px 20px #13274218;backdrop-filter:blur(8px)}.ongoing-finish-copy{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.ongoing-finish-copy>div{min-width:0;overflow:hidden}.ongoing-finish-copy strong{display:block;font-size:13px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ongoing-finish-copy small{display:block;font-size:10px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ongoing-finish-bar .finish-activity{margin:0;flex-shrink:0;min-height:40px;padding:8px 14px}
+:root{--bottom-nav-h:0px;--ongoing-bar-h:0px}
+body.has-ongoing-bar{--ongoing-bar-h:56px}
+body.has-ongoing-bar main{padding-bottom:calc(40px + var(--ongoing-bar-h) + var(--bottom-nav-h) + env(safe-area-inset-bottom,0px))}
+@media(min-width:741px){.ongoing-finish-bar{left:176px;bottom:0}}
+@media(max-width:740px){
+ :root{--bottom-nav-h:64px}
+ .ongoing-finish-bar{bottom:calc(var(--bottom-nav-h) + env(safe-area-inset-bottom,0px));padding:10px 14px}
+ body.has-ongoing-bar{--ongoing-bar-h:60px}
+ body.has-ongoing-bar main{padding-bottom:calc(110px + var(--ongoing-bar-h) + env(safe-area-inset-bottom,0px))}
+ .record-column>.card.live-workout-session{order:-1}
+ .live-workout-session .workout-append-line{min-height:44px;font-size:14px}
+ .ongoing-finish-bar .finish-activity{min-height:44px;font-size:13px}
+}
+:root[data-theme=dark] .ongoing-finish-bar{background:color-mix(in srgb,var(--surface,#18222b) 88%,var(--accent,#77b6a2));box-shadow:0 -6px 22px #0006}
+:root[data-theme=dark] .ongoing-badge{background:#1f4f40}
+body.native-app.has-ongoing-bar main{padding-bottom:calc(100px + var(--ongoing-bar-h) + env(safe-area-inset-bottom,0px))}
 
 .capture-mode-switch{border:0;margin:0 0 14px;padding:0;display:flex;gap:6px}.capture-mode-switch legend{font-size:11px;color:var(--muted);margin-bottom:7px}.capture-mode-switch label{flex:1;position:relative;cursor:pointer}.capture-mode-switch input{position:absolute;opacity:0;width:1px;height:1px}.capture-mode-switch span{display:block;padding:9px 6px;text-align:center;border:1px solid var(--line,#68778555);border-radius:9px;font-size:12px}.capture-mode-switch input:checked+span{background:color-mix(in srgb,var(--accent,#91bcae) 22%,transparent);border-color:var(--accent,#91bcae);font-weight:700}.capture-mode-switch input:focus-visible+span{outline:2px solid var(--accent,#91bcae);outline-offset:3px}
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}

@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · 실사용 UX(세션 카드·종료 바)
+
+- 승인 범위: 새 탭/스키마 없음. `app.js`·`style.css`·관련 테스트·가이드.
+- 진행 중 운동: record-column `.live-workout-session`(모바일 order -1)·상단 한 줄 추가·세트/휴식/자극/골라 담기 재사용·아젠다 compact.
+- 종료: `.ongoing-finish-bar` + `finish-activity`. `activityIntervals`/명시 end 로직 미변경.
+- 검사: `npm test` **498** · build · `diff --check`. sandbox `ux-session`(5177): 종목 추가 보존·연속 클릭 busy·긴 제목 말줄임·일반 활동 바만·375에서 nav 비겹침·다크 배경.
+- **로컬 커밋만. 푸시·Pages·계정·마이그레이션·Q4-B 2·4~6 없음.** 다음: 배포 승인 또는 P0 실기기.
+
 ### 2026-11-08 Cursor · Pages 배포
 
 - 사전 점검 통과 후 `bb06cfc`→`340a8ff` 일반 push (force 없음).
