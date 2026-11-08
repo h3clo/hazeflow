@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer,captureRestAfterSave,restoreRestSession,readSetDoneMap,pruneSetDoneMap,shiftSetDoneMarks} from '../rest-timer.js';
+import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer,captureRestAfterSave,restoreRestSession,readSetDoneMap,pruneSetDoneMap,shiftSetDoneMarks,changedWorkoutLogIds} from '../rest-timer.js';
 
 test('휴식 시간은 종료시각 기준이라 화면을 떠나도 오차가 누적되지 않는다',()=>{
  assert.equal(remainingSeconds(61000,1000),60);
@@ -71,4 +71,11 @@ test('세트를 지우면 완료 표시가 뒤 세트로 옮겨 붙지 않는다
  assert.deepEqual(shiftSetDoneMarks(live,0,0,'w1'),{'w1:0:1':true,'w2:0:0':true});
  assert.deepEqual(shiftSetDoneMarks({'0:1':true,'0:2':true},0,0),{'0:0':true,'0:1':true});
  assert.deepEqual(shiftSetDoneMarks({'1:0':true},0,0),{'1:0':true});
+});
+
+test('운동 원문을 되돌리면 그 기록의 완료 표시만 버린다',()=>{
+ const before=[{id:'w1',text:'랫풀다운 20 10 3'},{id:'w2',text:'스쿼트 40 8 2'}];
+ const after=[{id:'w1',text:'랫풀다운 20 10 2'},{id:'w2',text:'스쿼트 40 8 2'}];
+ assert.deepEqual(changedWorkoutLogIds(after,before),['w1']);
+ assert.deepEqual(changedWorkoutLogIds(before,before),[]);
 });

@@ -8,7 +8,7 @@ import {openSyncJournal} from './sync-journal-store.js';
 import {recordStorage} from './storage-runtime.js';
 import {healthPanel,healthDayStrip,workoutHealthCard,hasFullHealthMeasurement,watchGuide,createHealthFlow} from './health-ui.js';
 import {workoutLibrary,appendWorkoutSelection} from './workout-library.js';
-import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave,readSetDoneMap,pruneSetDoneMap,shiftSetDoneMarks} from './rest-timer.js';
+import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave,readSetDoneMap,pruneSetDoneMap,shiftSetDoneMarks,changedWorkoutLogIds} from './rest-timer.js';
 import {exerciseGuide} from './exercise-guide.js';
 import {recentMeals,reuseMealDraft} from './meal-reuse.js';
 import {replaceFavorite,removeUnchangedFavorite} from './favorite-edit.js';
@@ -122,6 +122,7 @@ let workoutAppendBusy=false;
 const liveWorkoutDone={};
 function persistLiveWorkoutDone(){try{sessionStorage.setItem(key+'-workout-set-done',JSON.stringify(liveWorkoutDone))}catch{}}
 function replaceLiveWorkoutDone(next){for(const mark of Object.keys(liveWorkoutDone))delete liveWorkoutDone[mark];Object.assign(liveWorkoutDone,next);persistLiveWorkoutDone()}
+function dropSetDoneForLogs(ids){const drop=new Set(ids||[]);if(!drop.size)return;let dirty=false;for(const mark of Object.keys(liveWorkoutDone)){if(drop.has(mark.split(':').slice(0,-2).join(':'))){delete liveWorkoutDone[mark];dirty=true}}if(dirty)persistLiveWorkoutDone()}
 function loadLiveWorkoutDone(){for(const mark of Object.keys(liveWorkoutDone))delete liveWorkoutDone[mark];try{Object.assign(liveWorkoutDone,readSetDoneMap(JSON.parse(sessionStorage.getItem(key+'-workout-set-done')||'{}')))}catch{}}
 function pruneLiveWorkoutDone(){const next=pruneSetDoneMap(liveWorkoutDone,ongoingActivityLogs().map(l=>l.id));const marks=Object.keys(liveWorkoutDone);if(marks.length===Object.keys(next).length&&marks.every(mark=>next[mark]))return;for(const mark of marks)delete liveWorkoutDone[mark];Object.assign(liveWorkoutDone,next);persistLiveWorkoutDone()}
 loadLiveWorkoutDone();
@@ -593,7 +594,7 @@ document.addEventListener('click',async e=>{
  if(act==='open-day'){date=id;view='day';await render()}
  if(act==='history-date'){date=id;await render()}if(act==='month-prev'||act==='month-next'){const d=new Date(date+'T12:00:00');d.setDate(1);d.setMonth(d.getMonth()+(act==='month-prev'?-1:1));date=todayKey(d);await render()}
  if(act==='dismiss')toast.dismiss();
- if(act==='undo'&&undoState){const owner=key,entry=undoState;try{await recordStorage.update(owner,raw=>{if(raw!==entry.after)throw Error('다른 기록이 저장되어 한 번에 되돌릴 수 없어요. 해당 기록에서 수정해주세요.');return JSON.stringify(entry.before)});if(owner!==key)return;data=entry.before;undoState=null;account?.changed();await render();notify('되돌렸어요.')}catch(error){notify(error.message)}}
+ if(act==='undo'&&undoState){const owner=key,entry=undoState;try{await recordStorage.update(owner,raw=>{if(raw!==entry.after)throw Error('다른 기록이 저장되어 한 번에 되돌릴 수 없어요. 해당 기록에서 수정해주세요.');return JSON.stringify(entry.before)});if(owner!==key)return;dropSetDoneForLogs(changedWorkoutLogIds(entry.after?.logs,entry.before?.logs));data=entry.before;undoState=null;account?.changed();await render();notify('되돌렸어요.')}catch(error){notify(error.message)}}
  if(act.startsWith('routine-')&&!['routine-step'].includes(act)&&!future()){const action={ 'routine-start':'start','routine-done':'done','routine-skip':'skip','routine-reset':'reset'}[act];if(action)await commit(d=>routineAction(d,actionDate,id,action,null,executionTime()),{undo:true,message:'이 날짜의 루틴 실행을 저장했어요.'})}
  if(act.startsWith('event-')&&!future())await commit(d=>eventAction(d,id,act.slice(6),executionTime()),{undo:true,message:'일정 실행을 저장했어요.'});
  if(act==='delete-log'||act==='delete-legacy'){const opened=openedFor(b,act==='delete-log'?'logs':'exercises');if(!opened){notify('삭제할 기록을 다시 확인해주세요.');return}if(await commit(d=>{if(act==='delete-log')d.logs=removeUnchangedLog(d.logs,id,opened);else d.exercises=removeUnchangedItem(d.exercises,id,opened)},{undo:true,message:'기록을 삭제했어요.'}))$('#editor').close();return}

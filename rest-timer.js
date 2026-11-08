@@ -59,6 +59,13 @@ export function pruneSetDoneMap(map,ongoingIds){
  return Object.fromEntries(Object.entries(readSetDoneMap(map)).filter(([mark])=>keep.has(mark.split(':').slice(0,-2).join(':'))));
 }
 /** Drop a removed set and close the gap so a later set does not inherit its completion. */
+/** Logs whose workout text differs. Used to drop set-done marks after undo. */
+export function changedWorkoutLogIds(beforeLogs,afterLogs){
+ const before=new Map((beforeLogs||[]).map(l=>[l?.id,l?.text])),after=new Map((afterLogs||[]).map(l=>[l?.id,l?.text])),ids=[];
+ for(const [id,text] of before)if(after.get(id)!==text)ids.push(id);
+ for(const [id,text] of after)if(!before.has(id)||before.get(id)!==text)if(!ids.includes(id))ids.push(id);
+ return ids;
+}
 export function shiftSetDoneMarks(map,itemIndex,removedSetIndex,logId=''){
  if(!map||typeof map!=='object'||Array.isArray(map))return {};
  if(!Number.isInteger(itemIndex)||itemIndex<0||!Number.isInteger(removedSetIndex)||removedSetIndex<0)return {...map};
