@@ -24,16 +24,18 @@
 
 ## 현재 시작점
 
-**큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)의 **Q0 → Q1…** 순서. 완료 기준 충족 시 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
+**큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**Q0 · Git 합치기 (진행 중 → 완료 후 Q1)**
-- 백업 브랜치 `backup/pre-q0-local-wip`에 로컬 UX WIP 보존. `origin/main` 12커밋은 fast-forward로 반영.
-- 로컬에서 가져온 파일: `activity-classify.js`, `tests/activity-classify.test.js`, `app.js` classify import, `docs/UX_HANDOFF.md`, `docs/DEVELOPMENT_PLAN.md`.
-- 완료 기준: 위 파일 보존 + `npm test`/`build` 기준선 기록. 강제 reset 없음.
+**다음 시작점: Q3-A** (운동 자극 부위 교차 재현·최소 수정). [WORKOUT_UX.md](WORKOUT_UX.md)
 
-**활동 기록 UX (Q1–Q2)**
-- 분류기·테스트는 작업 트리에 있음. `captureView()` UI·이벤트·배포는 미완료. 순서: [UX_HANDOFF.md](UX_HANDOFF.md) 5번.
-- 기존 활동·사진·운동·동기화 보존. `?sandbox&device=작업별이름` 사용.
+**Q0 · 완료 (2026-11-08)**
+- 백업 `backup/pre-q0-local-wip` → `origin/main` FF → 로컬 UX/계획 cherry-pick. 강제 reset 없음.
+- 기준선: `npm test` **483** pass → 활동 UX 후 **484** pass, `npm run build` 통과. 푸시·배포 없음.
+
+**활동 기록 UX (Q1–Q2) · 구현·검사 완료, 배포 미함**
+- 한 줄 입력(`지금 뭐 하고 있어?`), 액션 바(활동 시작/짧은 기록/기록/분류 배지), `추가 설정`에 카테고리·시간·사진·식사/운동 옵션.
+- `manualKind` 수동 우선, 입력 중 `classifyActivity` 배지, 저장 시 자동 분류. sandbox에서 「영어 공부 시작」→ 공부 선택 확인.
+- 기존 활동·사진·운동·동기화 경로 보존. 배포·실기기 왕복은 미확인.
 
 **운동 UX (Q3-A/B/C, 2주 우선)**
 - 자극 부위 교차 · 운동별 세트 수정 · 휴식 경과. 설계: [WORKOUT_UX.md](WORKOUT_UX.md). 전면 개편 아님.
@@ -54,8 +56,8 @@
 - [ ] 좁은 화면·다크모드·입력 중 렌더 오류는 재현된 부분만 수정.
 
 ### P1 · 활동 기록 입력 UX
-- [ ] 한 줄 입력, 규칙 기반 카테고리 추천, 사용자 선택 우선, 활동 시작/짧은 기록, 추가 설정 접기/펼치기 완성 (Q1–Q2).
-- [ ] 기존 저장·동기화·운동 파서 회귀 검증 및 화면 확인. 구현/검사/배포/실기기 검증을 구분.
+- [x] 한 줄 입력·자동 분류/수동 우선·활동 시작/짧은 기록·추가 설정 (Q1–Q2). 검사 484·빌드·sandbox 분류 확인. **배포·실기기 미함.**
+- [ ] 배포 승인 후 Pages/실기기 확인. 좁은 폭에서 추가 설정 접힘 재확인.
 
 ### P1 · 운동 기록 실사용 오류 및 입력 흐름 (설계 합의, 코드 미검증)
 - [ ] 자극 부위 교차 재현·원인 구분·최소 수정 (Q3-A).
@@ -98,4 +100,4 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근:** Q0로 원격 12커밋 FF + 로컬 UX/계획 문서 통합 중. 백업 `backup/pre-q0-local-wip`. 푸시·배포·계정 변경 없음. 상세는 [handoff-history.md](handoff-history.md).
+**최근 (2026-11-08):** Q0 완료 + Q1–Q2 활동 UX 구현·484 검사·빌드. 다음 **Q3-A**. 푸시·배포·계정 변경 없음. 상세 [handoff-history.md](handoff-history.md).

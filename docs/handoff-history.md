@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · Q0 합치기 + Q1–Q2 활동 UX
+
+- Q0: `backup/pre-q0-local-wip`에 WIP 보존 → `main`을 `origin/main` FF → cherry-pick으로 분류기·계획 문서 통합. 강제 reset 없음.
+- 기준선 483 pass·빌드 후 Q1–Q2: `captureView` 한 줄 UX, `manualKind`/`classifyActivity`, `capture-drafts`·CSS. 검사 **484**·빌드 통과. sandbox에서 자동 분류 배지 확인. **푸시·배포 없음.**
+- 다음: Q3-A 자극 부위 교차.
+
 ### 2026-11-08 Cursor · 2주 개발 계획 (문서만)
 
 - 조사 후 `DEVELOPMENT_PLAN.md` 작성·같은 날 **작업 큐로 개정**(요일 정정, 날짜 강제 배정 제거, 운동 Q3 우선 3종, 결제 Q4 조사 후 판정, iCloud I0–I3 미확인 시간). `PROJECT_GUIDE` 0번·P1·인계 맞춤. 원격 `WORKOUT_UX`·`payment-ledger-plan` 복원.
