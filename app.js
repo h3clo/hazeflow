@@ -32,6 +32,7 @@ import {nutritionFields,nutritionValues,nutritionText,readNutrition,nutritionKey
 import {paymentSplitFields,paymentSplitRow,readPaymentSplits} from './payment-splits.js';
 import {shoppingPlatforms,shoppingSuggestion,duplicateOrder,crossSourceOrderCandidates,shoppingLinkSnapshot,linkShoppingOrder} from './shopping-import.js';
 import {restoreCaptureDrafts,serializeCaptureDrafts} from './capture-drafts.js';
+import {classifyActivity} from './activity-classify.js';
 import {muscleMap,muscleLabels,muscleDetails,selectedMuscleSummary,isExpectedMuscle} from './muscle-map.js';
 import {muscleNames,readWorkoutFeedback} from './workout-feedback.js';
 import {exerciseMuscles,strengthCalories,saveFitnessProfile} from './fitness.js';

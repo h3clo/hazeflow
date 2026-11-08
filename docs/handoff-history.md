@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · 2주 개발 계획 (문서만)
+
+- 조사 후 `DEVELOPMENT_PLAN.md` 작성·같은 날 **작업 큐로 개정**(요일 정정, 날짜 강제 배정 제거, 운동 Q3 우선 3종, 결제 Q4 조사 후 판정, iCloud I0–I3 미확인 시간). `PROJECT_GUIDE` 0번·P1·인계 맞춤. 원격 `WORKOUT_UX`·`payment-ledger-plan` 복원.
+- 로컬 `main`은 `origin/main`보다 12커밋 뒤. 활동 UX 미커밋 보존. 앱 코드·iCloud·커밋/푸시 없음.
+- 다음: Q0. 상세: [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md).
+
 ### 2026-11-07 · 공통 가이드 도입
 
 - 사용자 요청: Gemini 등 다른 AI와 번갈아 작업해도 제품 목적·결정 이유·진행/남은 작업을 공유하고, 앞으로 작업할 때 이 문서를 갱신한다.
