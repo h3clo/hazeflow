@@ -8,7 +8,7 @@ import {openSyncJournal} from './sync-journal-store.js';
 import {recordStorage} from './storage-runtime.js';
 import {healthPanel,healthDayStrip,workoutHealthCard,hasFullHealthMeasurement,watchGuide,createHealthFlow} from './health-ui.js';
 import {workoutLibrary,appendWorkoutSelection} from './workout-library.js';
-import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave} from './rest-timer.js';
+import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave,readSetDoneMap,pruneSetDoneMap} from './rest-timer.js';
 import {exerciseGuide} from './exercise-guide.js';
 import {recentMeals,reuseMealDraft} from './meal-reuse.js';
 import {replaceFavorite,removeUnchangedFavorite} from './favorite-edit.js';
@@ -120,6 +120,10 @@ let exercisePickerRows=[];
 let exercisePickerTarget={source:'capture',logId:''};
 let workoutAppendBusy=false;
 const liveWorkoutDone={};
+function persistLiveWorkoutDone(){try{sessionStorage.setItem(key+'-workout-set-done',JSON.stringify(liveWorkoutDone))}catch{}}
+function loadLiveWorkoutDone(){for(const mark of Object.keys(liveWorkoutDone))delete liveWorkoutDone[mark];try{Object.assign(liveWorkoutDone,readSetDoneMap(JSON.parse(sessionStorage.getItem(key+'-workout-set-done')||'{}')))}catch{}}
+function pruneLiveWorkoutDone(){const next=pruneSetDoneMap(liveWorkoutDone,ongoingActivityLogs().map(l=>l.id));const marks=Object.keys(liveWorkoutDone);if(marks.length===Object.keys(next).length&&marks.every(mark=>next[mark]))return;for(const mark of marks)delete liveWorkoutDone[mark];Object.assign(liveWorkoutDone,next);persistLiveWorkoutDone()}
+loadLiveWorkoutDone();
 function ongoingActivityLogs(now=new Date()){
  const intervals=activityIntervals(data,now);
  return [...intervals.entries()].filter(([,v])=>v.ongoing).map(([id])=>data.logs.find(l=>l.id===id)).filter(Boolean)
@@ -172,7 +176,7 @@ async function appendWorkoutFromUi(button){
  finally{workoutAppendBusy=false;if(button?.isConnected)button.disabled=false}
 }
 function workoutDoneMap(source,logId=''){if(source==='log'&&logId){const prefix=logId+':';return Object.fromEntries(Object.entries(liveWorkoutDone).filter(([k])=>k.startsWith(prefix)).map(([k,v])=>[k.slice(prefix.length),v]));}return drafts[date]?.workoutSetDone||{}}
-function setWorkoutDone(source,logId,itemIndex,setIndex,done){const key=`${itemIndex}:${setIndex}`;if(source==='log'&&logId){const full=`${logId}:${key}`;if(done)liveWorkoutDone[full]=true;else delete liveWorkoutDone[full];return}const draft=drafts[date]||{};const map={...(draft.workoutSetDone||{})};if(done)map[key]=true;else delete map[key];drafts[date]={...draft,workoutSetDone:map};scheduleDrafts()}
+function setWorkoutDone(source,logId,itemIndex,setIndex,done){const mark=`${itemIndex}:${setIndex}`;if(source==='log'&&logId){const full=`${logId}:${mark}`;if(done)liveWorkoutDone[full]=true;else delete liveWorkoutDone[full];persistLiveWorkoutDone();return}const draft=drafts[date]||{};const map={...(draft.workoutSetDone||{})};if(done)map[mark]=true;else delete map[mark];drafts[date]={...draft,workoutSetDone:map};scheduleDrafts()}
 function workoutTextFor(source,logId=''){
  if(source==='log'&&logId)return data.logs.find(l=>l.id===logId)?.text||'';
  return $('#capture-text')?.value??drafts[date]?.text??'';
@@ -267,6 +271,7 @@ async function render(){
  const hasSaved=data.studySubjects.length||recordedDates(data).length||data.favorites.length||Object.keys(data.weeklyReviews).length||data.routineTemplates.length||data.tasks.length;
  const migration=$('#migration-note');migration.hidden=import.meta.env.DEV||sandbox||!!hasSaved||!!account?.userId();
  if(recovery)notify('저장된 데이터를 읽지 못했어요. 내보내기에서 원본을 보관할 수 있어요.');
+ pruneLiveWorkoutDone();
  syncRestWithSession();
 }
 function captureDraftHostsRest(anchor){
@@ -732,7 +737,7 @@ async function switchAccount(userId){
   photoPicker?.cancel();
   for(const dialog of document.querySelectorAll('dialog[open]'))dialog.close();
   for(const k of Object.keys(drafts))delete drafts[k];editorPhotos=[];editorPhotoToken++;photoBusy.clear();
-  tossPortfolio=null;tossError='';tossCheckedKey='';tossCacheAt=0;tossEligible=false;tossHistory=[];quoteRows=[];quoteError='';quoteLast=0;key=userId?guestKey+'-user-'+userId:guestKey;photoStore.dispose();photoStore=makePhotoStore(key+'-photos');recovery=null;undoState=null;data=load();Object.assign(drafts,readDrafts());
+  tossPortfolio=null;tossError='';tossCheckedKey='';tossCacheAt=0;tossEligible=false;tossHistory=[];quoteRows=[];quoteError='';quoteLast=0;key=userId?guestKey+'-user-'+userId:guestKey;photoStore.dispose();photoStore=makePhotoStore(key+'-photos');recovery=null;undoState=null;data=load();Object.assign(drafts,readDrafts());loadLiveWorkoutDone();
   theme=recordStorage.getItem(key+'-theme')==='dark'?'dark':'light';applyTheme();toast.dismiss();await render();
  }
 }

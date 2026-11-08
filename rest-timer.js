@@ -28,6 +28,36 @@ export function captureRestAfterSave({anchor,kind,mode,ended,itemKind}={}){
  if(kind==='운동'&&mode!=='memo'&&!ended&&itemKind==='strength')return 'retarget';
  return 'stop';
 }
+/** Restore a same-tab rest. Expired countdowns and unknown modes do not resume. */
+export function restoreRestSession(saved,now=Date.now()){
+ const anchor=normalizeRestAnchor(saved?.anchor);
+ if(!anchor)return null;
+ if(saved?.mode==='countdown'&&Number(saved.deadline)>now){
+  const targetSeconds=Number(saved.targetSeconds)||0;
+  return {mode:'countdown',deadline:Number(saved.deadline),targetSeconds,startedAt:Number(saved.startedAt)||Number(saved.deadline)-targetSeconds*1000,anchor,readyRestSeconds:0};
+ }
+ if(saved?.mode==='elapsed'&&Number(saved.startedAt)>0)return {mode:'elapsed',startedAt:Number(saved.startedAt),deadline:0,targetSeconds:0,anchor,readyRestSeconds:0};
+ const seconds=Number(saved?.readyRestSeconds);
+ if(saved?.mode==='ready'&&Number.isFinite(seconds)&&seconds>=0&&seconds<=86400)return {mode:'ready',startedAt:0,deadline:0,targetSeconds:0,anchor,readyRestSeconds:Math.floor(seconds)};
+ return null;
+}
+/** Set-done marks are `logId:item:set`. Only ongoing logs stay. Not part of backup or sync. */
+export function readSetDoneMap(raw){
+ const out={};
+ if(!raw||typeof raw!=='object'||Array.isArray(raw))return out;
+ for(const [mark,on] of Object.entries(raw)){
+  if(!on)continue;
+  const parts=String(mark).split(':');
+  if(parts.length<3)continue;
+  const set=parts.pop(),item=parts.pop(),id=parts.join(':');
+  if(id&&/^\d+$/.test(item)&&/^\d+$/.test(set))out[mark]=true;
+ }
+ return out;
+}
+export function pruneSetDoneMap(map,ongoingIds){
+ const keep=new Set(ongoingIds||[]);
+ return Object.fromEntries(Object.entries(readSetDoneMap(map)).filter(([mark])=>keep.has(mark.split(':').slice(0,-2).join(':'))));
+}
 
 export function installRestTimer({notify,storage,hasNextIncompleteSet,onCompleteNextSet}={}){
  const key='hazeflow-workout-rest-v1';
@@ -36,13 +66,8 @@ export function installRestTimer({notify,storage,hasNextIncompleteSet,onComplete
   storage??=globalThis.sessionStorage;
   const raw=storage.getItem(key);
   if(raw){
-   const saved=JSON.parse(raw);
-   anchor=normalizeRestAnchor(saved?.anchor);
-   if(saved?.mode==='countdown'&&Number(saved.deadline)>Date.now()){
-    mode='countdown';deadline=Number(saved.deadline);targetSeconds=Number(saved.targetSeconds)||0;startedAt=Number(saved.startedAt)||deadline-(targetSeconds||0)*1000;
-   }else if(saved?.mode==='elapsed'&&Number(saved.startedAt)>0){
-    mode='elapsed';startedAt=Number(saved.startedAt);
-   }else anchor=null;
+   const restored=restoreRestSession(JSON.parse(raw));
+   if(restored){mode=restored.mode;deadline=restored.deadline;startedAt=restored.startedAt;targetSeconds=restored.targetSeconds;anchor=restored.anchor;readyRestSeconds=restored.readyRestSeconds}
   }
  }catch{storage=null}
 
@@ -57,6 +82,7 @@ export function installRestTimer({notify,storage,hasNextIncompleteSet,onComplete
   try{
    if(mode==='countdown'&&deadline)storage?.setItem(key,JSON.stringify({mode,deadline,startedAt,targetSeconds,anchor}));
    else if(mode==='elapsed'&&startedAt)storage?.setItem(key,JSON.stringify({mode,startedAt,anchor}));
+   else if(mode==='ready'&&anchor)storage?.setItem(key,JSON.stringify({mode,readyRestSeconds,anchor}));
    else storage?.removeItem(key);
   }catch{}
  };

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer,captureRestAfterSave} from '../rest-timer.js';
+import {remainingSeconds,elapsedSeconds,formatRestClock,normalizeRestAnchor,sameRestAnchor,restPrimaryControl,restModeAfterStartNext,shouldKeepRestTimer,captureRestAfterSave,restoreRestSession,readSetDoneMap,pruneSetDoneMap} from '../rest-timer.js';
 
 test('휴식 시간은 종료시각 기준이라 화면을 떠나도 오차가 누적되지 않는다',()=>{
  assert.equal(remainingSeconds(61000,1000),60);
@@ -48,4 +48,20 @@ test('캡처 초안을 저장하면 진행 중 근력만 새 기록으로 휴식
  assert.equal(captureRestAfterSave({anchor,kind:'일상',mode:'activity',ended:false,itemKind:'strength'}),'stop');
  assert.equal(captureRestAfterSave({anchor,kind:'운동',mode:'activity',ended:false,itemKind:'cardio'}),'stop');
  assert.equal(captureRestAfterSave({anchor:{source:'log',logId:'w1',itemIndex:0},kind:'운동',mode:'activity',ended:true,itemKind:'strength'}),'keep');
+});
+
+test('같은 탭을 새로고침하면 경과 휴식과 세트 완료 대기가 남고 끝난 목표 휴식은 사라진다',()=>{
+ const anchor={source:'log',logId:'w1',itemIndex:0},now=1_000_000;
+ assert.equal(restoreRestSession({mode:'countdown',deadline:now-1,anchor},now),null);
+ assert.deepEqual(restoreRestSession({mode:'elapsed',startedAt:now-5000,anchor},now),{mode:'elapsed',startedAt:now-5000,deadline:0,targetSeconds:0,anchor,readyRestSeconds:0});
+ assert.equal(restoreRestSession({mode:'ready',readyRestSeconds:42,anchor},now).mode,'ready');
+ assert.equal(restoreRestSession({mode:'ready',readyRestSeconds:42,anchor},now).readyRestSeconds,42);
+ assert.equal(restoreRestSession({mode:'ready',readyRestSeconds:-1,anchor},now),null);
+});
+
+test('세트 완료 표시는 진행 중 기록만 남기고 백업 필드가 아니다',()=>{
+ const map={'w1:0:0':true,'w2:1:0':true,'bad':true};
+ assert.deepEqual(readSetDoneMap(map),{'w1:0:0':true,'w2:1:0':true});
+ assert.deepEqual(pruneSetDoneMap(map,['w1']),{'w1:0:0':true});
+ assert.deepEqual(pruneSetDoneMap(null,['w1']),{});
 });
