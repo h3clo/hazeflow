@@ -112,6 +112,20 @@ export function activityEndForEdit(current,submitted,opened){
  if((endDate||endTime)&&(!isDate(endDate)||!isTime(endTime)||!isTime(submitted.time)||new Date(endDate+'T'+endTime)<new Date(submitted.date+'T'+submitted.time)))throw Error('다른 화면에서 저장한 종료 시간과 시작 시간이 맞지 않아요. 시작·종료 시간을 함께 확인해주세요.');
  return {endDate,endTime};
 }
+/** Optional end on capture. Empty → ongoing. Memo ignores end. Reuses endDate/endTime only. */
+export function captureActivityEnd({mode,date,time,endDate='',endTime=''}={},now=new Date()){
+ if(mode==='memo')return {};
+ const hasEnd=!!(String(endDate||'').trim()||String(endTime||'').trim());
+ if(!hasEnd)return {};
+ if(!isTime(time))throw Error('종료를 적으려면 시작 시간도 함께 적어주세요.');
+ if(!isDate(endDate)||!isTime(endTime))throw Error('종료 날짜와 시간을 함께 입력해주세요.');
+ if(!isDate(date))throw Error('기록 날짜를 확인해주세요.');
+ const start=new Date(date+'T'+time),end=new Date(endDate+'T'+endTime);
+ if(Number.isNaN(+start)||Number.isNaN(+end))throw Error('시작·종료 시간을 확인해주세요.');
+ if(end<start)throw Error('종료는 시작 이후여야 해요. 날짜가 바뀌면 종료 날짜도 맞춰주세요.');
+ if(end>now)throw Error('종료는 현재 이전으로 정해주세요.');
+ return {endDate,endTime};
+}
 export function activityTimeLabel(l,interval){
  if(!interval)return l.time?(l.timeEstimated?'약 ':'')+l.time:'시간 미기록';
  const end=interval.end?(interval.endDate!==l.date?interval.endDate+' ':'')+interval.endTime:interval.ongoing?'진행 중':'시작 예정';

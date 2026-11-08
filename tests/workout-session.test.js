@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {workoutSession,previousExercise} from '../workout.js';
+import {workoutSession,workoutSessionSummary,workoutSessionHeading,previousExercise} from '../workout.js';
 import {emptyState,dayDocument} from '../domain.js';
 import {dayStats,compareWorkouts,weekSummary} from '../insights.js';
 const text='랫풀다운 15 15 3\n시티드로우 20 12 3\n마이마운틴 10 4 20\n러닝머신 5 10\n천계 4 5\n어깨가 조금 뻐근함';
@@ -8,3 +8,13 @@ test('한 번의 운동을 여러 종목으로 분리하고 자유 메모를 보
 test('잘못된 숫자는 운동으로 추측하지 않는다',()=>{assert.equal(workoutSession('랫풀다운 15 0 3\n마이마운틴 10 4\n러닝머신 5 10 3').exercises.length,0)});
 test('같은 종목의 가장 가까운 이전 기록만 비교한다',()=>{const current={id:'b',date:'2026-10-31',time:'12:00',kind:'운동',text},old={id:'a',date:'2026-10-30',time:'12:00',kind:'운동',text:'랫풀다운 10 12 3\n시티드로우 15 12 3'},future={...old,id:'c',date:'2026-11-01'};assert.equal(previousExercise([old,current,future],current,workoutSession(text).exercises[0]).kg,10)});
 test('묶음 운동을 과거 비교·주간 집계·MD에서 잃지 않는다',()=>{const d=emptyState();d.logs=[{id:'a',date:'2026-10-30',time:'12:00',kind:'운동',text:'랫풀다운 10 12 3'},{id:'b',date:'2026-10-31',time:'12:00',kind:'운동',text}];assert.equal(dayStats(d,'2026-10-31').workoutRows.length,5);assert.equal(compareWorkouts(d,'2026-10-30','2026-10-31')[0].right[0].kg,15);const s=weekSummary(d,'2026-10-31','2026-10-31');assert.equal(s.workoutTotals.sets,9);assert.equal(s.workoutTotals.minutes,35);assert.equal(s.workoutTotals.sessions,2);assert.match(dayDocument(d,'2026-10-31'),/시티드로우 · 20kg/)});
+test('운동 세션 표시 제목은 진행 중/종료만 바꾸고 원문은 쓰지 않는다',()=>{
+ assert.equal(workoutSessionHeading('운동',{ongoing:true}),'운동 중');
+ assert.equal(workoutSessionHeading('운동'),'운동');
+ assert.equal(workoutSessionHeading('일상',{ongoing:true}),'');
+ assert.equal(workoutSessionSummary(text),'5종목 · 6세트 · 유산소 35분');
+ assert.equal(workoutSessionSummary('랫풀다운 15 15 3'),'1종목 · 3세트');
+ assert.equal(workoutSessionSummary('러닝머신 5 10'),'1종목 · 유산소 10분');
+ assert.equal(workoutSessionSummary('어깨가 뻐근함'),'');
+ assert.equal(workoutSessionSummary(''),'');
+});

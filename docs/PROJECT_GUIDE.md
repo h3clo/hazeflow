@@ -38,7 +38,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** UX Pages 배포 완료(`94317ce`, 포함 `2236adf`). URL https://h3clo.github.io/hazeflow/ · Actions #100 success. 다음은 **iPhone 실기기**로 세션 카드·종료 바 확인. Q4-B 2·4~6·계정·마이그레이션 자동 진행 금지.
+**다음 시작점:** 세션 제목·자유 휴식·캡처 선택 종료·세트 없는 UI 축소 로컬 구현·검사 완료. **푸시·Pages·실기기·계정·Health 연동·소요분만 입력 없음.** Q4-B 2·4~6 미승인.
 
 **Q0 · 완료 (2026-11-08)**
 - 백업 `backup/pre-q0-local-wip` → `origin/main` FF → 로컬 UX/계획 cherry-pick. 강제 reset 없음.
@@ -84,6 +84,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [x] 세트 완료→휴식 경과, 과거·일괄 입력 미시작. 백그라운드 미보장(Q3-C).
 - [x] sandbox 브라우저: 세트 수정·한 줄 추가·휴식 경과·과거 미시작·375폭 겹침 없음(2026-11-08).
 - [x] 실사용 UX 구현(2026-11-08): 오늘 진행 중 `.live-workout-session` 우선 배치·상단 한 줄 추가(`appendWorkoutLine`+`writeWorkoutText('log')`)·`workoutAppendBusy` 가드. 아젠다 compact. sticky `.ongoing-finish-bar`. 종료 로직 미변경. `npm test` 498·build·sandbox 375/다크. **푸시·배포·실기기 미함.**
+- [x] 세션 제목·휴식·사후 기록·세트 없는 UI(2026-11-08): `운동 중`/`운동`+요약. 자유 휴식·목표 details. 캡처 선택 `endDate`/`endTime`(`captureActivityEnd`). 종목 추가 유지·골라 담기 details·느낌은 strength/기존 feedback. 스키마/Health/소요분만 없음. **푸시·배포·실기기 미함.**
 - [ ] 헬스장 실기기·백그라운드 타이머·배포 후 확인. **전면 개편 자동 승인 아님.**
 
 ### P1 · 소비 데이터 구조 전환

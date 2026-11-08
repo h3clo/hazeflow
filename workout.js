@@ -7,6 +7,16 @@ export function parseWorkout(text){
  return {raw:line};}).filter(r=>r.raw);
 }
 export function workoutSession(text){const rows=parseWorkout(text),exercises=rows.filter(r=>r.type);return {rows,exercises,sets:exercises.filter(r=>r.type==='strength').reduce((s,r)=>s+r.sets,0),cardioMinutes:exercises.filter(r=>r.type!=='strength').reduce((s,r)=>s+r.minutes,0)}}
+/** Display-only summary from parsed text. Does not change stored records. */
+export function workoutSessionSummary(text){
+ const session=workoutSession(text),n=new Set(session.exercises.map(r=>r.key)).size,parts=[];
+ if(n)parts.push(n+'종목');
+ if(session.sets)parts.push(session.sets+'세트');
+ if(session.cardioMinutes)parts.push('유산소 '+session.cardioMinutes+'분');
+ return parts.join(' · ');
+}
+/** Session chrome title: ongoing → 운동 중, finished → 운동. Non-workout returns ''. */
+export function workoutSessionHeading(kind,{ongoing=false}={}){return kind==='운동'?(ongoing?'운동 중':'운동'):''}
 export function previousExercise(logs,current,exercise){
  const before=current.date+(current.time||'99:99');return logs.filter(l=>l.id!==current.id&&l.kind==='운동'&&!l.sourceId&&l.date+(l.time||'99:99')<before).sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||''))).flatMap(l=>parseWorkout(l.text).filter(r=>r.key===exercise.key&&r.type===exercise.type).map(r=>({...r,date:l.date}))).at(0);
 }

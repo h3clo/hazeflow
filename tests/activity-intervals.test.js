@@ -33,7 +33,15 @@ test('MD에 실제 활동 구간을 포함한다',()=>{
 });
 
 test('수정 화면을 열어둔 사이 다른 기기에서 종료한 활동을 내용 수정으로 되살리지 않는다',async()=>{
- const {activityEndForEdit}=await import('../domain.js');const current={endDate:'2026-11-02',endTime:'13:00'},submitted={date:'2026-11-02',time:'12:00',mode:'activity',endDate:'',endTime:''};assert.deepEqual(activityEndForEdit(current,submitted,{endDate:'',endTime:''}),current);
+ const {activityEndForEdit,captureActivityEnd}=await import('../domain.js');const current={endDate:'2026-11-02',endTime:'13:00'},submitted={date:'2026-11-02',time:'12:00',mode:'activity',endDate:'',endTime:''};assert.deepEqual(activityEndForEdit(current,submitted,{endDate:'',endTime:''}),current);
  assert.deepEqual(activityEndForEdit(current,submitted,current),{endDate:'',endTime:''});
  assert.throws(()=>activityEndForEdit(current,{...submitted,time:'14:00'},{endDate:'',endTime:''}),/시작/);
+ const now=new Date('2026-11-08T22:00:00');
+ assert.deepEqual(captureActivityEnd({mode:'activity',date:'2026-11-08',time:'08:00'},now),{});
+ assert.deepEqual(captureActivityEnd({mode:'memo',date:'2026-11-08',time:'08:00',endDate:'2026-11-08',endTime:'12:00'},now),{});
+ assert.deepEqual(captureActivityEnd({mode:'activity',date:'2026-11-08',time:'08:00',endDate:'2026-11-08',endTime:'12:30'},now),{endDate:'2026-11-08',endTime:'12:30'});
+ assert.deepEqual(captureActivityEnd({mode:'activity',date:'2026-11-07',time:'23:00',endDate:'2026-11-08',endTime:'01:00'},now),{endDate:'2026-11-08',endTime:'01:00'});
+ assert.throws(()=>captureActivityEnd({mode:'activity',date:'2026-11-08',time:'08:00',endDate:'2026-11-08',endTime:''},now),/함께/);
+ assert.throws(()=>captureActivityEnd({mode:'activity',date:'2026-11-08',time:'12:00',endDate:'2026-11-08',endTime:'11:00'},now),/이후/);
+ assert.throws(()=>captureActivityEnd({mode:'activity',date:'2026-11-08',time:'08:00',endDate:'2026-11-08',endTime:'23:00'},now),/현재/);
 });

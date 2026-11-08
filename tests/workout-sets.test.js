@@ -63,3 +63,30 @@ test('세트 추가·삭제와 목표 스냅샷을 유지한다',()=>{
  assert.equal(withGoals[0].goalSets,3);
  assert.equal(withGoals[0].goalReps,15);
 });
+
+test('일괄 등록 후 한 줄 추가·중간 수정·순서 무시가 가능하고 완료로 강제하지 않는다',()=>{
+ // Busy gym: warm up first, then add machines as they free up. Quiet gym: paste several lines at once.
+ const batch='러닝머신 5.5 5\n랫풀다운 20 10 3\n체스트프레스 40 10 3';
+ const items=workoutItems(batch);
+ assert.equal(items.length,3);
+ assert.equal(items[0].kind,'cardio');
+ assert.equal(items[1].sets.length,3);
+ // Out of registered order: edit chest first while lat pull stays untouched.
+ const mid=updateStrengthSet(items,2,0,{reps:8});
+ assert.equal(mid[1].sets[0].reps,10);
+ assert.equal(mid[2].sets[0].reps,8);
+ // Append another exercise later without rewriting earlier lines or inventing done flags.
+ const later=appendWorkoutLine(serializeWorkoutItems(mid),'레그프레스 25 10 3');
+ assert.equal(later.split('\n').length,5);
+ const again=workoutItems(later);
+ assert.equal(again.length,4);
+ assert.equal(again[1].name,'랫풀다운');
+ assert.equal(again.every(item=>!item.sets||item.sets.every(set=>set.done===undefined)),true);
+ // Goals stay on the frozen plan snapshot; actual text can diverge without schema change.
+ const plan=snapshotWorkoutPlan('',batch);
+ const afterMore=appendWorkoutLine(batch,'힙어브덕션 0 12 3');
+ assert.equal(snapshotWorkoutPlan(plan,afterMore),plan);
+ const labeled=applyPlanGoals(workoutItems(afterMore),plan);
+ assert.equal(labeled[1].planLabel,'랫풀다운 20 10 3');
+ assert.equal(labeled[3].planLabel,undefined);
+});

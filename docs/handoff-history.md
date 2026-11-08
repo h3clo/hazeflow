@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-08 Cursor · 세션 제목·휴식·사후 종료·세트 없는 UI
+
+- 표시: `workoutSessionHeading`/`workoutSessionSummary` — `운동 중`/`운동`+요약. `text` 불변.
+- 휴식: 종목 근처 자유 휴식, 목표 60/90/120 details. 순서 비강제.
+- 사후: 캡처 추가 설정에 선택 종료 날짜·시간 → `captureActivityEnd` → 기존 `endDate`/`endTime`. memo는 숨김.
+- UI: 종목 한 줄 추가 유지, 골라 담기 details, 느낌은 strength 또는 기존 feedback.
+- 검사: `npm test` · build · `diff --check` · sandbox 375/다크. **로컬 커밋만. 푸시·Pages·계정·스키마 마이그레이션 없음.**
+
 ### 2026-11-08 Cursor · UX Pages 배포 (`94317ce`)
 
 - 일반 push `79a070d`→`94317ce` (force 없음). tip에 `2236adf` UX + `94317ce` 문서.
