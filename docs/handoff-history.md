@@ -2,11 +2,16 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · UI 시안 기각 · 디자인 중단
+
+- 사용자: 시안 A·B·혼합 **모두 미채택**. 추가 변형·기존 시안 수정 금지. 레퍼런스 이미지 기준 재개 전까지 **대기**.
+- PR #3·#4 보존·미병합·Pages 없음·앱 코드 수정 없음.
+
 ### 2026-11-09 Cursor · UI 시안 2안 + AI 사진 일기 아이디어 (코드 미적용)
 
 - 기존 문서: 로컬/외부 **텍스트** 일기 초안만 있음. **사진+글 조판형 AI 사진 일기**는 제품 방향으로 정리된 적 없어 [UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)에 향후 아이디어로 추가.
 - 시안 HTML: `docs/design-mocks/direction-a.html`(Clear Desk/Soft Spread), `direction-b.html`(Signal Desk/Ink Archive). Today·돌아보기 · Desktop/iPad/iPhone.
-- PR #3 위계 커밋 보존. 앱 JS/CSS 리뉴얼·병합·Pages **없음**. 사용자 시안 선택 대기.
+- PR #3 위계 커밋 보존. 앱 JS/CSS 리뉴얼·병합·Pages **없음**. → 이후 시안 기각으로 디자인 중단.
 
 ### 2026-11-09 Cursor · 제품 UX 위계 (방향 1)
 

@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 사용자가 **UI 시안 A/B(또는 혼합)를 선택**할 때까지 앱 코드·병합·Pages 배포 중지. 시안·향후 AI 사진 일기 아이디어: [UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md) · 미리보기 HTML `docs/design-mocks/direction-a.html` / `direction-b.html`. PR [#3](https://github.com/h3clo/hazeflow/pull/3) 위계 분기(`cursor/ux-hierarchy-reflect-15be`, `de96311`)는 보존·미병합. 시안 문서는 `cursor/visual-design-directions-15be`. 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** **디자인 작업 중단.** 시안 A·B·혼합 **모두 기각**(2026-11-09). 추가 변형·기존 시안 수정·앱 비주얼 리뉴얼 금지. 사용자가 **레퍼런스 이미지를 고른 뒤**에만 디자인 방향을 다시 잡는다. 그전까지 대기. PR [#3](https://github.com/h3clo/hazeflow/pull/3)·[#4](https://github.com/h3clo/hazeflow/pull/4) 보존·미병합·Pages 없음·앱 코드 수정 없음. 실기기·계정 왕복·Q4-B 2·4~6 미승인.
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
@@ -125,10 +125,10 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [x] 과거 비교: 그날 스냅샷 카피 + 빈 날 `compare-discovery`(가까운 기록·일기/사진) 강조. 프리셋 유지.
 - [ ] 사용성 검토(PR #3) · **시안 선택 전 앱 비주얼 리뉴얼 착수 금지.**
 
-### P1 · 비주얼 디자인 방향 (시안만 · 2026-11-09)
-- [x] 시안 A Clear Desk / Soft Spread · 시안 B Signal Desk / Ink Archive (Today+돌아보기, Desktop/iPad/iPhone 토글 HTML).
-- [x] AI 사진 일기(사진+글 조판)를 향후 아이디어로 문서화. **구현·스키마·API 없음.**
-- [ ] 사용자 시안 선택(A / B / 혼합) 대기. 선택 전 앱 코드 수정·#3 병합·Pages 없음.
+### P1 · 비주얼 디자인 방향 (2026-11-09)
+- [x] 시안 A/B HTML·문서화 후 **사용자 기각**. 혼합 진행 안 함. 추가 변형·시안 수정 **중단**.
+- [x] AI 사진 일기 아이디어는 문서에만 유지([UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)). **구현 없음.**
+- [ ] 사용자 레퍼런스 이미지 제시 후 디자인 방향 재설정. 그전까지 디자인·앱 UI 코드 작업 없음. PR #3·#4 미병합.
 
 ### P2 · 기존 기능 완성
 - [ ] 건강/식단/인바디 비교 및 추정·누락 표시. (Reflect 기간 서사와 묶지 말 것 — 생활 상태 링크 우선)
