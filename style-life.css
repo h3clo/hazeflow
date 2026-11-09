@@ -297,12 +297,20 @@ html[data-ui-design=life] .life-grid,
 .life-live-top p{margin:2px 0 0;font-size:12px;color:var(--life-muted)}
 .life-fold{margin:6px 0;border-top:1px dashed var(--life-line);padding-top:4px}
 .life-fold > summary{
- cursor:pointer;list-style:none;font-size:12px;font-weight:600;color:var(--life-muted);padding:3px 0;
+ cursor:pointer;list-style:none;font-size:12px;font-weight:600;color:var(--life-muted);
+ padding:10px 2px;min-height:44px;display:flex;align-items:center;gap:6px;
 }
 .life-fold > summary::-webkit-details-marker{display:none}
-.life-fold > summary::after{content:" ▾";opacity:.6}
-.life-fold[open] > summary::after{content:" ▴"}
+.life-fold > summary::after{content:"▾";opacity:.6;margin-left:auto;font-size:11px}
+.life-fold[open] > summary::after{content:"▴"}
 .life-fold-body{padding:6px 0 2px}
+.life-fold.capture-extra-settings .capture-categories{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px;
+}
+.life-fold.capture-extra-settings .capture-categories button{min-height:40px;font-size:12px;padding:8px 4px}
+@media(max-width:740px){
+ .life-fold > summary{min-height:44px;padding:12px 2px;font-size:13px}
+}
 
 /* Capture tiles */
 .life-capture{margin-top:0}
