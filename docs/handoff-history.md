@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · 제품 UX 위계 (방향 1)
+
+- 진단: 빈 날 Today `.day-agenda` 280px 구멍, 주간 회고「나의 주간 회고」하단, 비교는 기간이 아니라 그날 스냅샷.
+- Today: 기록열 DOM 선행·그리드 `1.15fr 1fr 1fr`, 빈 아젠다 `min-height:0`, 주간 스트립 `details` 접기.
+- Review: 회고 폼 상단, 집계/차트 `details.review-metrics`. Compare: 스냅샷 카피 + `compare-discovery` + 일기/사진 칩.
+- **보류:** 전면 비주얼 리뉴얼, 월/연 구간 UI, Reflect IA 대규모 재정렬(방향 2는 효과 부족 시만).
+- 검사: `tests/feature-ui-hierarchy.test.js` · `npm test` · build · sandbox. 스키마/동기화/실계정 불변. Pages 미배포.
+
 ### 2026-11-09 Cursor · 되돌리기·알림 겹침
 
 - 세트 삭제를 되돌리면 원문은 돌아와도 완료 표시는 지운 뒤 인덱스에 남았다. 원문이 바뀐 기록의 완료 표시만 버린다.
