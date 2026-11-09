@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Haze Flow 시안 A · Clear Desk / Soft Spread</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,550&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #17302b;
+      --muted: #5d736c;
+      --soft: #7a9088;
+      --line: #c9d8d1;
+      --surface: rgba(255,255,255,.78);
+      --bg0: #e4ece7;
+      --bg1: #f4f8f6;
+      --deep: #1f3d36;
+      --deep-ink: #eef6f2;
+      --photo: #6f8f82;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Source Sans 3", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #d7e4de 0%, transparent 55%),
+        linear-gradient(165deg, var(--bg0), var(--bg1) 50%, #e8f0eb);
+      min-height: 100vh;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+    .meta h1 {
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 500;
+      font-size: clamp(28px, 4vw, 40px);
+      letter-spacing: -.03em;
+      margin: 8px 0 10px;
+    }
+    .meta p { max-width: 62ch; line-height: 1.65; color: var(--muted); margin: 0 0 18px; }
+    .eyebrow { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--soft); margin: 0; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+    .seg {
+      display: inline-flex; gap: 4px; padding: 4px;
+      border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.55);
+    }
+    .seg button {
+      border: 0; background: transparent; color: var(--ink);
+      border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 13px; cursor: pointer;
+    }
+    .seg button[aria-pressed="true"] { background: var(--deep); color: var(--deep-ink); }
+    .frame {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 24px 60px rgba(23,48,43,.1);
+    }
+    .chrome {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 14px; background: #edf3f0; border-bottom: 1px solid var(--line);
+      font-size: 11px; color: var(--soft);
+    }
+    .chrome i { width: 8px; height: 8px; border-radius: 50%; background: #b7c8c0; display: inline-block; }
+    .viewport { margin: 0 auto; transition: max-width .25s ease; }
+    .viewport[data-device="desktop"] { max-width: 100%; }
+    .viewport[data-device="ipad"] { max-width: 820px; }
+    .viewport[data-device="phone"] { max-width: 390px; }
+    .app { min-height: 680px; background: linear-gradient(180deg, #f7faf8, #eef3f1); }
+    .topnav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 18px; border-bottom: 1px solid rgba(23,48,43,.08);
+    }
+    .brand { letter-spacing: -.04em; font-weight: 600; }
+    .navlinks { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+    .navlinks b { color: var(--ink); }
+    .viewport[data-device="phone"] .navlinks { display: none; }
+    .pad { padding: 24px 28px 36px; }
+    .viewport[data-device="phone"] .pad { padding: 18px 16px 28px; }
+    .kicker { margin: 0; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--soft); }
+    .title {
+      margin: 6px 0 18px;
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 500;
+      font-size: clamp(30px, 4vw, 42px);
+      letter-spacing: -.03em;
+    }
+    .grid-today {
+      display: grid;
+      grid-template-columns: 1.35fr .9fr;
+      gap: 28px;
+      align-items: start;
+    }
+    .viewport[data-device="phone"] .grid-today,
+    .viewport[data-device="ipad"] .grid-today { grid-template-columns: 1fr; gap: 18px; }
+    .label { margin: 0 0 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+    .capture {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px 20px;
+      backdrop-filter: blur(8px);
+    }
+    .capture .ph {
+      margin: 0;
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(18px, 2.4vw, 24px);
+      color: #9aada6;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .btn {
+      border: 0; border-radius: 999px; padding: 10px 14px; font: inherit; font-size: 13px; cursor: pointer;
+    }
+    .btn-primary { background: var(--deep); color: var(--deep-ink); }
+    .btn-ghost { background: transparent; color: var(--ink); border: 1px solid #b7c8c0; }
+    .live {
+      display: flex; justify-content: space-between; gap: 12px; align-items: center;
+      padding: 14px 16px; border-radius: 14px; background: var(--deep); color: var(--deep-ink); margin-top: 8px;
+    }
+    .live p { margin: 4px 0 0; font-size: 12px; opacity: .8; }
+    .logs { list-style: none; margin: 0; padding: 0; }
+    .logs li {
+      display: flex; gap: 12px; align-items: baseline;
+      padding: 10px 0; border-bottom: 1px solid #d7e2dc; font-size: 14px;
+    }
+    .logs time { width: 46px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .ribbon { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: 12px; padding: 6px 10px; border-radius: 999px;
+      background: rgba(255,255,255,.65); border: 1px solid var(--line);
+    }
+    .tl { display: grid; gap: 8px; }
+    .tl div {
+      display: grid; grid-template-columns: 52px 1fr auto; gap: 8px;
+      padding: 8px 0 8px 12px; border-left: 2px solid var(--line); font-size: 13px;
+    }
+    .tl div.on { border-color: #2f6b5a; }
+    .routine { display: flex; gap: 10px; align-items: center; font-size: 14px; padding: 8px 0; border-bottom: 1px dashed #d0ddd6; }
+    details.week { margin-top: 18px; font-size: 12px; color: var(--muted); }
+    details.week summary { cursor: pointer; }
+
+    /* Reflect */
+    .hero-photo {
+      min-height: 340px;
+      color: #f7faf8;
+      padding: 48px 40px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      background:
+        linear-gradient(120deg, rgba(20,40,34,.62), rgba(20,40,34,.18)),
+        radial-gradient(circle at 28% 40%, #7d9a8d, #243f37 62%);
+    }
+    .viewport[data-device="phone"] .hero-photo { min-height: 280px; padding: 28px 18px; }
+    .hero-photo h2 {
+      margin: 10px 0 8px;
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 450;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.05;
+      max-width: 16ch;
+    }
+    .hero-photo p { margin: 0; max-width: 46ch; font-size: 14px; line-height: 1.7; opacity: .92; }
+    .spread {
+      display: grid; grid-template-columns: 1.2fr .8fr; gap: 28px;
+      padding: 36px 40px;
+    }
+    .viewport[data-device="phone"] .spread { grid-template-columns: 1fr; padding: 22px 16px; gap: 22px; }
+    .quote {
+      margin: 0;
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.35;
+      font-weight: 450;
+    }
+    .field { border-bottom: 1px solid #d5e0da; padding-bottom: 10px; margin-top: 12px; }
+    .field small { display: block; font-size: 11px; color: var(--soft); margin-bottom: 4px; }
+    .photo {
+      min-height: 150px; border-radius: 16px; padding: 14px;
+      display: grid; place-items: end start; color: #f7faf8; font-size: 13px;
+      background: linear-gradient(160deg, #c5d4cb, var(--photo));
+    }
+    .photo.alt { min-height: 110px; background: linear-gradient(145deg, #d7e2dc, #9bb5a8); }
+    .future {
+      padding: 0 40px 36px;
+      border-top: 1px solid #d5e0da;
+      margin: 0 40px;
+      padding-top: 22px;
+    }
+    .viewport[data-device="phone"] .future { margin: 0 16px; padding: 18px 0 28px; }
+    .future h3 {
+      margin: 8px 0 0;
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 450;
+      font-size: clamp(20px, 3vw, 28px);
+      max-width: 22ch;
+    }
+    .hidden { display: none !important; }
+    .notes {
+      margin-top: 22px; padding: 16px 18px; border-radius: 14px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.55);
+      font-size: 14px; line-height: 1.65; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="meta">
+      <p class="eyebrow">시안 A · Clear Desk / Soft Spread</p>
+      <h1>맑은 책상 · 부드러운 지면</h1>
+      <p>Today는 캡처가 주인공인 라이프 대시보드. 돌아보기는 사진과 회고 문장이 먼저인 포토 에세이. 동일 카드 반복 대신 타이포·여백·이미지 무게로 위계를 둡니다.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="화면">
+        <button type="button" data-screen="today" aria-pressed="true">Today</button>
+        <button type="button" data-screen="reflect" aria-pressed="false">돌아보기</button>
+      </div>
+      <div class="seg" role="group" aria-label="기기">
+        <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
+        <button type="button" data-device="ipad" aria-pressed="false">iPad</button>
+        <button type="button" data-device="phone" aria-pressed="false">iPhone</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="chrome"><i></i><i></i><i></i><span style="margin-left:auto" id="sizeLabel">1280 미리보기</span></div>
+      <div class="viewport" id="viewport" data-device="desktop">
+        <div class="app" id="todayView">
+          <div class="topnav">
+            <div class="brand">haze flow.</div>
+            <div class="navlinks"><b>오늘</b><span>계획</span><span>기록</span><span>돈</span><span>돌아보기</span></div>
+          </div>
+          <div class="pad">
+            <p class="kicker">Monday · 11.09</p>
+            <h2 class="title">오늘의 흐름</h2>
+            <div class="grid-today">
+              <section>
+                <p class="label">지금 뭐 하고 있어?</p>
+                <div class="capture">
+                  <p class="ph">한 줄이면 충분해요</p>
+                  <div class="actions">
+                    <button class="btn btn-primary" type="button">활동 시작</button>
+                    <button class="btn btn-ghost" type="button">짧은 기록</button>
+                    <button class="btn btn-ghost" type="button">기록</button>
+                  </div>
+                </div>
+                <p class="label" style="margin-top:22px">진행 중</p>
+                <div class="live">
+                  <div>
+                    <strong>근력 운동</strong>
+                    <p>랫풀다운 · 세트 2/4 · 휴식 0:42</p>
+                  </div>
+                  <button class="btn btn-primary" type="button" style="padding:8px 12px;font-size:12px">끝내기</button>
+                </div>
+                <p class="label" style="margin-top:22px">오늘 남긴 것 · 3</p>
+                <ul class="logs">
+                  <li><time>07:40</time><span>아침 산책</span><em style="font-style:normal;color:var(--soft);font-size:11px">활동</em></li>
+                  <li><time>12:15</time><span>김치찌개 · 사진 1</span><em style="font-style:normal;color:var(--soft);font-size:11px">식사</em></li>
+                  <li><time>15:10</time><span>영어 공부 45분</span><em style="font-style:normal;color:var(--soft);font-size:11px">공부</em></li>
+                </ul>
+              </section>
+              <aside>
+                <p class="label">하루 리본</p>
+                <div class="ribbon">
+                  <span class="chip">일정 1/2</span>
+                  <span class="chip">루틴 3/5</span>
+                  <span class="chip">할 일 2</span>
+                  <span class="chip">사진 1</span>
+                </div>
+                <p class="label" style="margin-top:22px">흐름</p>
+                <div class="tl">
+                  <div><b>09:00</b><span>스탠드업</span><small>계획</small></div>
+                  <div class="on"><b>12:15</b><span>점심</span><small>실제</small></div>
+                  <div class="on"><b>18:30</b><span>운동</span><small>진행</small></div>
+                </div>
+                <p class="label" style="margin-top:22px">루틴</p>
+                <label class="routine"><input type="checkbox" checked /> 물 마시기</label>
+                <label class="routine"><input type="checkbox" checked /> 스트레칭</label>
+                <label class="routine"><input type="checkbox" /> 약</label>
+                <details class="week"><summary>이번 주 돌아보기 · 4일 기록</summary><p>월·화·목·금 사진/일기 · 주간 회고 →</p></details>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <div class="app hidden" id="reflectView">
+          <div class="hero-photo">
+            <p class="eyebrow" style="color:#d7e4de">Week of Nov 3–9 · Photo essay</p>
+            <h2>바람이 덜한 오후의 기록</h2>
+            <p>사진 2장 · 일기 3일 · 운동 2회. 숫자는 접어두고, 남긴 장면부터 읽어요.</p>
+          </div>
+          <div class="spread">
+            <article>
+              <p class="label">나의 주간 회고</p>
+              <blockquote class="quote">“가벼운 산책이 제일 잘 맞았다. 다음 주는 저녁 루틴만 조금 늦춰보자.”</blockquote>
+              <div class="field"><small>기억할 것</small>한강 바람, 랫풀다운 마지막 세트</div>
+              <div class="field"><small>바꾸고 싶은 것</small>야식 대신 차 한 잔</div>
+              <div class="field"><small>다음 주 나에게</small>수요일은 일찍 끝내기</div>
+            </article>
+            <aside>
+              <p class="label">장면</p>
+              <div style="display:grid;gap:10px">
+                <div class="photo">점심 · 김치찌개</div>
+                <div class="photo alt">산책길</div>
+              </div>
+              <details class="week" style="margin-top:16px"><summary>이번 주 집계 · 기록 4일</summary><p>식사 9 · 운동 2 · 할 일 6 · 지출은 가계부에서</p></details>
+              <div style="margin-top:18px;padding-top:16px;border-top:1px solid #d5e0da">
+                <p class="label">과거 비교 · 그날 스냅샷</p>
+                <p style="margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--muted)">일 년 전 같은 날의 사진·일기와 나란히. 기간 합산이 아니라 장면 대 장면.</p>
+              </div>
+            </aside>
+          </div>
+          <div class="future">
+            <p class="label">Future · AI Photo Journal</p>
+            <h3>내가 고른 사진과 글을 조판해, 이 페이지처럼 완성된 일기 스프레드를 제안</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <strong style="color:var(--ink)">유지 기능:</strong> 한 줄 캡처 · 활동 시작/짧은 기록 · 라이브 세션 · 아젠다 · 루틴/할 일 · 주간 스트립 · 주간 회고 폼 · 과거 비교 스냅샷.
+      스키마·동기화 변경 없음. 앱 코드 미적용 시안입니다.
+    </div>
+  </div>
+  <script>
+    const viewport = document.getElementById('viewport');
+    const todayView = document.getElementById('todayView');
+    const reflectView = document.getElementById('reflectView');
+    const sizeLabel = document.getElementById('sizeLabel');
+    const labels = { desktop: '1280 미리보기', ipad: 'iPad 820', phone: 'iPhone 390' };
+    document.querySelectorAll('[data-screen]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-screen]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        const reflect = btn.dataset.screen === 'reflect';
+        todayView.classList.toggle('hidden', reflect);
+        reflectView.classList.toggle('hidden', !reflect);
+      });
+    });
+    document.querySelectorAll('[data-device]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-device]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        viewport.dataset.device = btn.dataset.device;
+        sizeLabel.textContent = labels[btn.dataset.device];
+      });
+    });
+  </script>
+</body>
+</html>

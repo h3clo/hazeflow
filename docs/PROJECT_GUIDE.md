@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** UX 위계(방향 1) 구현 분기 `cursor/ux-hierarchy-reflect-15be` — Today 기록열 우선·빈 아젠다 높이 완화·주간 스트립 접기, 주간 회고 서사 상단, 과거 비교 스냅샷/가까운 날 발견. **전면 비주얼 리뉴얼·월↔월/연↔연 구간 UI는 위계 효과 확인 후 재평가(미착수).** 배포·실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** 사용자가 **UI 시안 A/B(또는 혼합)를 선택**할 때까지 앱 코드·병합·Pages 배포 중지. 시안·향후 AI 사진 일기 아이디어: [UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md) · 미리보기 HTML `docs/design-mocks/direction-a.html` / `direction-b.html`. PR [#3](https://github.com/h3clo/hazeflow/pull/3) 위계 분기(`cursor/ux-hierarchy-reflect-15be`, `de96311`)는 보존·미병합. 시안 문서는 `cursor/visual-design-directions-15be`. 실기기·계정 왕복·Q4-B 2·4~6 미승인.
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
@@ -123,7 +123,12 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [x] Today: 빈 아젠다 `min-height` 제거, 데스크톱 기록열 먼저, 주간 스트립 `details` 접기. 스키마/기능 추가 없음.
 - [x] 주간 회고: 「나의 주간 회고」상단, 건수·차트는 `details.review-metrics`로 접기. `weeklyReviews` 필드 유지.
 - [x] 과거 비교: 그날 스냅샷 카피 + 빈 날 `compare-discovery`(가까운 기록·일기/사진) 강조. 프리셋 유지.
-- [ ] 위계 효과 확인 후 Reflect IA(방향 2)만 선택 검토. **전면 테마 리뉴얼·월/연 구간 집계 UI는 보류.**
+- [ ] 사용성 검토(PR #3) · **시안 선택 전 앱 비주얼 리뉴얼 착수 금지.**
+
+### P1 · 비주얼 디자인 방향 (시안만 · 2026-11-09)
+- [x] 시안 A Clear Desk / Soft Spread · 시안 B Signal Desk / Ink Archive (Today+돌아보기, Desktop/iPad/iPhone 토글 HTML).
+- [x] AI 사진 일기(사진+글 조판)를 향후 아이디어로 문서화. **구현·스키마·API 없음.**
+- [ ] 사용자 시안 선택(A / B / 혼합) 대기. 선택 전 앱 코드 수정·#3 병합·Pages 없음.
 
 ### P2 · 기존 기능 완성
 - [ ] 건강/식단/인바디 비교 및 추정·누락 표시. (Reflect 기간 서사와 묶지 말 것 — 생활 상태 링크 우선)
@@ -133,7 +138,8 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 ### P3 · 이후 검토
 - [ ] 알림, 외부 AI, 설치형 앱/건강 연동은 별도 승인과 보안·비용 검토 후 착수.
-- [ ] 전면 비주얼 시스템 교체 · 월↔월/연↔연 구간 비교 UI — **위계 개선 이후 재평가. 현재 미승인.**
+- [ ] **AI 사진 일기** (사진+글 → 매거진/포토 에세이 조판): [UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md). 기존 텍스트 AI 초안과 별개. **미승인.**
+- [ ] 전면 비주얼 시스템 교체 · 월↔월/연↔연 구간 비교 UI — 시안 선택·위계 검토 이후. **현재 미승인.**
 
 ## 관련 문서
 
@@ -155,6 +161,6 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근 (2026-11-09):** 제품·UX 공동검토 방향 1(위계) 구현 — `app.js`/`feature-ui.js`/`style.css` + `tests/feature-ui-hierarchy.test.js`. push는 기능 분기만, Pages 배포 미승인. 계정·스키마 변경 없음.
+**최근 (2026-11-09):** UI 시안 A/B HTML + AI 사진 일기 향후 아이디어 문서화(앱 코드 미변경). 직전: PR #3 위계(`de96311`) 푸시·미병합. Pages 미승인.
 
 **이전 (2026-11-08):** `b17f5cf` Pages 배포 성공(Actions #101). 전체 UX 감사 수정은 로컬/후속 커밋. Q4-B 2·4~6 미승인.

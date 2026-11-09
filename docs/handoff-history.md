@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · UI 시안 2안 + AI 사진 일기 아이디어 (코드 미적용)
+
+- 기존 문서: 로컬/외부 **텍스트** 일기 초안만 있음. **사진+글 조판형 AI 사진 일기**는 제품 방향으로 정리된 적 없어 [UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)에 향후 아이디어로 추가.
+- 시안 HTML: `docs/design-mocks/direction-a.html`(Clear Desk/Soft Spread), `direction-b.html`(Signal Desk/Ink Archive). Today·돌아보기 · Desktop/iPad/iPhone.
+- PR #3 위계 커밋 보존. 앱 JS/CSS 리뉴얼·병합·Pages **없음**. 사용자 시안 선택 대기.
+
 ### 2026-11-09 Cursor · 제품 UX 위계 (방향 1)
 
 - 진단: 빈 날 Today `.day-agenda` 280px 구멍, 주간 회고「나의 주간 회고」하단, 비교는 기간이 아니라 그날 스냅샷.
