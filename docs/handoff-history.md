@@ -2,9 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · 데이터 이동성 원칙 정정 (문서만)
+
+- Obsidian 교훈을 Markdown 선호가 아니라 **Export→나중에 Import·재사용**으로 정정. IndexedDB·Supabase 유지. `PRODUCT_VISION` 3.9·7절 갱신. 기존 JSON/CSV/문서·사진 백업 경로만 현황 기록. 새 Import/Export·스키마 변경 **미구현**.
+
 ### 2026-11-09 Cursor · 제품 철학 재공유 (문서만)
 
-- Notion식 다중 뷰·즉시 반영, Obsidian식 데이터 소유, 「기록은 가볍게 / 돌아보기는 깊게」, 라이프 대시보드 UI, 설계 원칙 6가지를 `PRODUCT_VISION.md` 3.7–3.11에 반영.
+- Notion식 다중 뷰·즉시 반영, 데이터 소유(이후 이동성으로 정정), 「기록은 가볍게 / 돌아보기는 깊게」, 라이프 대시보드 UI, 설계 원칙 6가지를 `PRODUCT_VISION.md` 3.7–3.11에 반영.
 - 시안 A/B 기각·레퍼런스 대기 유지. 스키마 변경·다중 뷰/DnD 전면·대규모 UI·앱 코드·PR #3/#4 병합·Pages **없음**.
 
 ### 2026-11-09 Cursor · UI 시안 기각 · 디자인 중단
