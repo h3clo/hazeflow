@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Today Life가 Pages에 배포됨(기본 Classic, 설정에서 Life 선택). 사용자 실사용 피드백 대기. **PR #4는 미병합.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** Today Life가 Pages에 배포됨(기본 Classic, 설정에서 Life 선택). 사용자 실사용 피드백 대기. **PR #4는 미병합.** 실기기·계정 왕복·Q4-B 2·4~6 미승인. 가계부「가져오기·연결」접힘은 이 브랜치에서 구현·sandbox 확인까지 했고 **병합·Pages 배포는 하지 않음.** 같은 접힘을 다시 만들지 말 것.
 
 **배포 (2026-11-09 · Life 디자인):** PR #5 → `main` merge `794d24f`. 복구 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42591226027) success. URL https://h3clo.github.io/hazeflow/ . Life 활성: 설정 → Today 화면 디자인 → **새 디자인** → 저장(기기 로컬 `*-ui-design`, 스키마·동기화 불변). 사전 QA: Classic/Life 전환·캡처/운동/일정·515 tests·build·반응형·live Life 확인. PR #5에 포함된 UX 위계 1커밋으로 PR #3도 merged 표시. **PR #4 미병합. 실계정 Supabase 왕복은 단위/sandbox만.**
 
@@ -53,7 +53,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - **수정:** 종료 후 휴식 위젯 잔존(`shouldKeepRestTimer`+`syncRestWithSession`) · sticky와 아젠다 끝내기 중복 제거 · `aria-current="false"` 제거 · 다크 primary 대비(`--accent-fill` 4.78:1) · 무라벨 `＋` 제거(이전).
 - **후속:** 캡처에서 세트를 완료한 뒤 저장하면, 끝난 활동은 휴식을 끄고 진행 중 근력만 새 기록으로 휴식을 옮김(`captureRestAfterSave`). 초안이 없어지면 캡처 휴식을 유지하지 않음.
 - 검사: `npm test` **505** · build · `diff --check` · sandbox 재현.
-- **제안(미구현):** 캡처「추가 설정」접힘·하루 화면 길이·돈 관리 도구 밀도·Q4-B 2·4~6.
+- **제안:** 캡처「추가 설정」접힘은 PR #6(미병합). 가계부 상단 도구 밀도는 이 브랜치에서 접힘(미병합·미배포). **아직 착수하지 않음:** 하루 화면 스크롤 길이(화면 재배치라 별도 승인 전 금지)·Q4-B 2·4~6.
 - **미검증:** 실기기·백그라운드 타이머·실계정 Supabase 왕복·사진 실기기.
 
 **배포 (2026-11-08):** `731cbbc`→`b17f5cf` 일반 push (force 없음). Actions [Run #101](https://github.com/h3clo/hazeflow/actions/runs/42489282618) success (build 26s · deploy 10s). URL https://h3clo.github.io/hazeflow/ . Pages 번들 `app-CtR-TtyP.js`·account에 `b17f5cf`·`운동 중`·`data-rest-primary`/`complete-set` 확인. **실기기·로그인 왕복 미확인. 감사 수정분은 미배포.**
@@ -162,7 +162,9 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근 (2026-11-09):** Today Life 디자인 모드(A안) — `ui-design.js`/`style-life.css`/`app.js`/`index.html` + `tests/ui-design.test.js`. Classic 보존·스키마 불변·Pages 미배포. 사용자 확인 전 배포하지 않음.
+**최근 (2026-11-10):** 가계부 도구 밀도 — `app.js` `moneyView` + `style.css` `.money-tool-fold` + `tests/money-toolbar.test.js`. 기록 진단·월 CSV 내보내기는 두고 가져오기 6종만 접음. `npm test` 517 · build · `diff --check`. sandbox `money-toolbar`에서 1280·768·375·다크, 빠른 입력 1,200원, 진단은 읽기 전용. Classic만. Life CSS·스키마·계정 불변. **미병합·미배포.**
+
+**이전 (2026-11-09):** Today Life 디자인 모드(A안) — `ui-design.js`/`style-life.css`/`app.js`/`index.html` + `tests/ui-design.test.js`. Classic 보존·스키마 불변. Pages 배포는 PR #5 병합으로 완료.
 
 **이전 (2026-11-09):** 제품·UX 공동검토 방향 1(위계) 구현 — `app.js`/`feature-ui.js`/`style.css` + `tests/feature-ui-hierarchy.test.js`. push는 기능 분기만, Pages 배포 미승인. 계정·스키마 변경 없음.
 

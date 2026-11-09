@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · 가계부 가져오기·연결 접힘 (미병합)
+
+- 선택: 감사 제안 중 가계부 상단 도구 밀도. 버그·실기기·Q4-B·하루 화면 재배치는 조건 밖. PR #6의 캡처 접힘과 겹치지 않음.
+- 변경: `moneyView`에서 기록 진단·월 CSV 내보내기는 유지하고, 은행 CSV 미리보기·쇼핑 분류·상품 가져오기·쇼핑몰 연결·주문 붙여넣기·CSV 가져오기는 `<details class="money-tool-fold">`로 접음. `style.css`만. Life CSS·저장·스키마 없음.
+- 검사: `npm test` **517** · `npm run build` · `git diff --check`. sandbox `?sandbox&device=money-toolbar`: 1280 접힘/펼침, 768 펼침이 가로로 넘치지 않음, 375에서 진단·내보내기·접힘 유지, 다크모드에서 1,200원 합계가 읽힘, 빠른 입력 저장, 진단 창은 읽기 전용 후 닫힘, 오늘·자산관리에는 이 접힘이 없음.
+- **병합·Pages 배포 없음.** 다음 자동화는 이 접힘을 반복하지 말 것.
+
 ### 2026-11-09 Cursor · Today Life Pages 배포
 
 - 검증 후 PR #5만 `main` 병합(`794d24f`). 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions #42591226027 success → https://h3clo.github.io/hazeflow/
