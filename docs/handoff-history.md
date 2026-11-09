@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · Today Life 디자인 모드 (A안)
+
+- 승인: Classic 보존 + Today-only Life 스킨. 설정에서 기존/새 디자인 전환, 기본 Classic, `*-ui-design` 유지. 스키마·동기화·다른 화면 불변.
+- 진행 패널: 일정·루틴만 진행 바, 기록·할 일은 건수/텍스트. 가상 운동·식사·공부 목표 없음. 장식은 CSS 라디얼(스카이·민트·레몬), 사용자 사진 장식 없음.
+- 파일: `ui-design.js`, `style-life.css`, `app.js`(dayOverview Life/Classic·설정 폼), `index.html`(설정 버튼·CSS 링크), `indexed-record-storage.js`(`-ui-design` managed 제외), `tests/ui-design.test.js`.
+- 검사: `npm test` 515 · `npm run build` · `git diff --check`. sandbox `?sandbox&device=life-mode-qa` Playwright: Classic→Life→다크→iPad/iPhone→Classic 복원→타 화면 Life 미적용→재로드 유지. 산출물 `/opt/cursor/artifacts/life-design-qa/`.
+- **미배포.** PR #3/#4 병합 없음. 사용자 디자인 확인 대기.
+
 ### 2026-11-09 Cursor · 제품 UX 위계 (방향 1)
 
 - 진단: 빈 날 Today `.day-agenda` 280px 구멍, 주간 회고「나의 주간 회고」하단, 비교는 기간이 아니라 그날 스냅샷.

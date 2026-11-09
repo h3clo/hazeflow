@@ -1,0 +1,206 @@
+/* Today Life design mode — decorative skin only; Classic remains default. */
+:root{
+ --life-sky:#7ec8e3;
+ --life-sky-soft:#d8f0f8;
+ --life-mint:#7dcfb6;
+ --life-mint-soft:#dff7ef;
+ --life-lemon:#f2e38a;
+ --life-lemon-soft:#fbf6d4;
+ --life-ink:#1f3a3a;
+ --life-muted:#5a7373;
+ --life-panel:#ffffffd9;
+ --life-stroke:#b7ddd8;
+ --life-shadow:0 14px 40px #7dcfb633;
+}
+html[data-theme=dark]{
+ --life-sky:#5aa8c4;
+ --life-sky-soft:#1c3540;
+ --life-mint:#5fb89a;
+ --life-mint-soft:#1c3a32;
+ --life-lemon:#cfc06a;
+ --life-lemon-soft:#3a3720;
+ --life-ink:#e8f4f2;
+ --life-muted:#a8c4c0;
+ --life-panel:#12262ad9;
+ --life-stroke:#2f5550;
+ --life-shadow:0 14px 36px #00000055;
+}
+
+html[data-ui-design=life] body{
+ position:relative;
+ background:
+  radial-gradient(120% 80% at 100% -10%,var(--life-sky-soft),transparent 55%),
+  radial-gradient(90% 70% at -10% 20%,var(--life-mint-soft),transparent 50%),
+  radial-gradient(70% 50% at 70% 100%,var(--life-lemon-soft),transparent 45%),
+  var(--bg, #f6faf8);
+}
+html[data-ui-design=life] body::before{
+ content:"";
+ pointer-events:none;
+ position:fixed;
+ inset:auto -40px -60px auto;
+ width:min(42vw,280px);
+ height:min(42vw,280px);
+ opacity:.18;
+ background:
+  radial-gradient(circle at 35% 35%,var(--life-lemon) 0 18%,transparent 19%),
+  radial-gradient(circle at 62% 48%,var(--life-mint) 0 28%,transparent 29%),
+  radial-gradient(circle at 48% 62%,var(--life-sky) 0 34%,transparent 35%);
+ filter:blur(1px);
+ z-index:0;
+}
+html[data-ui-design=life] body > *{position:relative;z-index:1}
+
+html[data-ui-design=life] .day-life{
+ display:grid;
+ gap:1rem;
+}
+html[data-ui-design=life] .life-hero{
+ display:grid;
+ gap:.85rem;
+ padding:1rem 1.1rem;
+ border:1px solid var(--life-stroke);
+ border-radius:1.25rem;
+ background:
+  linear-gradient(135deg,var(--life-panel),color-mix(in srgb,var(--life-sky-soft) 55%,transparent)),
+  linear-gradient(180deg,#ffffffaa,transparent);
+ box-shadow:var(--life-shadow);
+}
+html[data-ui-design=life] .life-hero-copy h2{
+ margin:0;
+ font-size:clamp(1.35rem,2.4vw,1.85rem);
+ color:var(--life-ink);
+ letter-spacing:-.02em;
+}
+html[data-ui-design=life] .life-hero-copy p{
+ margin:.35rem 0 0;
+ color:var(--life-muted);
+}
+html[data-ui-design=life] .life-progress-panel{
+ display:grid;
+ grid-template-columns:minmax(9.5rem,11rem) 1fr;
+ gap:1rem;
+ align-items:stretch;
+}
+html[data-ui-design=life] .life-progress-overall{
+ display:flex;
+ gap:.75rem;
+ align-items:center;
+ padding:.65rem .75rem;
+ border-radius:1rem;
+ background:color-mix(in srgb,var(--life-mint-soft) 70%,#fff);
+ border:1px solid color-mix(in srgb,var(--life-mint) 35%,transparent);
+}
+html[data-ui-design=life] .life-progress-overall strong{
+ display:block;
+ color:var(--life-ink);
+}
+html[data-ui-design=life] .life-progress-overall p{
+ margin:.2rem 0 0;
+ font-size:.82rem;
+ color:var(--life-muted);
+}
+html[data-ui-design=life] .life-progress-ring{
+ --life-pct:0;
+ width:4.4rem;
+ height:4.4rem;
+ border-radius:50%;
+ display:grid;
+ place-items:center;
+ flex:0 0 auto;
+ background:
+  radial-gradient(circle closest-side,var(--life-panel) 68%,transparent 69%),
+  conic-gradient(var(--life-mint) calc(var(--life-pct) * 1%), color-mix(in srgb,var(--life-sky) 35%,#fff) 0);
+ font-weight:700;
+ color:var(--life-ink);
+}
+html[data-ui-design=life] .life-progress-metrics{
+ display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:.65rem;
+}
+html[data-ui-design=life] .life-metric{
+ padding:.65rem .7rem;
+ border-radius:.9rem;
+ background:color-mix(in srgb,var(--life-panel) 88%,#fff);
+ border:1px solid color-mix(in srgb,var(--life-stroke) 80%,transparent);
+ min-width:0;
+}
+html[data-ui-design=life] .life-metric-head{
+ display:flex;
+ justify-content:space-between;
+ gap:.4rem;
+ align-items:baseline;
+ font-size:.86rem;
+ color:var(--life-muted);
+}
+html[data-ui-design=life] .life-metric-head b{
+ color:var(--life-ink);
+ font-variant-numeric:tabular-nums;
+}
+html[data-ui-design=life] .life-progress-track{
+ display:block;
+ margin-top:.55rem;
+ height:.45rem;
+ border-radius:999px;
+ background:color-mix(in srgb,var(--life-stroke) 55%,#fff);
+ overflow:hidden;
+}
+html[data-ui-design=life] .life-progress-fill{
+ display:block;
+ height:100%;
+ border-radius:inherit;
+}
+html[data-ui-design=life] .life-tone-mint{background:linear-gradient(90deg,var(--life-mint),var(--life-sky))}
+html[data-ui-design=life] .life-tone-sky{background:linear-gradient(90deg,var(--life-sky),var(--life-lemon))}
+html[data-ui-design=life] .life-metric-empty,
+html[data-ui-design=life] .life-metric-note{
+ margin:.45rem 0 0;
+ font-size:.78rem;
+ color:var(--life-muted);
+}
+html[data-ui-design=life] .life-shortcuts{
+ display:flex;
+ flex-wrap:wrap;
+ gap:.45rem;
+}
+html[data-ui-design=life] .life-shortcuts .chip{
+ border-color:color-mix(in srgb,var(--life-mint) 40%,var(--life-stroke));
+ background:color-mix(in srgb,var(--life-panel) 80%,var(--life-mint-soft));
+}
+html[data-ui-design=life] .day-life .restored-dashboard .card,
+html[data-ui-design=life] .day-life .day-close-bar{
+ border-color:color-mix(in srgb,var(--life-stroke) 85%,transparent);
+ background:color-mix(in srgb,var(--life-panel) 92%,transparent);
+ box-shadow:0 8px 24px #7dcfb622;
+}
+html[data-ui-design=life] .day-life .agenda-rail{
+ background:color-mix(in srgb,var(--life-sky-soft) 35%,var(--life-panel));
+}
+html[data-ui-design=life] .day-life .week-strip-card{
+ background:
+  linear-gradient(180deg,color-mix(in srgb,var(--life-lemon-soft) 55%,transparent),transparent),
+  color-mix(in srgb,var(--life-panel) 94%,#fff);
+}
+
+@media (max-width:980px){
+ html[data-ui-design=life] .life-progress-panel{
+  grid-template-columns:1fr;
+ }
+ html[data-ui-design=life] .life-progress-metrics{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+}
+@media (max-width:560px){
+ html[data-ui-design=life] .life-progress-metrics{
+  grid-template-columns:1fr 1fr;
+ }
+ html[data-ui-design=life] .life-hero{
+  padding:.85rem;
+ }
+ html[data-ui-design=life] body::before{
+  width:180px;
+  height:180px;
+  opacity:.14;
+ }
+}

@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** UX 위계(방향 1) 구현 분기 `cursor/ux-hierarchy-reflect-15be` — Today 기록열 우선·빈 아젠다 높이 완화·주간 스트립 접기, 주간 회고 서사 상단, 과거 비교 스냅샷/가까운 날 발견. **전면 비주얼 리뉴얼·월↔월/연↔연 구간 UI는 위계 효과 확인 후 재평가(미착수).** 배포·실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** Today Life 디자인 모드 구현 분기 `cursor/today-life-design-mode-15be`(위계 분기 위) — Classic 보존 + Today-only Life 스킨·설정 전환·localStorage `*-ui-design` 유지. **사용자 디자인/기능 확인 전 Pages 배포·PR #3/#4 병합 금지.** 확인 후 배포 여부 결정. 실기기·계정 왕복·Q4-B 2·4~6 미승인.
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
@@ -125,6 +125,11 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [x] 과거 비교: 그날 스냅샷 카피 + 빈 날 `compare-discovery`(가까운 기록·일기/사진) 강조. 프리셋 유지.
 - [ ] 위계 효과 확인 후 Reflect IA(방향 2)만 선택 검토. **전면 테마 리뉴얼·월/연 구간 집계 UI는 보류.**
 
+### P1 · Today Life 디자인 모드 (A안 · 2026-11-09 승인)
+- [x] Classic 기본 유지. 설정「기존 디자인 / 새 디자인」·`key-ui-design` localStorage(theme와 같이 managed 제외)·새로고침 유지.
+- [x] Life는 Today만: 가로형 진행 패널(일정·루틴 바 / 기록·할 일 건수), 스카이·민트·레몬 장식 CSS, 캡처·라이브 운동·아젠다·루틴·할 일·주간 회고·sticky 종료 바 동일 데이터.
+- [x] 자동 검사 `npm test` 515 · build · sandbox `life-mode-qa`(Classic/Life·라이트/다크·820/390·재로드 유지). **Pages 미배포 · 사용자 확인 대기.**
+
 ### P2 · 기존 기능 완성
 - [ ] 건강/식단/인바디 비교 및 추정·누락 표시. (Reflect 기간 서사와 묶지 말 것 — 생활 상태 링크 우선)
 - [ ] 공부 일시정지/재개, Obsidian/블로그 연결 실제 동작 검증.
@@ -155,6 +160,8 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근 (2026-11-09):** 제품·UX 공동검토 방향 1(위계) 구현 — `app.js`/`feature-ui.js`/`style.css` + `tests/feature-ui-hierarchy.test.js`. push는 기능 분기만, Pages 배포 미승인. 계정·스키마 변경 없음.
+**최근 (2026-11-09):** Today Life 디자인 모드(A안) — `ui-design.js`/`style-life.css`/`app.js`/`index.html` + `tests/ui-design.test.js`. Classic 보존·스키마 불변·Pages 미배포. 사용자 확인 전 배포하지 않음.
+
+**이전 (2026-11-09):** 제품·UX 공동검토 방향 1(위계) 구현 — `app.js`/`feature-ui.js`/`style.css` + `tests/feature-ui-hierarchy.test.js`. push는 기능 분기만, Pages 배포 미승인. 계정·스키마 변경 없음.
 
 **이전 (2026-11-08):** `b17f5cf` Pages 배포 성공(Actions #101). 전체 UX 감사 수정은 로컬/후속 커밋. Q4-B 2·4~6 미승인.
