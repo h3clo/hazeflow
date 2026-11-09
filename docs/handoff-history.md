@@ -2,6 +2,31 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · Today Life 페이지 응집력
+
+- 요청: 시안 100%보다 **한 페이지 안 요소가 동떨어져 보이는 갭**이 문제. 임의 개선 허용.
+- 변경: `style-life.css` 간격/그림자/크롬 축소·중첩 Classic 평탄화·`life-top` 묶음. `sky-card.jpg`가 시안 스크린샷이던 것을 하늘 크롭으로 교체. Classic/저장 로직 불변.
+- 검사: `npm test` 515 · build · `diff --check`. sandbox before/after `/opt/cursor/artifacts/life-cohere-before-after.png`. **미배포.**
+
+### 2026-11-09 Cursor · Today Life 시안 시각 재구성
+
+- 요청: CSS 덧씌우기 해제. Life Today DOM/레이아웃을 공유 시안에 가깝게 재구성. Classic·전환·저장 로직 유지. 실사 에셋 사용.
+- 구현: `dayViewLife` 전용 헤더·진행 패널·3열 카드. `public/life/{leaves-corner,sky-card,activity-hero}.jpg`. 진행 숫자는 일정/루틴/기록/할 일 실제값만(시안 예시 운동·식사·공부 목표 비재현).
+- 검사: `npm test` 515 · build. sandbox 시안↔렌더 나란히 `/opt/cursor/artifacts/life-design-v2/side-by-side.png`. Classic 회귀·820/390 캡처.
+- **미배포.** PR #3/#4 병합 없음. 사용자 시안 승인 대기.
+
+### 2026-11-09 Cursor · Today Life 디자인 모드 (A안 1차)
+
+- Classic 보존 + Today Life 스킨 초안. 이후 시안 근접 재구성으로 대체.
+
+### 2026-11-09 Cursor · 제품 UX 위계 (방향 1)
+
+- 진단: 빈 날 Today `.day-agenda` 280px 구멍, 주간 회고「나의 주간 회고」하단, 비교는 기간이 아니라 그날 스냅샷.
+- Today: 기록열 DOM 선행·그리드 `1.15fr 1fr 1fr`, 빈 아젠다 `min-height:0`, 주간 스트립 `details` 접기.
+- Review: 회고 폼 상단, 집계/차트 `details.review-metrics`. Compare: 스냅샷 카피 + `compare-discovery` + 일기/사진 칩.
+- **보류:** 전면 비주얼 리뉴얼, 월/연 구간 UI, Reflect IA 대규모 재정렬(방향 2는 효과 부족 시만).
+- 검사: `tests/feature-ui-hierarchy.test.js` · `npm test` · build · sandbox. 스키마/동기화/실계정 불변. Pages 미배포.
+
 ### 2026-11-09 Cursor · 되돌리기·알림 겹침
 
 - 세트 삭제를 되돌리면 원문은 돌아와도 완료 표시는 지운 뒤 인덱스에 남았다. 원문이 바뀐 기록의 완료 표시만 버린다.
