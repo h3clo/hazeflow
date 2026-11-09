@@ -44,16 +44,26 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Today Life가 Pages에 배포됨(기본 Classic, 설정에서 Life 선택). 사용자 실사용 피드백 대기. **PR #4는 미병합.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** Cursor Automations 야간 자율 범위(~**2026-11-16 00:00 KST**). 이번 런은 좁은 폭 캡처「추가 설정」터치/4열을 PR로 올림(미병합). **다음 자동화는 다른 조건 충족 1건**을 고른다(우선: 버그→a11y→사용성→반응형→테스트→내보내기/복원). 후보 예: 돈 관리 도구 밀도(국소)·하루 화면 길이 국소 접힘·내보내기/복원 테스트 보강. **병합·Pages 배포·실계정 변경 금지.** PR #4 문서만·미병합.
 
-**배포 (2026-11-09 · Life 디자인):** PR #5 → `main` merge `794d24f`. 복구 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42591226027) success. URL https://h3clo.github.io/hazeflow/ . Life 활성: 설정 → Today 화면 디자인 → **새 디자인** → 저장(기기 로컬 `*-ui-design`, 스키마·동기화 불변). 사전 QA: Classic/Life 전환·캡처/운동/일정·515 tests·build·반응형·live Life 확인. PR #5에 포함된 UX 위계 1커밋으로 PR #3도 merged 표시. **PR #4 미병합. 실계정 Supabase 왕복은 단위/sandbox만.**
+### 자동화 자율 범위 (2026-11-09 확정 · ~2026-11-16 00:00 KST)
+
+목표: 남은 Cursor 사용량으로 Haze Flow를 **가능한 범위에서** 진전. “승인된 미완료가 없다”만으로 즉시 종료하지 말고, 문서·코드의 미완료를 분석해 아래를 **모두** 충족하는 작업 1건을 자동 선정·구현한다.
+
+**포함(별도 승인 없이 진행):** 기존 기능 버그 수정 → 접근성 → 사용성 → 반응형 → 테스트 보강 → 데이터 내보내기·복원 안정성. 비전 일치·운영 DB/Supabase 스키마/인증 불변·기존 기록 비손상·낮은 의존성·독립 검증 가능·Classic/Life 비훼손·기존 기능 비중복·**별도 브랜치+PR만**·**병합/배포 금지**.
+
+**제외(자동 승인 아님):** 실계정 동기화 검증, 데이터 마이그레이션, 결제 원장 변경, 대규모 기능, Q4-B 2·4~6, 전면 UI 교체, 실제 사용자 데이터 필요 작업.
+
+**실행 규칙:** 매 런 1건. 구현·`npm test`/`build`/`diff --check`(코드 시)·가이드 갱신 후 PR. 적합한 작업이 정말 없으면 이유만 보고하고 종료. 운영 기간·사용량·보안·PR 병합/배포 금지 조건 유지.
+
+**배포 (2026-11-09 · Life 디자인):** PR #5 → `main` merge `794d24f`(후속 문서 `a2930e6`). 복구 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions success. URL https://h3clo.github.io/hazeflow/ . Life: 설정 → Today 화면 디자인 → **새 디자인**. **PR #4 미병합.**
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
 - **수정:** 종료 후 휴식 위젯 잔존(`shouldKeepRestTimer`+`syncRestWithSession`) · sticky와 아젠다 끝내기 중복 제거 · `aria-current="false"` 제거 · 다크 primary 대비(`--accent-fill` 4.78:1) · 무라벨 `＋` 제거(이전).
 - **후속:** 캡처에서 세트를 완료한 뒤 저장하면, 끝난 활동은 휴식을 끄고 진행 중 근력만 새 기록으로 휴식을 옮김(`captureRestAfterSave`). 초안이 없어지면 캡처 휴식을 유지하지 않음.
 - 검사: `npm test` **505** · build · `diff --check` · sandbox 재현.
-- **제안(미구현):** 캡처「추가 설정」접힘·하루 화면 길이·돈 관리 도구 밀도·Q4-B 2·4~6.
+- **제안(일부 진행):** 좁은 폭 캡처「추가 설정」터치/분류 그리드(자동화 자율 범위). 남은 제안: 하루 화면 길이·돈 관리 도구 밀도·Q4-B 2·4~6(미승인).
 - **미검증:** 실기기·백그라운드 타이머·실계정 Supabase 왕복·사진 실기기.
 
 **배포 (2026-11-08):** `731cbbc`→`b17f5cf` 일반 push (force 없음). Actions [Run #101](https://github.com/h3clo/hazeflow/actions/runs/42489282618) success (build 26s · deploy 10s). URL https://h3clo.github.io/hazeflow/ . Pages 번들 `app-CtR-TtyP.js`·account에 `b17f5cf`·`운동 중`·`data-rest-primary`/`complete-set` 확인. **실기기·로그인 왕복 미확인. 감사 수정분은 미배포.**
@@ -99,7 +109,8 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 ### P1 · 활동 기록 입력 UX
 - [x] 한 줄 입력·자동 분류/수동 우선·활동 시작/짧은 기록·추가 설정 (Q1–Q2). 검사 484·빌드·sandbox 분류 확인. **배포·실기기 미함.**
 - [x] 종료 접근성: sticky `.ongoing-finish-bar`(진행 중만). 명시 종료 보존·다음 시작 자동 종료·빈 시간 허용 유지. sandbox 검증. **푸시·배포·실기기 미함.**
-- [ ] 배포 승인 후 Pages/실기기 확인. 좁은 폭에서 추가 설정 접힘 재확인.
+- [ ] 실기기에서 활동 UX 확인(선택).
+- [x] 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 4열(Classic/Life). `tests/capture-extra-settings.test.js` · sandbox 375 확인. **별도 PR·병합·배포 없음.**
 
 ### P1 · 운동 기록 실사용 오류 및 입력 흐름 (설계 합의, 코드 미검증)
 - [x] 자극 부위 교차: 종목별 `exerciseMuscles` + 합집합 `muscles`(Q3-A). 배포·실기기 미함.
@@ -130,7 +141,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 ### P1 · Today Life 디자인 모드 (시안 시각 재구성 · 2026-11-09)
 - [x] Classic 기본·설정 전환·`*-ui-design` 유지. 스키마/동기화 불변.
 - [x] Life Today 전용 DOM: 헤더·잎/하늘 실사 에셋(`public/life/`)、가로 진행 패널(실제 일정·루틴·기록·할 일)、3열(활동/일정·한 줄/루틴·메모). 가상 목표 없음.
-- [x] 검사 `npm test` 515 · build · sandbox 시안 나란히 비교 산출물 `/opt/cursor/artifacts/life-design-v2/`. **Pages 미배포 · 사용자 시안 승인 대기.**
+- [x] 검사 `npm test` 515 · build · sandbox 시안 나란히 비교. **Pages 배포 완료(2026-11-09).** 실사용 피드백 대기.
 
 ### P2 · 기존 기능 완성
 - [ ] 건강/식단/인바디 비교 및 추정·누락 표시. (Reflect 기간 서사와 묶지 말 것 — 생활 상태 링크 우선)
@@ -162,7 +173,7 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근 (2026-11-09):** Today Life 디자인 모드(A안) — `ui-design.js`/`style-life.css`/`app.js`/`index.html` + `tests/ui-design.test.js`. Classic 보존·스키마 불변·Pages 미배포. 사용자 확인 전 배포하지 않음.
+**최근 (2026-11-09):** 자동화 자율 범위(~11/16 00:00 KST) 문서화 + 좁은 폭 캡처「추가 설정」터치/4열 분류(`style.css`/`style-life.css`/`tests/capture-extra-settings.test.js`). 별도 PR만·병합·배포 없음. Today Life는 이미 Pages 배포됨.
 
 **이전 (2026-11-09):** 제품·UX 공동검토 방향 1(위계) 구현 — `app.js`/`feature-ui.js`/`style.css` + `tests/feature-ui-hierarchy.test.js`. push는 기능 분기만, Pages 배포 미승인. 계정·스키마 변경 없음.
 
