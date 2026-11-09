@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Today Life 디자인 모드 구현 분기 `cursor/today-life-design-mode-15be`(위계 분기 위) — Classic 보존 + Today-only Life 스킨·설정 전환·localStorage `*-ui-design` 유지. **사용자 디자인/기능 확인 전 Pages 배포·PR #3/#4 병합 금지.** 확인 후 배포 여부 결정. 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** Today Life 시각 재구성(시안 근접) 분기 `cursor/today-life-design-mode-15be` — Classic 보존·전환 유지, Life는 전용 DOM/레이아웃·실사 잎·하늘 에셋·3열 카드. **사용자 시안 대조 승인·Pages 배포·PR #3/#4 병합 전 보류.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
@@ -125,10 +125,10 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [x] 과거 비교: 그날 스냅샷 카피 + 빈 날 `compare-discovery`(가까운 기록·일기/사진) 강조. 프리셋 유지.
 - [ ] 위계 효과 확인 후 Reflect IA(방향 2)만 선택 검토. **전면 테마 리뉴얼·월/연 구간 집계 UI는 보류.**
 
-### P1 · Today Life 디자인 모드 (A안 · 2026-11-09 승인)
-- [x] Classic 기본 유지. 설정「기존 디자인 / 새 디자인」·`key-ui-design` localStorage(theme와 같이 managed 제외)·새로고침 유지.
-- [x] Life는 Today만: 가로형 진행 패널(일정·루틴 바 / 기록·할 일 건수), 스카이·민트·레몬 장식 CSS, 캡처·라이브 운동·아젠다·루틴·할 일·주간 회고·sticky 종료 바 동일 데이터.
-- [x] 자동 검사 `npm test` 515 · build · sandbox `life-mode-qa`(Classic/Life·라이트/다크·820/390·재로드 유지). **Pages 미배포 · 사용자 확인 대기.**
+### P1 · Today Life 디자인 모드 (시안 시각 재구성 · 2026-11-09)
+- [x] Classic 기본·설정 전환·`*-ui-design` 유지. 스키마/동기화 불변.
+- [x] Life Today 전용 DOM: 헤더·잎/하늘 실사 에셋(`public/life/`)、가로 진행 패널(실제 일정·루틴·기록·할 일)、3열(활동/일정·한 줄/루틴·메모). 가상 목표 없음.
+- [x] 검사 `npm test` 515 · build · sandbox 시안 나란히 비교 산출물 `/opt/cursor/artifacts/life-design-v2/`. **Pages 미배포 · 사용자 시안 승인 대기.**
 
 ### P2 · 기존 기능 완성
 - [ ] 건강/식단/인바디 비교 및 추정·누락 표시. (Reflect 기간 서사와 묶지 말 것 — 생활 상태 링크 우선)

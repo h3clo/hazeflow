@@ -367,25 +367,103 @@ function activityRecordList(records){return `<details class="card activity-recor
 function weekActivityStrip(){const days=weekTimeline(data,date,todayKey());const marked=days.filter(d=>!d.future&&(d.activity||d.diary||d.photos)).length;return `<div class="dashboard-week"><div class="row dashboard-week-head"><details class="dashboard-week-fold"><summary>이번 주 돌아보기 · ${marked}일 기록</summary><div class="week-memory-days">${days.map((d,i)=>{const labels=[d.activity?'활동':'',d.diary?'일기':'',d.photos?'사진':''].filter(Boolean);return `<button type="button" data-act="open-day" data-id="${d.date}" class="${d.date===date?'selected-day':''}" aria-label="${d.date} ${d.future?'예정':labels.join('·')||'기록 없음'}"><small>${['월','화','수','목','금','토','일'][i]}</small><strong>${Number(d.date.slice(8))}</strong><span class="memory-marks">${d.future?'<small>예정</small>':labels.map(label=>`<i class="memory-${label}" title="${label}">${label}</i>`).join('')||'<small>—</small>'}</span></button>`}).join('')}</div><p class="hint">활동·일기·사진이 있는 날을 표시해요. 날짜를 눌러 다시 볼 수 있어요.</p></details>${btn('주간 회고 →','view-review','','text-link')}</div></div>`}
 function dashboardReminders(){const remaining=sortTasks(data.tasks.filter(t=>!t.done&&!isGoalTask(t)&&(date<=todayKey()||t.dueDate===date)));return `${remaining.slice(0,5).map(t=>taskRow(t,false)).join('')||empty('남은 할 일이 없어요.')}<div class="row-actions">${btn('＋ 할 일 추가','new-task-day')}${btn('전체 보기 · '+remaining.length,'view-tasks')}</div>${remaining.length>5?'<p class="hint">가까운 기한부터 5개를 표시해요.</p>':''}`}
 function dashboardHeading(label,description,kind,action=''){return `<div class="card-head"><h2 class="dashboard-heading ${kind}">${label}</h2><small>${description}</small>${action}</div>`}
+function lifeAsset(file){return `${import.meta.env.BASE_URL}life/${file}`}
+function lifeBgStyle(file){return `background-image:url('${lifeAsset(file)}')`}
 function dayWorkspace(events,routines,records,liveWorkout){
  return `<div class="daily-workspace restored-dashboard"><div class="stack record-column">${liveWorkout?liveWorkoutSessionCard(liveWorkout):''}${date>todayKey()?planningView():captureView()}${activityRecordList(records)}</div><section class="card schedule-column dashboard-panel">${dashboardHeading('오늘의 흐름','계획 + 실제 기록','plan',btn('＋ 일정 추가','new-event'))}<div class="card-body">${dayAgenda()}<div class="day-memo">${icon('diary')}<div><small>일기 · 하루 마감</small><p class="diary-preview">${esc(data.diary[date]?.entry||data.diary[date]?.note||'기억하고 싶은 순간을 남겨보세요.')}</p>${btn('하루 돌아보기 →','view-diary','','text-link')}</div></div></div></section><section class="card habit-column dashboard-panel">${dashboardHeading('루틴','매일의 반복','routine',btn('설정','view-routines'))}<div class="card-body">${routines.map(routineCard).join('')||empty('반복할 생활을 한 번 설정해두세요.')}<div class="dashboard-reminders"><h2 class="dashboard-heading reminders">할 일</h2>${dashboardReminders()}</div>${weekActivityStrip()}</div></section></div>`;
 }
 function dayOverviewClassic({done,events,checked,steps,records,due}){
  return `<div class="day-overview"><span>일정 <b>${done} / ${events.length}</b></span><span>루틴 <b>${checked} / ${steps}</b></span><span>기록 <b>${records.length}</b></span><span>할 일 <b>${due}</b></span>${btn(date>todayKey()?'＋ 할 일 계획':'＋ 활동 기록','focus-capture','','primary dashboard-record-shortcut')}${btn('내일 계획','plan-tomorrow')}${btn(studyEntryLabel(data.logs,todayKey()),'view-study')}</div>`;
 }
-function dayOverviewLife({done,events,checked,steps,records,due}){
+function lifeDayHeader(){
+ const label=new Date(date+'T12:00:00').toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+ return `<header class="life-day-header">
+  <div>
+   <p class="life-day-kicker">${esc(label)}</p>
+   <h2 class="life-day-title">나의 하루</h2>
+   <p class="life-day-motto">조금씩, 꾸준히. 오늘도 나다운 하루를 만들어요.</p>
+  </div>
+  <div class="life-day-tools">
+   <div class="life-date-nav">${btn('←','prev','','small-button')}${btn('오늘','today','','small-button')}${btn('→','next','','small-button')}</div>
+   ${btn(date>todayKey()?'＋ 할 일 계획':'＋ 빠른 기록','focus-capture','','primary life-quick-record')}
+  </div>
+ </header>`;
+}
+function lifeFeatureCard(liveWorkout,records){
+ const latest=records.slice().reverse().find(Boolean);
+ if(liveWorkout){
+  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>진행 중 · ${esc(recordKindLabel(liveWorkout.kind))}</small><strong>${esc(activityTitle(liveWorkout,48,{ongoing:true}))}</strong><p>${esc(activitySummaryLabel(liveWorkout)||'세트와 휴식을 이어서 남겨요.')}</p></div></article>`;
+ }
+ if(latest){
+  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>${esc(recordKindLabel(latest.kind))}${latest.time?' · '+esc(latest.time):''}</small><strong>${esc((latest.text||'').split('\\n')[0].slice(0,42)||recordKindLabel(latest.kind))}</strong><p>${latest.photos?.length?`사진 ${latest.photos.length}장 · `:''}오늘 남긴 기록이에요.</p></div></article>`;
+ }
+ return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>활동 기록</small><strong>지금 하고 있는 일을 남겨보세요</strong><p>사진과 분류는 아래에서 이어서 적을 수 있어요.</p></div></article>`;
+}
+function lifeTimeline(records){
+ const rows=records.slice(-6).reverse();
+ if(!rows.length)return `<p class="hint">아직 실제 활동 기록이 없어요.</p>`;
+ return `<div class="life-timeline">${rows.map(l=>`<article class="life-timeline-item"><time>${esc(l.time||'—')}</time><div><span class="life-chip">${esc(recordKindLabel(l.kind))}${l.photos?.length?' · 사진':''}</span><p>${esc((l.text||'').split('\\n')[0].slice(0,80)||'내용 없는 기록')}</p><div class="row-actions">${btn('수정',l.money&&l.kind!=='식사'?'edit-money':l.legacy?'edit-legacy':'edit-log',l.id,'small-button')}</div></div></article>`).join('')}</div><div class="row-actions">${btn('전체 기록 보기','view-history','','text-link')}</div>`;
+}
+function lifeRoutinePanel(routines){
+ if(!routines.length)return `<p class="hint">반복할 생활을 한 번 설정해두세요.</p>${btn('루틴 설정','view-routines','','small-button')}`;
+ const disabled=future();
+ const items=routines.flatMap(r=>r.steps.map(s=>{
+  const done=r.run?.checked.includes(s.id);
+  return `<div class="life-routine-item ${done?'is-done':''}"><label><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${done?'checked':''} ${disabled?'disabled':''}><span><b>${esc(s.title)}</b><small> · ${esc(r.title)}</small></span></label></div>`;
+ }));
+ return `<div class="life-routine-list">${items.join('')}</div><div class="row-actions">${btn('상세 실행','view-routines','','small-button')}${routines.map(r=>r.run?.status==='pending'?btn('지금 시작','routine-start',r.id,'small-button'):'').join('')}</div>`;
+}
+function lifeQuoteCard(){
+ const d=data.diary[date]||{};
+ const text=(d.note||d.entry||'').trim();
+ return `<section class="life-quote" style="${lifeBgStyle('sky-card.jpg')}"><div class="life-quote-body"><small>오늘의 한 줄</small><div class="life-quote-mark" aria-hidden="true">“</div><p>${text?esc(text.slice(0,180))+(text.length>180?'…':''):'기억하고 싶은 순간을 한 줄로 남겨보세요.'}</p><div class="life-quote-actions">${btn('하루 돌아보기 →','view-diary','','text-link')}</div></div></section>`;
+}
+function dayViewLife({events,routines,records,done,checked,steps,due,liveWorkout}){
  const panel=dayProgressPanelHtml({esc,eventDone:done,eventTotal:events.length,routineDone:checked,routineTotal:steps,recordCount:records.length,taskDue:due});
- const shortcuts=`<div class="life-shortcuts">${btn(date>todayKey()?'＋ 할 일 계획':'＋ 활동 기록','focus-capture','','primary dashboard-record-shortcut')}${btn('내일 계획','plan-tomorrow')}${btn(studyEntryLabel(data.logs,todayKey()),'view-study')}</div>`;
- return `<section class="life-hero" aria-label="오늘 요약"><div class="life-hero-copy"><h2>${date===todayKey()?'오늘의 흐름':'선택한 날의 흐름'}</h2><p>목표가 있는 일정·루틴만 진행률로 보고, 기록과 할 일은 있는 그대로 보여요.</p></div>${panel}${shortcuts}</section>`;
+ return `<div class="life-today" style="--life-activity-hero:url('${lifeAsset('activity-hero.jpg')}')">
+  <img class="life-deco-leaves" src="${lifeAsset('leaves-corner.jpg')}" alt="" width="340" height="220" decoding="async">
+  ${lifeDayHeader()}
+  ${panel}
+  ${healthDayStrip(data,date,{btn})}
+  <div class="life-grid">
+   <section class="life-card life-col-activity" aria-labelledby="life-activity-title">
+    <div class="life-card-head"><h2 id="life-activity-title">오늘의 활동 기록</h2>${btn('공부','view-study','','small-button')}</div>
+    ${lifeFeatureCard(liveWorkout,records)}
+    <div class="life-card-body">
+     ${liveWorkout?liveWorkoutSessionCard(liveWorkout):''}
+     ${date>todayKey()?planningView():captureView()}
+     <h3 class="visually-hidden">최근 활동</h3>
+     ${lifeTimeline(records)}
+     <details class="capture-extra-settings"><summary>활동 원본 · 전체 ${records.length}건</summary>${activityRecordList(records)}</details>
+    </div>
+   </section>
+   <div class="life-col-plan stack" style="gap:1rem">
+    <section class="life-card" aria-labelledby="life-schedule-title">
+     <div class="life-card-head"><h2 id="life-schedule-title">오늘의 일정</h2>${btn('＋ 일정 추가','new-event','','small-button')}</div>
+     <div class="life-card-body">${dayAgenda()}</div>
+    </section>
+    ${lifeQuoteCard()}
+   </div>
+   <div class="life-col-habit stack" style="gap:1rem">
+    <section class="life-card" aria-labelledby="life-routine-title">
+     <div class="life-card-head"><h2 id="life-routine-title">오늘의 루틴</h2><small>${checked} / ${steps}</small></div>
+     <div class="life-card-body">${lifeRoutinePanel(routines)}</div>
+    </section>
+    <section class="life-card" aria-labelledby="life-memo-title">
+     <div class="life-card-head"><h2 id="life-memo-title">작은 메모</h2>${btn('＋','new-task-day','','small-button')}</div>
+     <div class="life-card-body"><div class="life-memo-list">${dashboardReminders()}</div><div class="life-footer-links">${weekActivityStrip()}</div></div>
+    </section>
+   </div>
+  </div>
+ </div>`;
 }
 function dayView(){
  const events=data.events.filter(e=>e.date===date).sort((a,b)=>a.start.localeCompare(b.start)),routines=routinesForDate(data,date),records=recordsForDate(data,date);
  const steps=routines.reduce((n,r)=>n+r.steps.length,0),checked=routines.reduce((n,r)=>n+(r.run?.checked.length||0),0),done=events.filter(e=>e.status==='done').length,due=data.tasks.filter(t=>!t.done&&!isGoalTask(t)).length;
  const liveWorkout=date===todayKey()?ongoingWorkoutSession():null;
- const stats={done,events,checked,steps,records,due};
- const overview=uiDesign==='life'?dayOverviewLife(stats):dayOverviewClassic(stats);
- const shell=uiDesign==='life'?'day-life':'day-classic';
- return `${dayStrip()}<div class="${shell}">${overview}${healthDayStrip(data,date,{btn})}${dayWorkspace(events,routines,records,liveWorkout)}</div>${ongoingFinishBar()}`;
+ const stats={events,routines,records,done,checked,steps,due,liveWorkout};
+ if(uiDesign==='life')return `${dayViewLife(stats)}${ongoingFinishBar()}`;
+ return `${dayStrip()}<div class="day-classic">${dayOverviewClassic({done,events,checked,steps,records,due})}${healthDayStrip(data,date,{btn})}${dayWorkspace(events,routines,records,liveWorkout)}</div>${ongoingFinishBar()}`;
 }
 function weekView(dashboard=false){const first=date.slice(0,7)+'-01',offset=(new Date(first+'T12:00:00').getDay()+6)%7,start=shiftDate(first,-offset);return `<div class="feature-toolbar"><h2>${date.slice(0,4)}년 ${Number(date.slice(5,7))}월</h2><div class="row-actions">${btn('이전 달','calendar-month','-1')}${btn('다음 달','calendar-month','1')}${btn('＋ 일정 추가','new-event','','primary')}</div></div><div class="plan-calendar">${['월','화','수','목','금','토','일'].map(d=>`<div class="calendar-weekday">${d}</div>`).join('')}${Array.from({length:42},(_,i)=>{const day=shiftDate(start,i),events=data.events.filter(e=>e.date===day).sort((a,b)=>a.start.localeCompare(b.start)),tasks=dashboard?[]:data.tasks.filter(t=>t.dueDate===day&&!t.done),dayRoutines=routinesForDate(data,day);return `<section class="calendar-cell ${day.slice(0,7)!==date.slice(0,7)?'other-month':''} ${day===todayKey()?'is-today':''} ${dashboard&&day===date?'is-selected':''}"><button class="calendar-date" data-act="${dashboard?'dashboard-date':'open-day'}" data-id="${day}" aria-label="${day} ${dashboard?'일정 선택':'계획 보기'}">${Number(day.slice(8))}</button>${events.map(e=>`<button class="calendar-event" data-act="edit-event" data-id="${e.id}"><small>${e.start}</small> ${esc(e.title)}</button>`).join('')}${tasks.slice(0,3).map(t=>`<button class="calendar-task" data-act="edit-task" data-id="${t.id}">□ ${esc(t.title)}</button>`).join('')}${tasks.length>3?`<small>할 일 +${tasks.length-3}</small>`:''}${dayRoutines.map(r=>`<button class="calendar-routine" data-act="${dashboard?'dashboard-date':'open-day'}" data-id="${day}" title="${esc(r.title)}">↻ ${esc(r.title)}</button>`).join('')}</section>`}).join('')}</div><p class="hint">${dashboard?'일정과 반복 루틴을 함께 표시해요. 날짜를 누르면 그날의 일정을 확인할 수 있어요.':'날짜를 누르면 그날의 계획을 추가할 수 있어요. 일정·날짜가 지정된 할 일·반복 루틴을 함께 표시해요.'}</p>`}
 function planningView(){return card('미리 계획하기',`<p>${date}에 할 일을 한 줄에 하나씩 적어보세요.</p><form data-form="planning"><label>할 일<textarea id="plan-text" name="lines" rows="4" maxlength="10000" required placeholder="장보기&#10;운동하기"></textarea></label><button class="primary">할 일 추가</button>${btn('시간 있는 일정 추가','new-event')}</form><p class="hint">추가한 할 일은 옆의 할 일와 캘린더에서 확인·수정해요.</p>`)}

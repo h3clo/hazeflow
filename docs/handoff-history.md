@@ -2,13 +2,16 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
-### 2026-11-09 Cursor · Today Life 디자인 모드 (A안)
+### 2026-11-09 Cursor · Today Life 시안 시각 재구성
 
-- 승인: Classic 보존 + Today-only Life 스킨. 설정에서 기존/새 디자인 전환, 기본 Classic, `*-ui-design` 유지. 스키마·동기화·다른 화면 불변.
-- 진행 패널: 일정·루틴만 진행 바, 기록·할 일은 건수/텍스트. 가상 운동·식사·공부 목표 없음. 장식은 CSS 라디얼(스카이·민트·레몬), 사용자 사진 장식 없음.
-- 파일: `ui-design.js`, `style-life.css`, `app.js`(dayOverview Life/Classic·설정 폼), `index.html`(설정 버튼·CSS 링크), `indexed-record-storage.js`(`-ui-design` managed 제외), `tests/ui-design.test.js`.
-- 검사: `npm test` 515 · `npm run build` · `git diff --check`. sandbox `?sandbox&device=life-mode-qa` Playwright: Classic→Life→다크→iPad/iPhone→Classic 복원→타 화면 Life 미적용→재로드 유지. 산출물 `/opt/cursor/artifacts/life-design-qa/`.
-- **미배포.** PR #3/#4 병합 없음. 사용자 디자인 확인 대기.
+- 요청: CSS 덧씌우기 해제. Life Today DOM/레이아웃을 공유 시안에 가깝게 재구성. Classic·전환·저장 로직 유지. 실사 에셋 사용.
+- 구현: `dayViewLife` 전용 헤더·진행 패널·3열 카드. `public/life/{leaves-corner,sky-card,activity-hero}.jpg`. 진행 숫자는 일정/루틴/기록/할 일 실제값만(시안 예시 운동·식사·공부 목표 비재현).
+- 검사: `npm test` 515 · build. sandbox 시안↔렌더 나란히 `/opt/cursor/artifacts/life-design-v2/side-by-side.png`. Classic 회귀·820/390 캡처.
+- **미배포.** PR #3/#4 병합 없음. 사용자 시안 승인 대기.
+
+### 2026-11-09 Cursor · Today Life 디자인 모드 (A안 1차)
+
+- Classic 보존 + Today Life 스킨 초안. 이후 시안 근접 재구성으로 대체.
 
 ### 2026-11-09 Cursor · 제품 UX 위계 (방향 1)
 
