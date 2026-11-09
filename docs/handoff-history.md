@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · Today Life Pages 배포
+
+- 검증 후 PR #5만 `main` 병합(`794d24f`). 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions #42591226027 success → https://h3clo.github.io/hazeflow/
+- Life: 설정→Today 화면 디자인→새 디자인. `*-ui-design` 로컬만, schemaVersion 2·IndexedDB/Supabase 기록 구조 불변.
+- PR #4 미병합. PR #3은 #5에 포함된 상위 커밋으로 merged 표시.
+
 ### 2026-11-09 Cursor · Today Life 페이지 응집력
 
 - 요청: 시안 100%보다 **한 페이지 안 요소가 동떨어져 보이는 갭**이 문제. 임의 개선 허용.

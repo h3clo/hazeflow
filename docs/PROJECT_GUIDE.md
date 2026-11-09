@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Today Life 페이지 내 응집력 보정 반영(`cursor/today-life-design-mode-15be`) — 간격·그림자·크롬 축소, 잘못된 `sky-card` 시안 스크린샷→하늘 크롭, Classic 중첩 UI 평탄화. **사용자 사용성 확인·Pages 배포·PR #3/#4 병합 전 보류.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** Today Life가 Pages에 배포됨(기본 Classic, 설정에서 Life 선택). 사용자 실사용 피드백 대기. **PR #4는 미병합.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+
+**배포 (2026-11-09 · Life 디자인):** PR #5 → `main` merge `794d24f`. 복구 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42591226027) success. URL https://h3clo.github.io/hazeflow/ . Life 활성: 설정 → Today 화면 디자인 → **새 디자인** → 저장(기기 로컬 `*-ui-design`, 스키마·동기화 불변). 사전 QA: Classic/Life 전환·캡처/운동/일정·515 tests·build·반응형·live Life 확인. PR #5에 포함된 UX 위계 1커밋으로 PR #3도 merged 표시. **PR #4 미병합. 실계정 Supabase 왕복은 단위/sandbox만.**
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
