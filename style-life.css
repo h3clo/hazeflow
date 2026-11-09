@@ -1,4 +1,4 @@
-/* Today Life — visual fidelity to approved mock (Classic untouched). */
+/* Today Life — page cohesion pass (Classic untouched). */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
 
 html[data-ui-design=life]{
@@ -10,12 +10,14 @@ html[data-ui-design=life]{
  --life-lemon-deep:#e8d45c;
  --life-ink:#1c3333;
  --life-muted:#6a8181;
- --life-line:#d9ebe6;
+ --life-line:#dceae5;
  --life-card:#ffffff;
- --life-soft:#f3faf7;
- --life-bg:#f5f8f6;
- --life-shadow:0 16px 36px #6fcfad24;
- --life-radius:1.25rem;
+ --life-soft:#f2f8f5;
+ --life-bg:#f4f7f5;
+ --life-shadow:0 3px 12px #6fcfad12;
+ --life-radius:1rem;
+ --life-gap:8px;
+ --life-pad:12px;
 }
 html[data-theme=dark][data-ui-design=life]{
  --life-sky:#5aa8c4;
@@ -30,23 +32,25 @@ html[data-theme=dark][data-ui-design=life]{
  --life-card:#15282c;
  --life-soft:#102024;
  --life-bg:#0f1c20;
- --life-shadow:0 16px 36px #00000055;
+ --life-shadow:0 6px 18px #00000040;
 }
 
-/* —— App chrome for Life Today —— */
+/* —— App chrome: stay quiet so Today reads as one composition —— */
 html[data-ui-design=life] body[data-view=day]{
  font-family:"Noto Sans KR",system-ui,sans-serif;
  background:var(--life-bg);
  color:var(--life-ink);
 }
 html[data-ui-design=life] body[data-view=day] > aside{
- width:188px;
- background:#fbfcfb;
- border-right:1px solid #e8f0ed;
+ width:168px;
+ background:color-mix(in srgb,var(--life-bg) 55%,#fff);
+ border-right:1px solid var(--life-line);
 }
 html[data-theme=dark][data-ui-design=life] body[data-view=day] > aside{background:#101c20}
+html[data-ui-design=life] body[data-view=day] nav{margin-top:28px;gap:4px}
 html[data-ui-design=life] body[data-view=day] nav button{
  border-radius:999px;
+ padding:10px 12px;
 }
 html[data-ui-design=life] body[data-view=day] nav button.active{
  background:color-mix(in srgb,var(--life-mint) 28%,#fff);
@@ -54,9 +58,9 @@ html[data-ui-design=life] body[data-view=day] nav button.active{
  font-weight:700;
 }
 html[data-ui-design=life] body[data-view=day] main{
- margin-left:188px;
- max-width:1420px;
- padding:18px 28px 40px;
+ margin-left:168px;
+ max-width:1360px;
+ padding:12px 22px 36px;
 }
 html[data-ui-design=life] body[data-view=day] .page-heading,
 html[data-ui-design=life] body[data-view=day] .datebar,
@@ -65,23 +69,28 @@ html[data-ui-design=life] body[data-view=day] #section-nav{
  display:none !important;
 }
 html[data-ui-design=life] body[data-view=day] header{
- margin:0 0 4px;
+ margin:0 0 2px;
  padding:0;
+ gap:10px;
 }
 html[data-ui-design=life] body[data-view=day] .header-tools{
  width:100%;
 }
 html[data-ui-design=life] body[data-view=day] .header-actions{
- gap:6px;
+ gap:4px;
  justify-content:flex-end;
 }
 html[data-ui-design=life] body[data-view=day] .header-actions button{
  border-radius:999px;
- padding:7px 11px;
- font-size:12px;
- background:#fff;
- border:1px solid var(--life-line);
+ padding:5px 9px;
+ font-size:11px;
+ background:transparent;
+ border:1px solid transparent;
  color:var(--life-muted);
+}
+html[data-ui-design=life] body[data-view=day] .header-actions button:hover{
+ background:#fff;
+ border-color:var(--life-line);
 }
 html[data-ui-design=life] body[data-view=day] .header-actions .primary{
  background:var(--life-lemon);
@@ -95,277 +104,352 @@ html[data-ui-design=life] body[data-view=day] .sync-status{
 }
 html[data-ui-design=life] body[data-view=day] #sandbox-banner{
  border-radius:999px;
- margin:6px 0 2px;
+ margin:2px 0 0;
+ padding:4px 12px;
+ font-size:10px;
+ opacity:.85;
+}
+html[data-ui-design=life] body[data-view=day] .ongoing-finish-bar{
+ left:168px;
+ right:0;
+ border-top:1px solid var(--life-line);
+ background:color-mix(in srgb,var(--life-card) 92%,var(--life-mint));
+ color:var(--life-ink);
+ box-shadow:0 -8px 24px #6fcfad18;
+}
+html[data-ui-design=life] body[data-view=day] .ongoing-finish-bar .primary{
+ background:var(--life-mint-deep);
+ border-color:transparent;
+ color:#fff;
+ border-radius:999px;
+}
+html[data-ui-design=life] body[data-view=day] #notice{
+ border-radius:999px;
+ background:var(--life-ink);
+}
+html[data-ui-design=life] body[data-view=day] main > footer{
+ margin:14px 0 4px;
+ font-size:10px;
+ opacity:.7;
+}
+html[data-ui-design=life] body[data-view=day] .empty{
+ padding:6px 0;
 }
 
-/* —— Life page —— */
+/* —— Life page: one tight stack —— */
 .life-today{
  position:relative;
  display:grid;
- gap:14px;
+ gap:var(--life-gap);
  color:var(--life-ink);
 }
 .life-deco-leaves{
  position:absolute;
- top:-42px;
- right:-56px;
- width:min(40vw,360px);
- max-height:230px;
+ top:-18px;
+ right:-28px;
+ width:min(34vw,280px);
+ max-height:180px;
  object-fit:cover;
  object-position:20% 40%;
  pointer-events:none;
  z-index:0;
- filter:drop-shadow(0 18px 30px #6fcfad33);
- -webkit-mask-image:radial-gradient(115% 95% at 72% 40%,#000 32%,transparent 76%);
- mask-image:radial-gradient(115% 95% at 72% 40%,#000 32%,transparent 76%);
+ opacity:.92;
+ filter:drop-shadow(0 10px 18px #6fcfad22);
+ -webkit-mask-image:radial-gradient(110% 90% at 70% 35%,#000 28%,transparent 74%);
+ mask-image:radial-gradient(110% 90% at 70% 35%,#000 28%,transparent 74%);
 }
 .life-today > *:not(.life-deco-leaves){position:relative;z-index:1}
+.life-top{display:grid;gap:6px}
 
 .life-day-header{
  display:flex;
  justify-content:space-between;
  align-items:flex-end;
- gap:16px;
- min-height:108px;
- padding:8px 4px 2px;
+ gap:12px;
+ min-height:0;
+ padding:2px 2px 0;
 }
-.life-day-kicker{margin:0;font-size:14px;color:var(--life-muted)}
+.life-day-kicker{margin:0;font-size:13px;color:var(--life-muted)}
 .life-day-title{
- margin:4px 0 0;
+ margin:2px 0 0;
  font-family:Outfit,"Noto Sans KR",sans-serif;
- font-size:clamp(2rem,3.2vw,2.55rem);
+ font-size:clamp(1.7rem,2.6vw,2.15rem);
  font-weight:700;
- letter-spacing:-.035em;
+ letter-spacing:-.03em;
  display:inline-block;
- background:linear-gradient(transparent 72%, var(--life-lemon) 0) bottom/100% 38% no-repeat;
+ background:linear-gradient(transparent 70%, var(--life-lemon) 0) bottom/100% 34% no-repeat;
 }
-.life-day-motto{margin:8px 0 0;max-width:26rem;color:var(--life-muted);font-size:14px;line-height:1.55}
-.life-day-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.life-day-motto{margin:6px 0 0;max-width:24rem;color:var(--life-muted);font-size:13px;line-height:1.5}
+.life-day-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .life-date-pill{
  display:inline-flex;align-items:center;gap:2px;
- padding:4px;border-radius:999px;background:#fff;border:1px solid var(--life-line);
- box-shadow:0 6px 16px #6fcfad14;
+ padding:3px;border-radius:999px;background:var(--life-card);border:1px solid var(--life-line);
 }
-.life-date-pill-label{padding:0 8px;font-size:13px;font-weight:600;color:var(--life-ink)}
-.life-nav{border:0!important;background:transparent!important;min-width:32px;height:32px;border-radius:999px!important;color:var(--life-muted)!important}
+.life-date-pill-label{padding:0 8px;font-size:12px;font-weight:600;color:var(--life-ink)}
+.life-nav{border:0!important;background:transparent!important;min-width:28px;height:28px;border-radius:999px!important;color:var(--life-muted)!important}
 .life-quick-record{
- border:0!important;border-radius:999px!important;padding:11px 18px!important;
+ border:0!important;border-radius:999px!important;padding:9px 14px!important;
  background:var(--life-lemon)!important;color:#2f3a1f!important;font-weight:700!important;
- box-shadow:0 10px 22px #e8d45c40;
+ box-shadow:none;
 }
 
-/* Progress panel — single bar with dividers */
+/* Progress — same surface language as cards */
 .life-progress-panel{
  display:grid;
- grid-template-columns:minmax(150px,180px) 1fr;
- gap:8px 18px;
+ grid-template-columns:minmax(140px,168px) 1fr;
+ gap:6px 14px;
  align-items:center;
- padding:18px 20px;
- border-radius:22px;
+ padding:12px 14px;
+ border-radius:var(--life-radius);
  background:var(--life-card);
- border:1px solid #e7f1ee;
+ border:1px solid var(--life-line);
  box-shadow:var(--life-shadow);
- max-width:100%;
 }
-.life-progress-overall{display:flex;align-items:center;gap:12px}
+.life-progress-overall{display:flex;align-items:center;gap:10px}
 .life-progress-ring{
- --life-pct:0;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
+ --life-pct:0;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
  background:
   radial-gradient(circle closest-side,var(--life-card) 66%,transparent 67%),
   conic-gradient(var(--life-mint) calc(var(--life-pct)*1%), #e7f3ef 0);
  font-family:Outfit,"Noto Sans KR",sans-serif;
 }
-.life-progress-ring strong{font-size:15px;font-weight:700}
-.life-progress-overall-copy strong{display:block;font-size:15px}
-.life-progress-overall-copy p{margin:2px 0 0;font-size:12px;color:var(--life-muted)}
+.life-progress-ring strong{font-size:13px;font-weight:700}
+.life-progress-overall-copy strong{display:block;font-size:14px}
+.life-progress-overall-copy p{margin:1px 0 0;font-size:11px;color:var(--life-muted)}
 .life-progress-metrics{
  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
 }
 .life-metric-row{
- display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;
- padding:4px 12px;min-width:0;
- border-left:1px solid #e8f0ed;
+ display:grid;grid-template-columns:auto 1fr auto;gap:7px;align-items:center;
+ padding:2px 10px;min-width:0;
+ border-left:1px solid var(--life-line);
 }
-.life-metric-row:first-child{border-left:0;padding-left:4px}
+.life-metric-row:first-child{border-left:0;padding-left:2px}
 .life-metric-icon{
- width:34px;height:34px;border-radius:999px;display:grid;place-items:center;color:#fff;
+ width:30px;height:30px;border-radius:999px;display:grid;place-items:center;color:#fff;
 }
-.life-metric-icon svg{width:15px;height:15px}
+.life-metric-icon svg{width:14px;height:14px}
 .life-metric-icon.life-tone-mint{background:linear-gradient(145deg,var(--life-mint),var(--life-mint-deep))}
 .life-metric-icon.life-tone-sky{background:linear-gradient(145deg,var(--life-sky),var(--life-sky-deep))}
 .life-metric-icon.life-tone-lemon{background:linear-gradient(145deg,var(--life-lemon),var(--life-lemon-deep));color:#3a4020}
-.life-metric-label{display:block;font-size:12px;color:var(--life-muted);margin-bottom:5px}
-.life-metric-value{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.life-metric-bar{display:block;height:7px;border-radius:999px;background:#e8f2ef;overflow:hidden}
+.life-metric-label{display:block;font-size:11px;color:var(--life-muted);margin-bottom:4px}
+.life-metric-value{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.life-metric-bar{display:block;height:6px;border-radius:999px;background:#e8f2ef;overflow:hidden}
 .life-metric-bar-empty{opacity:.4}
 .life-metric-bar-fill{display:block;height:100%;border-radius:inherit}
 .life-metric-bar-fill.life-tone-mint{background:linear-gradient(90deg,var(--life-mint),var(--life-sky))}
 .life-metric-bar-fill.life-tone-sky{background:linear-gradient(90deg,var(--life-sky),var(--life-mint))}
-.life-metric-note{display:block;font-size:11px;color:var(--life-muted)}
+.life-metric-note{display:block;font-size:10px;color:var(--life-muted);line-height:1.3}
 .life-metric-row.is-complete .life-metric-value::after{content:" ✓";color:var(--life-mint-deep);font-size:.85em}
 
-/* Grid + cards */
+/* Grid + cards — tighter gutters, shared surface (beats global .life-grid gap) */
+html[data-ui-design=life] .life-grid,
 .life-grid{
- display:grid;grid-template-columns:1.2fr 1fr .88fr;gap:14px;align-items:start;
+ display:grid;grid-template-columns:1.18fr 1fr .9fr;gap:var(--life-gap)!important;align-items:stretch;
 }
-.life-col-plan,.life-col-habit{display:grid;gap:14px}
+.life-col-plan,.life-col-habit{display:grid;gap:var(--life-gap);align-content:start}
 .life-card{
- background:var(--life-card);border:1px solid #e7f1ee;border-radius:22px;
+ background:var(--life-card);border:1px solid var(--life-line);border-radius:var(--life-radius);
  box-shadow:var(--life-shadow);overflow:hidden;
 }
 .life-card-head{
  display:flex;justify-content:space-between;align-items:center;gap:8px;
- padding:14px 16px 6px;
+ padding:12px var(--life-pad) 4px;
 }
-.life-card-head h2{margin:0;font-size:16px;font-weight:700}
-.life-card-body{padding:6px 16px 16px}
+.life-card-head h2{margin:0;font-size:15px;font-weight:700}
+.life-card-body{padding:4px var(--life-pad) 12px}
 .life-count-pill{
- font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;
+ font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
  background:color-mix(in srgb,var(--life-mint) 18%,#fff);color:var(--life-mint-deep);
 }
 .life-soft-btn,.life-inline-links .text-link,.life-card-head .life-soft-btn{
  border-radius:999px!important;border:1px solid var(--life-line)!important;
- background:#fff!important;color:var(--life-muted)!important;font-size:12px!important;padding:6px 10px!important;
+ background:transparent!important;color:var(--life-muted)!important;font-size:11px!important;padding:5px 9px!important;
 }
-.life-empty{margin:0;color:var(--life-muted);font-size:13px}
+.life-empty{margin:0;padding:6px 0;color:var(--life-muted);font-size:13px;line-height:1.5}
 
-/* Feature hero */
+/* Feature hero — sit flush in activity card */
 .life-feature{
- position:relative;min-height:132px;margin:0 14px 10px;border-radius:18px;overflow:hidden;
+ position:relative;min-height:118px;margin:0 12px 8px;border-radius:16px;overflow:hidden;
  background:#d9eef8 center/cover no-repeat;color:#123;
 }
 .life-feature::before{
  content:"";position:absolute;inset:0;
- background:linear-gradient(105deg,#fffffff2 0%,#ffffffcc 40%,#ffffff30 78%,#ffffff10 100%);
+ background:linear-gradient(105deg,#fffffff0 0%,#ffffffc8 42%,#ffffff28 80%,#ffffff08 100%);
 }
 .life-feature > *{position:relative;z-index:1}
-.life-feature-copy{padding:16px 18px}
+.life-feature-copy{padding:14px 16px}
 .life-feature-copy small{
- display:inline-block;padding:3px 9px;border-radius:999px;background:#ffffffd8;
+ display:inline-block;padding:2px 8px;border-radius:999px;background:#ffffffd8;
  color:var(--life-mint-deep);font-weight:700;font-size:11px;
 }
-.life-feature-copy strong{display:block;margin-top:8px;font-size:18px;letter-spacing:-.02em}
-.life-feature-copy p{margin:6px 0 0;color:#355;font-size:13px}
+.life-feature-copy strong{display:block;margin-top:6px;font-size:16px;letter-spacing:-.02em}
+.life-feature-copy p{margin:4px 0 0;color:#355;font-size:12px;line-height:1.45}
 
-/* Live workout fold */
+/* Live workout fold — same family as soft tiles */
 .life-live-card{
- margin:0 0 12px;padding:12px 12px 8px;border-radius:16px;
- border:1px solid color-mix(in srgb,var(--life-sky) 40%,var(--life-line));
- background:color-mix(in srgb,var(--life-sky) 10%,#fff);
+ margin:0 0 8px;padding:10px 10px 6px;border-radius:14px;
+ border:1px solid color-mix(in srgb,var(--life-sky) 36%,var(--life-line));
+ background:color-mix(in srgb,var(--life-sky) 9%,#fff);
 }
-.life-live-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.life-live-top h3{margin:2px 0;font-size:15px}
+.life-live-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.life-live-top h3{margin:2px 0;font-size:14px}
 .life-live-top p{margin:2px 0 0;font-size:12px;color:var(--life-muted)}
-.life-fold{margin:8px 0;border-top:1px dashed var(--life-line);padding-top:6px}
+.life-fold{margin:6px 0;border-top:1px dashed var(--life-line);padding-top:4px}
 .life-fold > summary{
- cursor:pointer;list-style:none;font-size:13px;font-weight:600;color:var(--life-muted);padding:4px 0;
+ cursor:pointer;list-style:none;font-size:12px;font-weight:600;color:var(--life-muted);padding:3px 0;
 }
 .life-fold > summary::-webkit-details-marker{display:none}
 .life-fold > summary::after{content:" ▾";opacity:.6}
 .life-fold[open] > summary::after{content:" ▴"}
-.life-fold-body{padding:8px 0 4px}
+.life-fold-body{padding:6px 0 2px}
 
 /* Capture tiles */
-.life-capture{margin-top:2px}
-.life-capture-input{
- position:relative;display:grid;
-}
+.life-capture{margin-top:0}
+.life-capture-input{position:relative;display:grid}
 .life-capture-input textarea{
- width:100%;min-height:52px;resize:vertical;border-radius:14px;
- border:1px solid var(--life-line);background:#fff;padding:12px 44px 12px 14px;
+ width:100%;min-height:48px;resize:vertical;border-radius:12px;
+ border:1px solid var(--life-line);background:#fff;padding:10px 40px 10px 12px;
  font:inherit;color:var(--life-ink);
 }
 .life-capture-cam{
- position:absolute;right:8px;top:8px;width:34px;height:34px;border-radius:10px;
+ position:absolute;right:6px;top:6px;width:30px;height:30px;border-radius:9px;
  border:1px solid var(--life-line);background:var(--life-soft);cursor:pointer;
 }
 .life-capture-tiles{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px;
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px;
 }
 .life-tile{
- display:flex;align-items:center;justify-content:center;min-height:58px;margin:0;
- border-radius:14px;border:1px solid transparent;font-size:12px;font-weight:700;
- cursor:pointer;text-align:center;padding:8px 4px;color:var(--life-ink);
+ display:flex;align-items:center;justify-content:center;min-height:48px;margin:0;
+ border-radius:12px;border:1px solid transparent;font-size:11px;font-weight:700;
+ cursor:pointer;text-align:center;padding:6px 3px;color:var(--life-ink);
 }
 .life-tile input{position:absolute;opacity:0;pointer-events:none}
-.life-tile-mint{background:#e7f8f1;color:#1f6b55}
-.life-tile-sky{background:#e5f5fb;color:#1f5f78}
-.life-tile-leaf{background:#eef8e8;color:#3a6b2f}
-.life-tile-lemon{background:var(--life-lemon);color:#2f3a1f;border:0}
+.life-tile-mint{background:#eaf6f1;color:#2a6554}
+.life-tile-sky{background:#eaf4f8;color:#2d5f70}
+.life-tile-leaf{background:#eef5ea;color:#3f6340}
+.life-tile-lemon{background:#f7efc8;color:#3a4020;border:0}
 .life-tile:has(input:checked){box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--life-mint-deep) 55%,transparent)}
-.life-capture-meta{display:flex;align-items:center;gap:8px;margin-top:8px;min-height:22px}
+.life-capture-meta{display:flex;align-items:center;gap:8px;margin-top:6px;min-height:20px}
 .life-chip{
- display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;
+ display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;
  background:color-mix(in srgb,var(--life-sky) 18%,#fff);color:var(--life-sky-deep);
 }
 
 /* Timeline */
-.life-timeline{display:grid;gap:8px;margin-top:12px}
+.life-timeline{display:grid;gap:6px;margin-top:8px}
 .life-timeline-item{
- display:grid;grid-template-columns:44px 1fr;gap:8px;padding:10px 11px;border-radius:14px;background:var(--life-soft);
+ display:grid;grid-template-columns:40px 1fr;gap:8px;padding:8px 10px;border-radius:12px;background:var(--life-soft);
 }
-.life-timeline-item time{font-size:12px;color:var(--life-muted);padding-top:2px}
-.life-timeline-item p{margin:4px 0 0;font-size:13px;line-height:1.4}
-.life-inline-links{margin-top:8px}
+.life-timeline-item time{font-size:11px;color:var(--life-muted);padding-top:2px}
+.life-timeline-item p{margin:3px 0 0;font-size:12px;line-height:1.4}
+.life-inline-links{margin-top:6px}
 
-/* Agenda + quote */
+/* Agenda + quote — flatten Classic nested chrome inside Life */
 .life-agenda-body .day-agenda{margin:0}
-.life-agenda-body .agenda-legend{font-size:11px;color:var(--life-muted)}
-.life-agenda-body .agenda-entry{padding:8px 0;border-color:#e8f0ed}
-.life-agenda-body .agenda-entry > time{font-size:12px;color:var(--life-muted)}
-.life-agenda-body .plan-row,.life-agenda-body .agenda-activity,.life-agenda-body .agenda-routine{
- border-radius:14px;border-color:#e5f0ec;background:#fbfefd;
+.life-agenda-body .agenda-legend{font-size:10px;color:var(--life-muted);margin-bottom:4px}
+.life-agenda-body .agenda-entry{
+ margin:0;padding:8px 0;border:0;border-bottom:1px solid var(--life-line);
+ grid-template-columns:38px minmax(0,1fr);gap:8px;
 }
+.life-agenda-body .agenda-entry:last-child{border-bottom:0}
+.life-agenda-body .agenda-entry > time{font-size:11px;color:var(--life-muted)}
+.life-agenda-body .plan-row,
+.life-agenda-body .agenda-activity,
+.life-agenda-body .agenda-routine{
+ margin:0;padding:8px 10px;border-radius:12px;border:1px solid transparent;
+ background:var(--life-soft);box-shadow:none;
+}
+.life-agenda-body .plan-row{display:block;border-bottom:0;margin-bottom:0;padding-bottom:8px}
+.life-agenda-body .plan-row > div:first-child{
+ border:0;background:transparent;padding:0;border-radius:0;
+}
+.life-agenda-body .plan-row .row-actions{margin-top:6px}
+.life-agenda-body .plan-row .row-actions button,
+.life-agenda-body .agenda-activity .row-actions button,
+.life-agenda-body .agenda-routine .row-actions button{
+ border-radius:999px;font-size:10px;padding:3px 8px;
+}
+.life-agenda-body .agenda-now{margin:4px 0;grid-template-columns:38px minmax(0,1fr)}
+.life-agenda-body .empty{padding:8px 0}
 .life-quote{
- position:relative;min-height:150px;border-radius:22px;overflow:hidden;
- border:1px solid #e7f1ee;box-shadow:var(--life-shadow);
- background:#cfeaf5 center/cover no-repeat;color:#16343d;
+ position:relative;min-height:132px;border-radius:var(--life-radius);overflow:hidden;
+ border:1px solid var(--life-line);box-shadow:var(--life-shadow);
+ background:#cfeaf5 70% 40%/cover no-repeat;color:#16343d;
 }
 .life-quote::before{
  content:"";position:absolute;inset:0;
- background:linear-gradient(180deg,#ffffffd8 0%,#ffffffb0 55%,#ffffffd0 100%);
+ background:linear-gradient(115deg,#fffffff2 0%,#ffffffd0 38%,#ffffff55 72%,#ffffff30 100%);
 }
-.life-quote-body{position:relative;z-index:1;padding:16px 18px 18px}
-.life-quote-body small{display:block;font-weight:700;margin-bottom:6px}
-.life-quote-mark{font-family:Outfit,Georgia,serif;font-size:34px;line-height:1;color:var(--life-sky-deep);opacity:.7}
-.life-quote-body p{margin:2px 0 0;font-size:15px;line-height:1.6;white-space:pre-wrap}
-.life-quote-actions{margin-top:10px}
+.life-quote-body{position:relative;z-index:1;padding:12px 14px 14px}
+.life-quote-body small{display:block;font-weight:700;margin-bottom:4px;font-size:12px}
+.life-quote-mark{font-family:Outfit,Georgia,serif;font-size:28px;line-height:1;color:var(--life-sky-deep);opacity:.65}
+.life-quote-body p{margin:2px 0 0;font-size:14px;line-height:1.55;white-space:pre-wrap}
+.life-quote-actions{margin-top:8px}
 
-/* Routine + memo */
-.life-routine-list{display:grid;gap:8px}
+/* Routine + memo — same soft tiles as timeline */
+.life-routine-list{display:grid;gap:6px}
 .life-routine-item{
- display:flex;align-items:center;padding:10px 11px;border-radius:14px;background:var(--life-soft);
+ display:flex;align-items:center;padding:8px 10px;border-radius:12px;background:var(--life-soft);
 }
-.life-routine-item label{display:flex;gap:10px;align-items:center;width:100%;margin:0;cursor:pointer;font-size:14px}
+.life-routine-item label{display:flex;gap:9px;align-items:center;width:100%;margin:0;cursor:pointer;font-size:13px}
 .life-routine-item input[type=checkbox]{
- width:18px;height:18px;border-radius:6px;accent-color:var(--life-mint-deep);
+ width:16px;height:16px;border-radius:5px;accent-color:var(--life-mint-deep);
 }
 .life-routine-item.is-done span{color:var(--life-muted);text-decoration:line-through}
-.life-memo-list{display:grid;gap:8px}
-.life-memo-list .reminder-row,.life-memo-list .task-row{
- border:0;background:var(--life-soft);border-radius:14px;padding:10px 11px;
+.life-memo-list{display:grid;gap:6px}
+.life-memo-list .reminder-row,
+.life-memo-list .task-row{
+ position:relative;border:0;background:var(--life-soft);border-radius:12px;
+ padding:8px 10px 34px;margin:0;border-bottom:0;
 }
-.life-footer-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.life-health-fold{margin-top:2px;padding:8px 12px;border-radius:16px;background:var(--life-card);border:1px solid #e7f1ee}
+.life-memo-list .reminder-actions{
+ opacity:1;position:absolute;right:8px;bottom:6px;top:auto;
+}
+.life-memo-list .reminder-actions button{
+ border-radius:999px;font-size:10px;padding:3px 7px;
+}
+.life-memo-list .reminder-check{font-size:13px}
+.life-memo-list .reminder-detail{padding-left:26px}
+.life-memo-list .reminder-detail small{font-size:10px}
+.life-memo-list .row-actions{
+ display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;
+}
+.life-memo-list .row-actions button{
+ border-radius:999px;font-size:11px;padding:5px 9px;
+ background:transparent;border:1px solid var(--life-line);color:var(--life-muted);
+}
+.life-footer-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.life-footer-links .text-link,
+.life-footer-links button{
+ border-radius:999px!important;font-size:11px!important;padding:4px 8px!important;
+ color:var(--life-muted)!important;
+}
+.life-health-fold{
+ margin-top:0;padding:6px 12px;border-radius:14px;
+ background:var(--life-card);border:1px solid var(--life-line);box-shadow:none;
+}
+.life-health-fold > summary{font-size:12px;color:var(--life-muted);font-weight:600}
 
 @media (max-width:1100px){
  .life-grid{grid-template-columns:1fr 1fr}
  .life-col-habit{grid-column:1 / -1;grid-template-columns:1fr 1fr;display:grid}
  .life-progress-metrics{grid-template-columns:1fr 1fr}
- .life-metric-row{border-left:0;padding-left:4px}
- .life-deco-leaves{width:260px;opacity:.75}
+ .life-metric-row{border-left:0;padding-left:2px}
+ .life-deco-leaves{width:220px;opacity:.7}
 }
 @media (max-width:820px){
- html[data-ui-design=life] body[data-view=day] main{margin-left:0;padding:16px 14px 96px}
+ html[data-ui-design=life] body[data-view=day] main{margin-left:0;padding:12px 12px 92px}
  html[data-ui-design=life] body[data-view=day] > aside{width:100%}
+ html[data-ui-design=life] body[data-view=day] .ongoing-finish-bar{left:0}
  .life-progress-panel{grid-template-columns:1fr}
  .life-grid,.life-col-habit{grid-template-columns:1fr}
  .life-capture-tiles{grid-template-columns:1fr 1fr}
- .life-day-header{min-height:0;align-items:flex-start}
- .life-deco-leaves{width:180px;top:-8px;right:-28px;opacity:.5}
+ .life-day-header{align-items:flex-start}
+ .life-deco-leaves{width:150px;top:-4px;right:-18px;opacity:.45}
 }
 @media (max-width:560px){
  .life-progress-metrics{grid-template-columns:1fr}
- .life-day-title{font-size:1.7rem}
- .life-feature{min-height:110px;margin-inline:10px}
+ .life-day-title{font-size:1.55rem}
+ .life-feature{min-height:100px;margin-inline:8px}
 }

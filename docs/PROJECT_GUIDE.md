@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Today Life 시각 재구성(시안 근접) 분기 `cursor/today-life-design-mode-15be` — Classic 보존·전환 유지, Life는 전용 DOM/레이아웃·실사 잎·하늘 에셋·3열 카드. **사용자 시안 대조 승인·Pages 배포·PR #3/#4 병합 전 보류.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** Today Life 페이지 내 응집력 보정 반영(`cursor/today-life-design-mode-15be`) — 간격·그림자·크롬 축소, 잘못된 `sky-card` 시안 스크린샷→하늘 크롭, Classic 중첩 UI 평탄화. **사용자 사용성 확인·Pages 배포·PR #3/#4 병합 전 보류.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.

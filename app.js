@@ -477,8 +477,10 @@ function dayViewLife({events,routines,records,done,checked,steps,due,liveWorkout
  const panel=dayProgressPanelHtml({esc,eventDone:done,eventTotal:events.length,routineDone:checked,routineTotal:steps,recordCount:records.length,taskDue:due});
  return `<div class="life-today" style="--life-activity-hero:url('${lifeAsset('activity-hero.jpg')}')">
   <img class="life-deco-leaves" src="${lifeAsset('leaves-corner.jpg')}" alt="" width="340" height="220" decoding="async">
+  <div class="life-top">
   ${lifeDayHeader()}
   ${panel}
+  </div>
   <div class="life-grid">
    <section class="life-card life-col-activity" aria-labelledby="life-activity-title">
     <div class="life-card-head"><h2 id="life-activity-title">오늘의 활동 기록</h2>${btn('공부','view-study','','life-soft-btn')}</div>

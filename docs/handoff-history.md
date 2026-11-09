@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · Today Life 페이지 응집력
+
+- 요청: 시안 100%보다 **한 페이지 안 요소가 동떨어져 보이는 갭**이 문제. 임의 개선 허용.
+- 변경: `style-life.css` 간격/그림자/크롬 축소·중첩 Classic 평탄화·`life-top` 묶음. `sky-card.jpg`가 시안 스크린샷이던 것을 하늘 크롭으로 교체. Classic/저장 로직 불변.
+- 검사: `npm test` 515 · build · `diff --check`. sandbox before/after `/opt/cursor/artifacts/life-cohere-before-after.png`. **미배포.**
+
 ### 2026-11-09 Cursor · Today Life 시안 시각 재구성
 
 - 요청: CSS 덧씌우기 해제. Life Today DOM/레이아웃을 공유 시안에 가깝게 재구성. Classic·전환·저장 로직 유지. 실사 에셋 사용.
