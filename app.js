@@ -378,45 +378,100 @@ function dayOverviewClassic({done,events,checked,steps,records,due}){
 function lifeDayHeader(){
  const label=new Date(date+'T12:00:00').toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
  return `<header class="life-day-header">
-  <div>
+  <div class="life-day-intro">
    <p class="life-day-kicker">${esc(label)}</p>
    <h2 class="life-day-title">나의 하루</h2>
    <p class="life-day-motto">조금씩, 꾸준히. 오늘도 나다운 하루를 만들어요.</p>
   </div>
   <div class="life-day-tools">
-   <div class="life-date-nav">${btn('←','prev','','small-button')}${btn('오늘','today','','small-button')}${btn('→','next','','small-button')}</div>
-   ${btn(date>todayKey()?'＋ 할 일 계획':'＋ 빠른 기록','focus-capture','','primary life-quick-record')}
+   <div class="life-date-pill" role="group" aria-label="날짜 이동">${btn('‹','prev','','life-nav')}<span class="life-date-pill-label">오늘</span>${btn('›','next','','life-nav')}</div>
+   ${btn(date>todayKey()?'＋ 할 일 계획':'＋ 빠른 기록','focus-capture','','life-quick-record')}
   </div>
  </header>`;
 }
 function lifeFeatureCard(liveWorkout,records){
  const latest=records.slice().reverse().find(Boolean);
  if(liveWorkout){
-  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>진행 중 · ${esc(recordKindLabel(liveWorkout.kind))}</small><strong>${esc(activityTitle(liveWorkout,48,{ongoing:true}))}</strong><p>${esc(activitySummaryLabel(liveWorkout)||'세트와 휴식을 이어서 남겨요.')}</p></div></article>`;
+  const summary=activitySummaryLabel(liveWorkout)||'';
+  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>진행 중 · ${esc(recordKindLabel(liveWorkout.kind))}</small><strong>${esc(activityTitle(liveWorkout,48,{ongoing:true}))}</strong><p>${esc(summary||'세트와 휴식을 아래에서 이어서 남겨요.')}</p></div></article>`;
  }
  if(latest){
-  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>${esc(recordKindLabel(latest.kind))}${latest.time?' · '+esc(latest.time):''}</small><strong>${esc((latest.text||'').split('\\n')[0].slice(0,42)||recordKindLabel(latest.kind))}</strong><p>${latest.photos?.length?`사진 ${latest.photos.length}장 · `:''}오늘 남긴 기록이에요.</p></div></article>`;
+  const line=(latest.text||'').split('\n')[0].slice(0,42)||recordKindLabel(latest.kind);
+  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>${esc(recordKindLabel(latest.kind))}${latest.time?' · '+esc(latest.time):''}</small><strong>${esc(line)}</strong><p>${latest.photos?.length?`사진 ${latest.photos.length}장 · `:''}오늘 남긴 기록이에요.</p></div></article>`;
  }
- return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>활동 기록</small><strong>지금 하고 있는 일을 남겨보세요</strong><p>사진과 분류는 아래에서 이어서 적을 수 있어요.</p></div></article>`;
+ return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>활동 기록</small><strong>지금 하고 있는 일을 남겨보세요</strong><p>한 줄로 시작하고, 자세한 설정은 아래에서 열어요.</p></div></article>`;
 }
 function lifeTimeline(records){
- const rows=records.slice(-6).reverse();
- if(!rows.length)return `<p class="hint">아직 실제 활동 기록이 없어요.</p>`;
- return `<div class="life-timeline">${rows.map(l=>`<article class="life-timeline-item"><time>${esc(l.time||'—')}</time><div><span class="life-chip">${esc(recordKindLabel(l.kind))}${l.photos?.length?' · 사진':''}</span><p>${esc((l.text||'').split('\\n')[0].slice(0,80)||'내용 없는 기록')}</p><div class="row-actions">${btn('수정',l.money&&l.kind!=='식사'?'edit-money':l.legacy?'edit-legacy':'edit-log',l.id,'small-button')}</div></div></article>`).join('')}</div><div class="row-actions">${btn('전체 기록 보기','view-history','','text-link')}</div>`;
+ const rows=records.slice(-5).reverse();
+ if(!rows.length)return `<p class="life-empty">아직 실제 활동 기록이 없어요.</p>`;
+ return `<div class="life-timeline">${rows.map(l=>{const line=(l.text||'').split('\n')[0].slice(0,72)||'내용 없는 기록';return `<article class="life-timeline-item"><time>${esc(l.time||'—')}</time><div><span class="life-chip">${esc(recordKindLabel(l.kind))}${l.photos?.length?' · 사진':''}</span><p>${esc(line)}</p></div></article>`}).join('')}</div><div class="life-inline-links">${btn('전체 기록 보기','view-history','','text-link')}</div>`;
 }
 function lifeRoutinePanel(routines){
- if(!routines.length)return `<p class="hint">반복할 생활을 한 번 설정해두세요.</p>${btn('루틴 설정','view-routines','','small-button')}`;
+ if(!routines.length)return `<p class="life-empty">반복할 생활을 한 번 설정해두세요.</p>${btn('루틴 설정','view-routines','','life-soft-btn')}`;
  const disabled=future();
  const items=routines.flatMap(r=>r.steps.map(s=>{
-  const done=r.run?.checked.includes(s.id);
-  return `<div class="life-routine-item ${done?'is-done':''}"><label><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${done?'checked':''} ${disabled?'disabled':''}><span><b>${esc(s.title)}</b><small> · ${esc(r.title)}</small></span></label></div>`;
+  const done=!!r.run?.checked.includes(s.id);
+  return `<div class="life-routine-item ${done?'is-done':''}"><label><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${done?'checked':''} ${disabled?'disabled':''}><span>${esc(s.title)}</span></label></div>`;
  }));
- return `<div class="life-routine-list">${items.join('')}</div><div class="row-actions">${btn('상세 실행','view-routines','','small-button')}${routines.map(r=>r.run?.status==='pending'?btn('지금 시작','routine-start',r.id,'small-button'):'').join('')}</div>`;
+ return `<div class="life-routine-list">${items.join('')}</div><div class="life-inline-links">${btn('루틴 상세','view-routines','','text-link')}</div>`;
 }
 function lifeQuoteCard(){
  const d=data.diary[date]||{};
  const text=(d.note||d.entry||'').trim();
- return `<section class="life-quote" style="${lifeBgStyle('sky-card.jpg')}"><div class="life-quote-body"><small>오늘의 한 줄</small><div class="life-quote-mark" aria-hidden="true">“</div><p>${text?esc(text.slice(0,180))+(text.length>180?'…':''):'기억하고 싶은 순간을 한 줄로 남겨보세요.'}</p><div class="life-quote-actions">${btn('하루 돌아보기 →','view-diary','','text-link')}</div></div></section>`;
+ return `<section class="life-quote" style="${lifeBgStyle('sky-card.jpg')}"><div class="life-quote-body"><small>오늘의 한 줄</small><div class="life-quote-mark" aria-hidden="true">“</div><p>${text?esc(text.slice(0,160))+(text.length>160?'…':''):'기억하고 싶은 순간을 한 줄로 남겨보세요.'}</p><div class="life-quote-actions">${btn('하루 돌아보기 →','view-diary','','text-link')}</div></div></section>`;
+}
+function lifeLiveWorkoutCard(l){
+ const interval=activityIntervals(data).get(l.id);
+ const summary=activitySummaryLabel(l);
+ return `<section class="life-live-card activity-ongoing" data-activity-id="${esc(l.id)}" aria-labelledby="life-live-heading">
+  <div class="life-live-top"><div><small>진행 중 운동</small><h3 id="life-live-heading">${esc(activityTitle(l,52,{ongoing:true}))}</h3><p>${esc(activityTimeLabel(l,interval))}${summary?' · '+esc(summary):''}</p></div><span class="ongoing-badge"><i></i>진행 중</span></div>
+  <details class="life-fold"><summary>세트 · 휴식 · 한 줄 추가</summary><div class="life-fold-body"><div class="workout-sets-host">${workoutSetsMarkup(l.text,{plan:l.workoutPlan||'',source:'log',logId:l.id,live:date===todayKey()})}</div>${workoutAppendControls('log',l.id)}${workoutPickerDetails('log',l.id)}${workoutEnergy(l)}${workoutFeeling(l)}</div></details>
+  <details class="life-fold"><summary>입력 원문</summary><p class="life-fold-body">${esc(l.text)}</p></details>
+ </section>`;
+}
+function captureViewLife(){
+ const draft=drafts[date]||{};
+ const text=draft.text||'';
+ const kind=draft.manualKind?(draft.kind||captureKind):(text.trim()?classifyActivity(text):(draft.kind||captureKind));
+ captureKind=kind;
+ const cats=['일상','식사','운동','업무','휴식','감정','공부'];
+ const mode=draft.mode||'activity';
+ return `<section class="life-capture" aria-labelledby="life-capture-heading">
+  <h3 id="life-capture-heading" class="visually-hidden">활동 기록</h3>
+  <form data-form="capture" class="life-capture-form">
+   <div class="life-capture-input">
+    <label class="visually-hidden" for="capture-text">지금 뭐 하고 있어?</label>
+    <textarea name="text" id="capture-text" rows="2" maxlength="5000" placeholder="지금 뭐 하고 있어?" aria-label="지금 뭐 하고 있어?"></textarea>
+    <button type="button" class="life-capture-cam" data-act="choose-photo" data-target="capture" data-read="" data-source="library" aria-label="사진 추가">📷</button>
+   </div>
+   <div class="life-capture-tiles" role="group" aria-label="빠른 기록">
+    <label class="life-tile life-tile-mint"><input type="radio" name="mode" value="activity" ${mode!=='memo'?'checked':''}><span>▶ 활동 시작</span></label>
+    <label class="life-tile life-tile-sky"><input type="radio" name="mode" value="memo" ${mode==='memo'?'checked':''}><span>＋ 짧은 기록</span></label>
+    <button type="button" class="life-tile life-tile-leaf" data-act="choose-photo" data-target="capture" data-source="camera"><span>사진</span></button>
+    <button type="submit" class="life-tile life-tile-lemon capture-submit"><span>기록</span></button>
+   </div>
+   <input type="hidden" name="kind" id="capture-kind" value="${kind}">
+   <div class="life-capture-meta"><span id="capture-kind-badge" class="life-chip" title="${draft.manualKind?'직접 선택한 분류':'자동 분류 제안'}">${kind}</span><span id="capture-preview" class="hint"></span></div>
+   <details class="life-fold capture-extra-settings"><summary>추가 설정 · 분류 · 시간 · 사진 · 운동</summary>
+    <div class="life-fold-body">
+     <div class="capture-categories" role="group" aria-label="기록 카테고리">${cats.map(k=>`<button type="button" data-act="capture-category" data-id="${k}" class="${kind===k?'selected':''}" aria-pressed="${kind===k}">${k}</button>`).join('')}</div>
+     <div class="capture-options"><label>시작 시간<input id="capture-time" name="time" type="time" value="${timeNow()}"></label>${btn('현재 시각','capture-now','','small-button')}</div>
+     <div class="capture-end-fields" id="capture-end-fields" ${mode==='memo'?'hidden':''}><label>종료 날짜 (선택)<input id="capture-end-date" name="endDate" type="date" value="${esc(draft.endDate||'')}"></label><label>종료 시간 (선택)<input id="capture-end-time" name="endTime" type="time" value="${esc(draft.endTime||'')}"></label></div>
+     ${photoField('capture',draft.photos||[])}
+     <div class="capture-kind-panel" data-kind-panel="식사" ${kind==='식사'?'':'hidden'}><details class="recent-meals"><summary>최근 식사 불러오기</summary>${recentMeals(data.logs,date).map(meal=>`<article class="money-row"><div><small>${esc(meal.date)} ${esc(meal.time||'')}</small><p>${esc(meal.text.slice(0,120))}</p></div>${btn('이 식사 불러오기','reuse-meal',meal.id,'small-button')}</article>`).join('')||'<p class="empty">식사 기록이 없어요.</p>'}</details>${mealExpenseFields(draft)+nutritionFields(Object.fromEntries(nutritionKeys.map(k=>[k,draft['meal'+k]??''])),esc)}</div>
+     <div class="capture-kind-panel" data-kind-panel="운동" ${kind==='운동'?'':'hidden'}><div id="workout-sets-host" class="workout-sets-host">${workoutSetsMarkup(text,{plan:draft.workoutPlan||'',source:'capture',live:date===todayKey()})}</div>${workoutAppendControls('capture')}${workoutPickerDetails('capture','',{extra:btn('↶ 지난 운동 불러오기','previous-workout','','small-button')})}${watchGuide()}</div>
+     <div class="capture-kind-panel" data-kind-panel="favorites" ${['식사','운동'].includes(kind)?'':'hidden'}><div class="capture-favorites">${btn('☆ 현재 내용 저장','favorite-capture','','small-button')}${btn('전체 보기','view-favorites','','small-button')}${recommendedFavorites(data.favorites,kind,date).slice(0,5).map(t=>btn((favoriteMatchesDay(t,date)?'추천 · ':'')+esc(t.title),'use-favorite',t.id,'small-button')).join('')}</div></div>
+     <p class="hint capture-draft-note">작성 중인 내용은 이 탭에 임시 보관돼요.</p>
+    </div>
+   </details>
+  </form>
+ </section>`;
+}
+function lifeAgendaCard(){
+ return `<section class="life-card life-schedule-card" aria-labelledby="life-schedule-title">
+  <div class="life-card-head"><h2 id="life-schedule-title">오늘의 일정</h2>${btn('＋ 일정 추가','new-event','','life-soft-btn')}</div>
+  <div class="life-card-body life-agenda-body">${dayAgenda()}</div>
+ </section>`;
 }
 function dayViewLife({events,routines,records,done,checked,steps,due,liveWorkout}){
  const panel=dayProgressPanelHtml({esc,eventDone:done,eventTotal:events.length,routineDone:checked,routineTotal:steps,recordCount:records.length,taskDue:due});
@@ -424,37 +479,32 @@ function dayViewLife({events,routines,records,done,checked,steps,due,liveWorkout
   <img class="life-deco-leaves" src="${lifeAsset('leaves-corner.jpg')}" alt="" width="340" height="220" decoding="async">
   ${lifeDayHeader()}
   ${panel}
-  ${healthDayStrip(data,date,{btn})}
   <div class="life-grid">
    <section class="life-card life-col-activity" aria-labelledby="life-activity-title">
-    <div class="life-card-head"><h2 id="life-activity-title">오늘의 활동 기록</h2>${btn('공부','view-study','','small-button')}</div>
+    <div class="life-card-head"><h2 id="life-activity-title">오늘의 활동 기록</h2>${btn('공부','view-study','','life-soft-btn')}</div>
     ${lifeFeatureCard(liveWorkout,records)}
     <div class="life-card-body">
-     ${liveWorkout?liveWorkoutSessionCard(liveWorkout):''}
-     ${date>todayKey()?planningView():captureView()}
-     <h3 class="visually-hidden">최근 활동</h3>
+     ${liveWorkout?lifeLiveWorkoutCard(liveWorkout):''}
+     ${date>todayKey()?planningView():captureViewLife()}
      ${lifeTimeline(records)}
-     <details class="capture-extra-settings"><summary>활동 원본 · 전체 ${records.length}건</summary>${activityRecordList(records)}</details>
     </div>
    </section>
-   <div class="life-col-plan stack" style="gap:1rem">
-    <section class="life-card" aria-labelledby="life-schedule-title">
-     <div class="life-card-head"><h2 id="life-schedule-title">오늘의 일정</h2>${btn('＋ 일정 추가','new-event','','small-button')}</div>
-     <div class="life-card-body">${dayAgenda()}</div>
-    </section>
+   <div class="life-col-plan">
+    ${lifeAgendaCard()}
     ${lifeQuoteCard()}
    </div>
-   <div class="life-col-habit stack" style="gap:1rem">
+   <div class="life-col-habit">
     <section class="life-card" aria-labelledby="life-routine-title">
-     <div class="life-card-head"><h2 id="life-routine-title">오늘의 루틴</h2><small>${checked} / ${steps}</small></div>
+     <div class="life-card-head"><h2 id="life-routine-title">오늘의 루틴</h2><small class="life-count-pill">${checked} / ${steps}</small></div>
      <div class="life-card-body">${lifeRoutinePanel(routines)}</div>
     </section>
     <section class="life-card" aria-labelledby="life-memo-title">
-     <div class="life-card-head"><h2 id="life-memo-title">작은 메모</h2>${btn('＋','new-task-day','','small-button')}</div>
+     <div class="life-card-head"><h2 id="life-memo-title">작은 메모</h2>${btn('＋ 메모 추가','new-task-day','','life-soft-btn')}</div>
      <div class="life-card-body"><div class="life-memo-list">${dashboardReminders()}</div><div class="life-footer-links">${weekActivityStrip()}</div></div>
     </section>
    </div>
   </div>
+  <details class="life-fold life-health-fold"><summary>건강 요약</summary><div class="life-fold-body">${healthDayStrip(data,date,{btn})||'<p class="life-empty">표시할 건강 요약이 없어요.</p>'}</div></details>
  </div>`;
 }
 function dayView(){
