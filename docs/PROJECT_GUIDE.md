@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** **디자인 작업 중단.** 시안 A·B·혼합 **모두 기각**(2026-11-09). 추가 변형·기존 시안 수정·앱 비주얼 리뉴얼 금지. 사용자가 **레퍼런스 이미지를 고른 뒤**에만 디자인 방향을 다시 잡는다. 그전까지 대기. PR [#3](https://github.com/h3clo/hazeflow/pull/3)·[#4](https://github.com/h3clo/hazeflow/pull/4) 보존·미병합·Pages 없음·앱 코드 수정 없음. 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** 제품 철학 재공유 반영 완료([PRODUCT_VISION.md](PRODUCT_VISION.md) 3.7–3.11). **구현·대규모 UI·스키마 변경·다중 뷰/DnD 전면 도입은 착수하지 않음.** 시각 레퍼런스 이미지 전달 대기. 시안 A/B 기각 유지. PR [#3](https://github.com/h3clo/hazeflow/pull/3)·[#4](https://github.com/h3clo/hazeflow/pull/4) 보존·미병합·Pages 없음. 실기기·계정 왕복·Q4-B 2·4~6 미승인.
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
