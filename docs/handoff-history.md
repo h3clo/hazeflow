@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · Supabase live QA GitHub Actions
+
+- 워크플로 `supabase-live-qa.yml`: workflow_dispatch + 주1회 cron. PR/`pages.yml`과 분리.
+- `scripts/run-supabase-live-qa.mjs` + `npm run test:live-supabase`: 무시크릿→실제 서버 미검증, 부분→fail, 정상→live 실패 시 fail.
+- Secrets 등록은 사용자 최소 단계(에이전트 403). Environment 선택 사항.
+
 ### 2026-11-11 Cursor · PR #36 병합·Pages 배포 확인
 
 - tip `8cb0098` · Actions 42869536615 success · Pages `main-Bbya24zg.js` · Last-Modified ≈ deploy.

@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** **네이티브 준비만** — [native-readiness.md](native-readiness.md)(도구·권한·무료 제약). **구현·Watch 코드 착수 금지(승인 전).** 병목: 사용자 Mac Xcode 약관·Android Studio. UX sim 잔여·대기열 병행 가능.
+**다음 시작점:** 사용자가 GitHub Actions에 `HAZEFLOW_SYNC_TEST_*` 6개를 등록하면 Actions → **Supabase live QA** 수동 실행으로 CI live 가능([supabase-live-qa.md](supabase-live-qa.md)). 에이전트는 Secrets 403. **네이티브 구현·Watch 금지** — [native-readiness.md](native-readiness.md). UX sim·대기열 병행 가능.
 
 **완료 (실 Supabase 라이브 QA · #36):** tip `8cb0098` merge. Actions [42869536615](https://github.com/h3clo/hazeflow/actions/runs/42869536615) success (build ~23s · deploy ~10s). live Pages 200 · `main-Bbya24zg.js`. 옵션 D live **6 pass / 1 skip** · QA `main`/cross 0 · sandbox tombstone 정리 · 시크릿 Git 미추적. 상세 [supabase-live-qa.md](supabase-live-qa.md) · [native-readiness.md](native-readiness.md).
 
