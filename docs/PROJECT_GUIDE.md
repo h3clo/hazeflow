@@ -42,11 +42,11 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 ## 현재 시작점
 
-**큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
+**큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** 활동 시스템 2.0 **PR A 리뷰 대기**(병합·배포·PR B 금지). 상세 [activity-system-2-pr-a.md](activity-system-2-pr-a.md). iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.**
+**다음 시작점:** 활동 2.0 **PR A(#23) 검증→병합→배포 후 PR B**(시작 시 유지·종료 선택 UI). 이어서 C→E. **F·네이티브 금지.** 상세 [activity-system-2-pr-a.md](activity-system-2-pr-a.md).
 
-**진행 중 (2026-11-10 · 활동 2.0 PR A):** 브랜치 `cursor/activity-timing-domain-03b4`. 기록별 `activityTiming:'independent'` · 레거시 체인은 독립 이웃 제외 · `schemaVersion` 2 유지 · 물질화/캡처 UI/실계정 변경 없음. `npm test` **586** · build. **자동 병합·배포 금지.**
+**진행 중 (2026-11-10 · 활동 2.0 PR A):** 브랜치 `cursor/activity-timing-domain-03b4` · PR #23. 기록별 `activityTiming:'independent'` · schemaVersion 2 · 물질화 없음. `npm test` **586** · build. CI 체크 없음(Pages는 main). 자율 병합 절차 적용 중.
 
 **배포 (2026-11-10 · 홈 아이콘):** tip `f84c474` · PR #22. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42833697783) success (build 28s · deploy 51s). live에 `manifest.webmanifest`·`icon-*-haze-cloud-20261110.png`·apple-touch·favicon 확인. 앱 UI/데이터 미변경. URL https://h3clo.github.io/hazeflow/ .
 
