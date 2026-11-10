@@ -6,7 +6,7 @@
 
 - 검증 후 PR #5만 `main` 병합(`794d24f`). 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions #42591226027 success → https://h3clo.github.io/hazeflow/
 - Life: 설정→Today 화면 디자인→새 디자인. `*-ui-design` 로컬만, schemaVersion 2·IndexedDB/Supabase 기록 구조 불변.
-- PR #4 미병합. PR #3은 #5에 포함된 상위 커밋으로 merged 표시.
+- PR #3은 #5에 포함된 상위 커밋으로 merged 표시.
 
 ### 2026-11-09 Cursor · Today Life 페이지 응집력
 
@@ -19,11 +19,30 @@
 - 요청: CSS 덧씌우기 해제. Life Today DOM/레이아웃을 공유 시안에 가깝게 재구성. Classic·전환·저장 로직 유지. 실사 에셋 사용.
 - 구현: `dayViewLife` 전용 헤더·진행 패널·3열 카드. `public/life/{leaves-corner,sky-card,activity-hero}.jpg`. 진행 숫자는 일정/루틴/기록/할 일 실제값만(시안 예시 운동·식사·공부 목표 비재현).
 - 검사: `npm test` 515 · build. sandbox 시안↔렌더 나란히 `/opt/cursor/artifacts/life-design-v2/side-by-side.png`. Classic 회귀·820/390 캡처.
-- **미배포.** PR #3/#4 병합 없음. 사용자 시안 승인 대기.
 
 ### 2026-11-09 Cursor · Today Life 디자인 모드 (A안 1차)
 
 - Classic 보존 + Today Life 스킨 초안. 이후 시안 근접 재구성으로 대체.
+
+### 2026-11-09 Cursor · 데이터 이동성 원칙 정정 (문서만)
+
+- Obsidian 교훈을 Markdown 선호가 아니라 **Export→나중에 Import·재사용**으로 정정. IndexedDB·Supabase 유지. `PRODUCT_VISION` 3.9·7절 갱신. 기존 JSON/CSV/문서·사진 백업 경로만 현황 기록. 새 Import/Export·스키마 변경 **미구현**.
+
+### 2026-11-09 Cursor · 제품 철학 재공유 (문서만)
+
+- Notion식 다중 뷰·즉시 반영, 데이터 소유(이후 이동성으로 정정), 「기록은 가볍게 / 돌아보기는 깊게」, 라이프 대시보드 UI, 설계 원칙 6가지를 `PRODUCT_VISION.md` 3.7–3.11에 반영.
+- 시안 A/B 기각·레퍼런스 대기 유지. 스키마 변경·다중 뷰/DnD 전면·대규모 UI는 미착수.
+
+### 2026-11-09 Cursor · UI 시안 기각 · 디자인 중단
+
+- 사용자: 시안 A·B·혼합 **모두 미채택**. 추가 변형·기존 시안 수정 금지. 레퍼런스 이미지 기준 재개 전까지 **대기**.
+- 앱 코드 수정 없음. 시안 문서는 보존.
+
+### 2026-11-09 Cursor · UI 시안 2안 + AI 사진 일기 아이디어 (코드 미적용)
+
+- 기존 문서: 로컬/외부 **텍스트** 일기 초안만 있음. **사진+글 조판형 AI 사진 일기**는 제품 방향으로 정리된 적 없어 [UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)에 향후 아이디어로 추가.
+- 시안 HTML: `docs/design-mocks/direction-a.html`(Clear Desk/Soft Spread), `direction-b.html`(Signal Desk/Ink Archive). Today·돌아보기 · Desktop/iPad/iPhone.
+- 앱 JS/CSS 리뉴얼 없음. → 이후 시안 기각으로 디자인 중단.
 
 ### 2026-11-09 Cursor · 제품 UX 위계 (방향 1)
 

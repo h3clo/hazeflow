@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Haze Flow 시안 B · Signal Desk / Ink Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #121417;
+      --paper: #eceae4;
+      --panel: #f7f6f2;
+      --line: #cfcbc2;
+      --muted: #6b6760;
+      --signal: #0b6e6e;
+      --signal-soft: #d7efef;
+      --photo-dark: #1c2428;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--ink);
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(18,20,23,.03) 24px),
+        linear-gradient(180deg, #e7e4dc, #f2f0ea);
+      min-height: 100vh;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+    .eyebrow { margin: 0; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .meta h1 {
+      font-family: Newsreader, Georgia, serif;
+      font-weight: 500;
+      font-size: clamp(30px, 4.2vw, 44px);
+      letter-spacing: -.02em;
+      margin: 8px 0 10px;
+    }
+    .meta p { max-width: 64ch; line-height: 1.65; color: var(--muted); margin: 0 0 18px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+    .seg { display: inline-flex; border: 1px solid var(--ink); background: var(--panel); }
+    .seg button {
+      border: 0; border-right: 1px solid var(--ink); background: transparent;
+      padding: 9px 14px; font: inherit; font-size: 12px; font-family: "IBM Plex Mono", monospace;
+      cursor: pointer; color: var(--ink);
+    }
+    .seg button:last-child { border-right: 0; }
+    .seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+    .frame { border: 1px solid var(--ink); background: var(--panel); }
+    .chrome {
+      display: flex; gap: 10px; align-items: center;
+      padding: 8px 12px; border-bottom: 1px solid var(--ink);
+      font-family: "IBM Plex Mono", monospace; font-size: 11px;
+    }
+    .viewport { margin: 0 auto; transition: max-width .25s ease; background: var(--paper); }
+    .viewport[data-device="desktop"] { max-width: 100%; }
+    .viewport[data-device="ipad"] { max-width: 820px; }
+    .viewport[data-device="phone"] { max-width: 390px; }
+    .app { min-height: 700px; }
+    .rail {
+      display: grid;
+      grid-template-columns: 168px 1fr;
+      min-height: 700px;
+    }
+    .viewport[data-device="phone"] .rail,
+    .viewport[data-device="ipad"] .rail { grid-template-columns: 1fr; }
+    .side {
+      border-right: 1px solid var(--ink);
+      padding: 18px 14px;
+      background: #e3e0d8;
+    }
+    .viewport[data-device="phone"] .side,
+    .viewport[data-device="ipad"] .side {
+      display: flex; gap: 12px; align-items: center; justify-content: space-between;
+      border-right: 0; border-bottom: 1px solid var(--ink); padding: 12px 14px;
+    }
+    .side .brand { font-family: Newsreader, Georgia, serif; font-size: 22px; letter-spacing: -.03em; }
+    .side nav { display: grid; gap: 8px; margin-top: 28px; font-size: 13px; }
+    .viewport[data-device="phone"] .side nav,
+    .viewport[data-device="ipad"] .side nav { display: none; }
+    .side nav a { color: var(--muted); text-decoration: none; }
+    .side nav a.active { color: var(--ink); font-weight: 600; }
+    .main { padding: 22px 24px 36px; }
+    .viewport[data-device="phone"] .main { padding: 16px 14px 28px; }
+    .date-row {
+      display: flex; justify-content: space-between; gap: 12px; align-items: baseline;
+      border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 18px;
+    }
+    .date-row h2 {
+      margin: 0;
+      font-family: Newsreader, Georgia, serif;
+      font-size: clamp(28px, 3.5vw, 36px);
+      font-weight: 500;
+      letter-spacing: -.02em;
+    }
+    .date-row small { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
+    .desk {
+      display: grid;
+      grid-template-columns: 1.4fr .85fr;
+      gap: 0;
+      border: 1px solid var(--ink);
+      background: var(--panel);
+    }
+    .viewport[data-device="phone"] .desk,
+    .viewport[data-device="ipad"] .desk { grid-template-columns: 1fr; }
+    .desk > * { padding: 18px; }
+    .desk .primary { border-right: 1px solid var(--ink); }
+    .viewport[data-device="phone"] .desk .primary,
+    .viewport[data-device="ipad"] .desk .primary { border-right: 0; border-bottom: 1px solid var(--ink); }
+    .mono { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+    .command {
+      border: 2px solid var(--ink);
+      padding: 16px;
+      background: #fff;
+    }
+    .command .ph {
+      margin: 0;
+      font-family: Newsreader, Georgia, serif;
+      font-size: 26px;
+      color: #9a968c;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .btn {
+      font: inherit; font-size: 12px; font-family: "IBM Plex Mono", monospace;
+      border: 1px solid var(--ink); background: var(--ink); color: var(--panel);
+      padding: 9px 12px; cursor: pointer;
+    }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .signal {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--signal);
+      color: #f3fffe;
+      display: flex; justify-content: space-between; gap: 10px; align-items: center;
+    }
+    .signal p { margin: 4px 0 0; font-size: 12px; opacity: .85; }
+    .feed { margin: 0; padding: 0; list-style: none; }
+    .feed li {
+      display: grid; grid-template-columns: 54px 1fr auto;
+      gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 14px;
+    }
+    .feed time { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+    .meters { display: grid; gap: 10px; }
+    .meter {
+      display: grid; grid-template-columns: 1fr auto; gap: 8px;
+      padding-bottom: 8px; border-bottom: 1px dashed var(--line); font-size: 13px;
+    }
+    .meter b { font-family: "IBM Plex Mono", monospace; }
+    .checks label {
+      display: flex; gap: 8px; align-items: center;
+      padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px;
+    }
+    .weekfold { margin-top: 14px; font-size: 12px; color: var(--muted); }
+    .weekfold summary { cursor: pointer; font-family: "IBM Plex Mono", monospace; }
+
+    /* Reflect editorial */
+    .masthead {
+      border-bottom: 3px solid var(--ink);
+      padding: 28px 24px 18px;
+      background: #fff;
+    }
+    .viewport[data-device="phone"] .masthead { padding: 20px 14px 14px; }
+    .masthead .issue {
+      display: flex; justify-content: space-between; gap: 12px;
+      font-family: "IBM Plex Mono", monospace; font-size: 11px; text-transform: uppercase;
+    }
+    .masthead h2 {
+      margin: 14px 0 8px;
+      font-family: Newsreader, Georgia, serif;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.02;
+      letter-spacing: -.03em;
+      font-weight: 500;
+      max-width: 14ch;
+    }
+    .masthead .deck { margin: 0; max-width: 48ch; color: var(--muted); line-height: 1.6; }
+    .spread-b {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 0;
+      border-bottom: 1px solid var(--ink);
+      background: #fff;
+    }
+    .viewport[data-device="phone"] .spread-b { grid-template-columns: 1fr; }
+    .col { padding: 28px 24px; }
+    .viewport[data-device="phone"] .col { padding: 20px 14px; }
+    .col + .col { border-left: 1px solid var(--ink); }
+    .viewport[data-device="phone"] .col + .col { border-left: 0; border-top: 1px solid var(--ink); }
+    .pull {
+      margin: 0 0 18px;
+      font-family: Newsreader, Georgia, serif;
+      font-size: clamp(24px, 3vw, 32px);
+      line-height: 1.25;
+    }
+    .entry { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .entry small { display: block; font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .plate {
+      min-height: 220px;
+      background:
+        linear-gradient(180deg, transparent 62%, rgba(0,0,0,.55)),
+        linear-gradient(135deg, #314047, #121417);
+      color: #f5f3ee;
+      padding: 16px;
+      display: flex; align-items: flex-end;
+      font-family: Newsreader, Georgia, serif;
+      font-size: 22px;
+    }
+    .strip {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+    }
+    .strip div {
+      min-height: 88px;
+      background: linear-gradient(160deg, #4a585f, #243036);
+      color: #eceae4; padding: 10px; font-size: 12px;
+      display: flex; align-items: flex-end;
+    }
+    .compare-box {
+      margin-top: 16px; padding: 12px;
+      border: 1px solid var(--ink);
+      background: var(--signal-soft);
+    }
+    .compare-box p { margin: 6px 0 0; font-size: 13px; line-height: 1.55; }
+    .ai-band {
+      padding: 22px 24px 28px;
+      background: var(--ink);
+      color: #f5f3ee;
+    }
+    .viewport[data-device="phone"] .ai-band { padding: 18px 14px 24px; }
+    .ai-band .mono { color: #9aa3a8; }
+    .ai-band h3 {
+      margin: 8px 0 0;
+      font-family: Newsreader, Georgia, serif;
+      font-weight: 500;
+      font-size: clamp(22px, 3vw, 30px);
+      max-width: 24ch;
+    }
+    .hidden { display: none !important; }
+    .notes {
+      margin-top: 22px; padding: 14px 16px; border: 1px solid var(--ink);
+      background: var(--panel); font-size: 14px; line-height: 1.65; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="meta">
+      <p class="eyebrow">시안 B · Signal Desk / Ink Archive</p>
+      <h1>신호 책상 · 잉크 아카이브</h1>
+      <p>Today는 모노스페이스 라벨과 강한 선으로 정리된 작업 데스크. 돌아보기는 잡지 마스트헤드·풀 인용·사진 플레이트. A보다 대비와 에디토리얼 톤이 셉니다.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="화면">
+        <button type="button" data-screen="today" aria-pressed="true">Today</button>
+        <button type="button" data-screen="reflect" aria-pressed="false">돌아보기</button>
+      </div>
+      <div class="seg" role="group" aria-label="기기">
+        <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
+        <button type="button" data-device="ipad" aria-pressed="false">iPad</button>
+        <button type="button" data-device="phone" aria-pressed="false">iPhone</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="chrome"><span>HAZE FLOW DESIGN COMP</span><span style="margin-left:auto" id="sizeLabel">1280 PREVIEW</span></div>
+      <div class="viewport" id="viewport" data-device="desktop">
+        <div class="app" id="todayView">
+          <div class="rail">
+            <aside class="side">
+              <div class="brand">haze flow.</div>
+              <nav>
+                <a class="active" href="#">오늘</a>
+                <a href="#">계획</a>
+                <a href="#">기록</a>
+                <a href="#">돈 관리</a>
+                <a href="#">돌아보기</a>
+              </nav>
+            </aside>
+            <div class="main">
+              <div class="date-row">
+                <h2>11.09 Mon</h2>
+                <small>LIFE DESK · LIVE</small>
+              </div>
+              <div class="desk">
+                <section class="primary">
+                  <p class="mono">Capture</p>
+                  <div class="command">
+                    <p class="ph">지금 뭐 하고 있어?</p>
+                    <div class="row">
+                      <button class="btn" type="button">활동 시작</button>
+                      <button class="btn ghost" type="button">짧은 기록</button>
+                      <button class="btn ghost" type="button">기록</button>
+                    </div>
+                  </div>
+                  <div class="signal">
+                    <div>
+                      <strong>근력 운동 · LIVE</strong>
+                      <p>랫풀다운 2/4 · REST 00:42</p>
+                    </div>
+                    <button class="btn" type="button" style="background:#f3fffe;color:var(--signal);border-color:#f3fffe">끝내기</button>
+                  </div>
+                  <p class="mono" style="margin-top:20px">Today feed · 3</p>
+                  <ul class="feed">
+                    <li><time>07:40</time><span>아침 산책</span><span>활동</span></li>
+                    <li><time>12:15</time><span>김치찌개 · 사진 1</span><span>식사</span></li>
+                    <li><time>15:10</time><span>영어 공부 45분</span><span>공부</span></li>
+                  </ul>
+                </section>
+                <aside>
+                  <p class="mono">Day meters</p>
+                  <div class="meters">
+                    <div class="meter"><span>일정</span><b>1/2</b></div>
+                    <div class="meter"><span>루틴</span><b>3/5</b></div>
+                    <div class="meter"><span>할 일</span><b>2</b></div>
+                    <div class="meter"><span>사진</span><b>1</b></div>
+                  </div>
+                  <p class="mono" style="margin-top:18px">Agenda</p>
+                  <ul class="feed">
+                    <li><time>09:00</time><span>스탠드업</span><span>계획</span></li>
+                    <li><time>12:15</time><span>점심</span><span>실제</span></li>
+                    <li><time>18:30</time><span>운동</span><span>LIVE</span></li>
+                  </ul>
+                  <p class="mono" style="margin-top:18px">Routines</p>
+                  <div class="checks">
+                    <label><input type="checkbox" checked /> 물 마시기</label>
+                    <label><input type="checkbox" checked /> 스트레칭</label>
+                    <label><input type="checkbox" /> 약</label>
+                  </div>
+                  <details class="weekfold"><summary>WEEK STRIP · 4 DAYS</summary><p>월·화·목·금 · 주간 회고 →</p></details>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app hidden" id="reflectView">
+          <div class="masthead">
+            <div class="issue"><span>Reflect / Vol. 46</span><span>Nov 3–9, 2026</span></div>
+            <h2>한 주의 가장 조용한 장면</h2>
+            <p class="deck">사진·일기·회고를 먼저. 집계는 각주. 과거 비교는 하루 스냅샷으로 나란히.</p>
+          </div>
+          <div class="spread-b">
+            <div class="col">
+              <p class="mono">My weekly review</p>
+              <blockquote class="pull">가벼운 산책이 제일 잘 맞았다. 다음 주는 저녁 루틴만 조금 늦춰보자.</blockquote>
+              <div class="entry"><small>Remember</small>한강 바람, 랫풀다운 마지막 세트</div>
+              <div class="entry"><small>Adjust</small>야식 대신 차 한 잔</div>
+              <div class="entry"><small>Next</small>수요일은 일찍 끝내기</div>
+              <details class="weekfold" style="margin-top:18px"><summary>METRICS · RECORDED 4 DAYS</summary><p>식사 9 · 운동 2 · 할 일 6</p></details>
+            </div>
+            <div class="col">
+              <div class="plate">점심, 김이 오른 자리</div>
+              <div class="strip">
+                <div>산책길</div>
+                <div>운동 후</div>
+              </div>
+              <div class="compare-box">
+                <p class="mono" style="color:var(--signal)">Past compare · day snapshot</p>
+                <p>일 년 전 같은 날의 사진·일기. 빈 날이면 가까운 기록일로 발견.</p>
+              </div>
+            </div>
+          </div>
+          <div class="ai-band">
+            <p class="mono">Future feature · AI Photo Journal</p>
+            <h3>등록한 사진과 글을 AI가 편집해, 잡지 스프레드처럼 일기 페이지를 완성</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <strong style="color:var(--ink)">유지 기능:</strong> 캡처·라이브 세션·아젠다·루틴·주간 회고 폼·과거 비교.
+      A와 같은 데이터·기능, 다른 시각 언어(각진 선, 모노 라벨, 잉크 대비). 앱 코드 미적용 시안입니다.
+    </div>
+  </div>
+  <script>
+    const viewport = document.getElementById('viewport');
+    const todayView = document.getElementById('todayView');
+    const reflectView = document.getElementById('reflectView');
+    const sizeLabel = document.getElementById('sizeLabel');
+    const labels = { desktop: '1280 PREVIEW', ipad: 'IPAD 820', phone: 'IPHONE 390' };
+    document.querySelectorAll('[data-screen]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-screen]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        const reflect = btn.dataset.screen === 'reflect';
+        todayView.classList.toggle('hidden', reflect);
+        reflectView.classList.toggle('hidden', !reflect);
+      });
+    });
+    document.querySelectorAll('[data-device]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-device]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        viewport.dataset.device = btn.dataset.device;
+        sizeLabel.textContent = labels[btn.dataset.device];
+      });
+    });
+  </script>
+</body>
+</html>

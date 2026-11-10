@@ -44,9 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Today Life가 Pages에 배포됨(기본 Classic, 설정에서 Life 선택). 사용자 실사용 피드백 대기. **PR #4는 미병합.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** Today Life가 Pages에 배포됨(기본 Classic, 설정에서 Life 선택). 사용자 실사용 피드백 대기. 실기기·계정 왕복·Q4-B 2·4~6 미승인. 시안 A/B는 기각·문서만 보존([UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)).
 
-**배포 (2026-11-09 · Life 디자인):** PR #5 → `main` merge `794d24f`. 복구 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42591226027) success. URL https://h3clo.github.io/hazeflow/ . Life 활성: 설정 → Today 화면 디자인 → **새 디자인** → 저장(기기 로컬 `*-ui-design`, 스키마·동기화 불변). 사전 QA: Classic/Life 전환·캡처/운동/일정·515 tests·build·반응형·live Life 확인. PR #5에 포함된 UX 위계 1커밋으로 PR #3도 merged 표시. **PR #4 미병합. 실계정 Supabase 왕복은 단위/sandbox만.**
+**배포 (2026-11-09 · Life 디자인):** PR #5 → `main` merge `794d24f`. 복구 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42591226027) success. URL https://h3clo.github.io/hazeflow/ . Life 활성: 설정 → Today 화면 디자인 → **새 디자인** → 저장(기기 로컬 `*-ui-design`, 스키마·동기화 불변). 사전 QA: Classic/Life 전환·캡처/운동/일정·515 tests·build·반응형·live Life 확인. PR #5에 포함된 UX 위계 1커밋으로 PR #3도 merged 표시. **실계정 Supabase 왕복은 단위/sandbox만.**
 
 **전체 UX·품질 감사 (2026-11-08 · 로컬, 미배포)**
 - 화면: Today/계획/기록/돈/돌아보기 · 375·1280 · sandbox `ux-audit-nov8`. 콘솔 오류 없음. 표는 `.table-scroll`로 페이지 가로 넘침 없음.
@@ -125,7 +125,12 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [x] Today: 빈 아젠다 `min-height` 제거, 데스크톱 기록열 먼저, 주간 스트립 `details` 접기. 스키마/기능 추가 없음.
 - [x] 주간 회고: 「나의 주간 회고」상단, 건수·차트는 `details.review-metrics`로 접기. `weeklyReviews` 필드 유지.
 - [x] 과거 비교: 그날 스냅샷 카피 + 빈 날 `compare-discovery`(가까운 기록·일기/사진) 강조. 프리셋 유지.
-- [ ] 위계 효과 확인 후 Reflect IA(방향 2)만 선택 검토. **전면 테마 리뉴얼·월/연 구간 집계 UI는 보류.**
+- [ ] 사용성 검토(PR #3) · **시안 선택 전 앱 비주얼 리뉴얼 착수 금지.**
+
+### P1 · 비주얼 디자인 방향 (2026-11-09)
+- [x] 시안 A/B HTML·문서화 후 **사용자 기각**. 혼합 진행 안 함. 추가 변형·시안 수정 **중단**.
+- [x] AI 사진 일기 아이디어는 문서에만 유지([UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)). **구현 없음.**
+- [ ] 사용자 레퍼런스 이미지 제시 후 디자인 방향 재설정. 그전까지 디자인·앱 UI 코드 작업 없음. PR #3·#4 미병합.
 
 ### P1 · Today Life 디자인 모드 (시안 시각 재구성 · 2026-11-09)
 - [x] Classic 기본·설정 전환·`*-ui-design` 유지. 스키마/동기화 불변.
@@ -140,7 +145,8 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 ### P3 · 이후 검토
 - [ ] 알림, 외부 AI, 설치형 앱/건강 연동은 별도 승인과 보안·비용 검토 후 착수.
-- [ ] 전면 비주얼 시스템 교체 · 월↔월/연↔연 구간 비교 UI — **위계 개선 이후 재평가. 현재 미승인.**
+- [ ] **AI 사진 일기** (사진+글 → 매거진/포토 에세이 조판): [UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md). 기존 텍스트 AI 초안과 별개. **미승인.**
+- [ ] 전면 비주얼 시스템 교체 · 월↔월/연↔연 구간 비교 UI — 시안 선택·위계 검토 이후. **현재 미승인.**
 
 ## 관련 문서
 
@@ -162,8 +168,8 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근 (2026-11-09):** Today Life 디자인 모드(A안) — `ui-design.js`/`style-life.css`/`app.js`/`index.html` + `tests/ui-design.test.js`. Classic 보존·스키마 불변·Pages 미배포. 사용자 확인 전 배포하지 않음.
+**최근 (2026-11-09):** Today Life 디자인 모드 — Pages 배포됨. UI 시안 A/B·AI 사진 일기 아이디어는 문서만([UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md), 시안 기각).
 
-**이전 (2026-11-09):** 제품·UX 공동검토 방향 1(위계) 구현 — `app.js`/`feature-ui.js`/`style.css` + `tests/feature-ui-hierarchy.test.js`. push는 기능 분기만, Pages 배포 미승인. 계정·스키마 변경 없음.
+**이전 (2026-11-09):** 제품·UX 공동검토 방향 1(위계) 구현 — `app.js`/`feature-ui.js`/`style.css` + `tests/feature-ui-hierarchy.test.js`.
 
 **이전 (2026-11-08):** `b17f5cf` Pages 배포 성공(Actions #101). 전체 UX 감사 수정은 로컬/후속 커밋. Q4-B 2·4~6 미승인.
