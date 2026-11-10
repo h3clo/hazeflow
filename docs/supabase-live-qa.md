@@ -11,7 +11,7 @@ Activity 2.0 이후 기기 간 동기화를 **테스트 전용 Auth 계정**으�
 | 항목 | 결과 |
 | --- | --- |
 | Cursor Dashboard Secrets | 채팅에 값 금지. 로컬은 gitignore `.private/hazeflow-sync-qa.env` 사용 가능 |
-| GitHub Actions Secrets | 에이전트 write **403** · 워크플로 `supabase-live-qa.yml`은 수동/주1회 · 시크릿은 사용자가 등록 |
+| GitHub Actions Secrets | 6개 등록됨(2026-11-11). 워크플로 수동/주1회. 첫 실행 [42875539394](https://github.com/h3clo/hazeflow/actions/runs/42875539394) live **통과** |
 | 운영 프로젝트 `hazeflow` | 스키마·`hazeflow_apply` 있음. **개인 계정/`main` 시험 금지** · QA 유저·`sandbox`만 |
 | `family flow` 등 | 둘 다 실사용 → 새 무료 프로젝트 **불가**(한도 2) → **옵션 D 사용** |
 | Preview Branch | 시간당 약 **$0.01344** — 합의 전 생성 금지 |

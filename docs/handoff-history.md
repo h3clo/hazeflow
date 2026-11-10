@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · CI live QA secrets + 첫 실행 통과
+
+- GitHub Actions secrets 6개 브라우저로 등록(CLI secrets write 403).
+- workflow_dispatch run 42875539394 success: sandbox live 1–10 통과(6 pass/2 skip 가드).
+- 다음: native-readiness만. 구현 금지.
+
 ### 2026-11-11 Cursor · Supabase live QA GitHub Actions
 
 - 워크플로 `supabase-live-qa.yml`: workflow_dispatch + 주1회 cron. PR/`pages.yml`과 분리.
