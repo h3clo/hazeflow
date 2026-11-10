@@ -87,11 +87,10 @@
 - **수동 입력 칸 없음.** `다음 세트 시작`으로 끝낸 경과만 `logs[].workoutRests`에 붙임.
 - 세션에 `세트 사이 휴식 N회 · 평균 MM:SS` 요약. schemaVersion 유지(선택 필드).
 
-**유튜브 영상 즐겨찾기 (시안 v2 · 미승인 · 앱 미적용)**
+**유튜브 영상 즐겨찾기 (시안 v2 · 구현 2026-11-10)**
 - 시안: [design-mocks/workout-video-favorites.html](design-mocks/workout-video-favorites.html)
-- **기본 접힘**(자극 부위·골라 담기 톤). 기구만 하는 날에는 안 펼쳐도 됨.
-- 펼쳐도 **최근 3개** + 검색/전체 보기. 수십 개는 즐겨찾기 목록에서만.
-- 기구 날 / 홈트 날 분리. 열기=외부 유튜브. 인앱 재생·계정 연동·새 메뉴 없음.
+- 즐겨찾기 `kind:'영상'`(title·YouTube URL·note·lastOpenedAt). 세션/캡처 `details.workout-video-fold` 기본 접힘 · 최근 3개 · 전체는 즐겨찾기.
+- 열기=외부 유튜브. 인앱 재생·계정 연동·새 메뉴 없음. schemaVersion 유지.
 
 **헬스장 이후**
 - 등산·산스장·홈트는 세트 UI가 과할 수 있음 → 기존「헬스장 외 운동」표시 축소 방향 유지. 파서/스키마 대개편은 자동 승인 아님.
