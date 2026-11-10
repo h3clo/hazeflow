@@ -439,8 +439,11 @@ html[data-ui-design=life] .life-grid,
 }
 .life-health-fold > summary{font-size:12px;color:var(--life-muted);font-weight:600}
 
+/* Match html[data-ui-design=life] .life-grid specificity or mobile stays multi-column. */
 @media (max-width:1100px){
+ html[data-ui-design=life] .life-grid,
  .life-grid{grid-template-columns:1fr 1fr}
+ html[data-ui-design=life] .life-col-habit,
  .life-col-habit{grid-column:1 / -1;grid-template-columns:1fr 1fr;display:grid}
  .life-progress-metrics{grid-template-columns:1fr 1fr}
  .life-metric-row{border-left:0;padding-left:2px}
@@ -451,6 +454,8 @@ html[data-ui-design=life] .life-grid,
  html[data-ui-design=life] body[data-view=day] > aside{width:100%}
  html[data-ui-design=life] body[data-view=day] .ongoing-finish-bar{left:0}
  .life-progress-panel{grid-template-columns:1fr}
+ html[data-ui-design=life] .life-grid,
+ html[data-ui-design=life] .life-col-habit,
  .life-grid,.life-col-habit{grid-template-columns:1fr}
  .life-capture-tiles{grid-template-columns:1fr 1fr}
  .life-day-header{align-items:flex-start}
@@ -458,6 +463,9 @@ html[data-ui-design=life] .life-grid,
 }
 @media (max-width:560px){
  .life-progress-metrics{grid-template-columns:1fr}
+ html[data-ui-design=life] .life-capture-tiles,
+ .life-capture-tiles{grid-template-columns:1fr}
  .life-day-title{font-size:1.55rem}
  .life-feature{min-height:100px;margin-inline:8px}
+ .life-tile,.life-capture-submit{min-height:44px}
 }
