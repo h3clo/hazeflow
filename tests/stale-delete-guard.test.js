@@ -43,6 +43,36 @@ test('자산 잔액 목록·편집창 삭제 마크업은 화면 원본을 싣�
  assert.ok(source.includes("btn('기록 삭제','delete-asset',row.id,'small-button',originalAttribute(esc,row))"));
  assert.ok(source.includes("btn('이 날짜 기록 삭제','delete-asset',snapshotId,'danger',originalAttribute(esc,snapshot))"));
 });
+test('일정 편집창의 오래된 삭제는 바뀐 일정을 지우지 않는다',()=>{
+ const painted={id:'e',title:'미팅',date:'2026-11-10',start:'09:00',end:'10:00',status:'planned'};
+ const live={...painted,title:'다른 미팅'};
+ const markup=`<button data-act="delete-event" data-id="e" ${originalAttribute(esc,painted)}></button>`;
+ const opened=renderedOriginal(controlFromMarkup(markup),live);
+ const events=[live];
+ assert.equal(opened.title,'미팅');
+ assert.throws(()=>removeUnchangedItem(events,'e',opened),/다른 기기나 화면에서 바뀐 기록/);
+ assert.equal(events[0].title,'다른 미팅');
+ assert.equal(removeUnchangedItem([structuredClone(painted)],'e',painted).length,0);
+});
+test('일정·할 일 편집창 삭제 마크업은 버튼에 화면 원본을 싣는다',()=>{
+ const source=readFileSync(new URL('../app.js',import.meta.url),'utf8');
+ const event=source.slice(source.indexOf('async function eventEditor'),source.indexOf('async function routineEditor'));
+ const task=source.slice(source.indexOf('async function taskEditor'),source.indexOf('function prepareFieldAutosave'));
+ assert.ok(event.includes('if(id&&!e)'));
+ assert.ok(event.includes("btn('일정 삭제','delete-event',id,'danger',originalAttribute(esc,e))"));
+ assert.ok(task.includes('if(id&&!existing)'));
+ assert.ok(task.includes("btn('할 일 삭제','delete-task',id,'danger',originalAttribute(esc,existing))"));
+});
+test('할 일 편집창의 오래된 삭제는 바뀐 할 일을 지우지 않는다',()=>{
+ const painted={id:'t',title:'장보기',done:false,listName:'할 일'};
+ const live={...painted,title:'장보기 완료 전'};
+ const markup=`<button data-act="delete-task" data-id="t" ${originalAttribute(esc,painted)}></button>`;
+ const opened=renderedOriginal(controlFromMarkup(markup),live);
+ const tasks=[live];
+ assert.equal(opened.title,'장보기');
+ assert.throws(()=>removeUnchangedItem(tasks,'t',opened),/다른 기기나 화면에서 바뀐 기록/);
+ assert.equal(tasks[0].title,'장보기 완료 전');
+});
 test('그대로인 활동은 지우고 연결된 식사만 지출 연결을 해제한다',()=>{const next=removeUnchangedLog([log,meal],log.id,log);assert.deepEqual(next.map(l=>l.id),['meal']);assert.equal(next[0].expenseId,undefined);assert.equal(meal.expenseId,'a')});
 test('다른 화면에서 내용·종료·사진이 바뀌거나 삭제된 활동은 오래된 창에서 지우지 않는다',()=>{for(const current of [{...log,text:'다른 내용'},{...log,endTime:'10:20'},{...log,photos:[{id:'p'}]}]){const logs=[current,meal];assert.throws(()=>removeUnchangedLog(logs,log.id,log),/다른 기기/);assert.equal(logs.length,2);assert.equal(meal.expenseId,'a')}assert.throws(()=>removeUnchangedLog([meal],log.id,log),/삭제된 기록/)});
 test('빈 종료값만 정규화된 기록과 할 일·일정은 삭제를 허용한다',()=>{assert.equal(removeUnchangedLog([{...log,endTime:null}],log.id,log).length,0);const task={id:'t',title:'점검',done:false};assert.equal(removeUnchangedItem([task],'t',task).length,0);assert.throws(()=>removeUnchangedItem([{...task,done:true}],'t',task),/다른 기기/)});

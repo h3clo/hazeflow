@@ -9,6 +9,12 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 Cursor · 일정·할 일 삭제 stale 가드
+
+- 버그 보호: `eventEditor`/`taskEditor` 삭제 버튼에 `originalAttribute` (가계부와 동일). 없는 id로 열면 편집창을 열지 않음.
+- 검사: `tests/stale-delete-guard.test.js` 보강. 스키마·실계정 불변.
+- 브랜치 `cursor/event-task-stale-delete-03b4`.
+
 ### 2026-11-10 Cursor · iCloud 범위 분리 + 달 이동 a11y
 
 - 사용자: iCloud(I0–I3)는 다른 프로젝트에서 진행 → 이 저장소 AI는 비관여. 할 수 있는 소폭부터 계속.
