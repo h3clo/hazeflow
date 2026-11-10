@@ -46,7 +46,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **다음 시작점:** UX sim 잔여(헤더 밀도 등) 또는 대기열. **활동 2.0 F·네이티브 금지.** 격리 테스트 계정 시크릿이 생기면 `tests/supabase-live.optional.test.js`로 live 왕복 보강.
 
-**진행 (대표 활동 계정 동기화):** `preferences.activityUi` LWW → `["preferences","activityUi"]` 동기화. 스키마 변경 없음. 단위/목 전송·PGlite RLS·Playwright sandbox 검증. **운영 hazeflow 실계정 live 왕복은 테스트 계정 시크릿 부재로 미실행.**
+**완료 (대표 활동 계정 동기화 · #34):** tip `02ce098`. Actions [42857203878](https://github.com/h3clo/hazeflow/actions/runs/42857203878) success (build 24s · deploy 15s). live에 `preferences`/`activityUi`/`primaryUpdatedAt` 확인. 스키마 변경 없음. **격리 테스트 계정 live 왕복은 시크릿 부재로 미실행**(optional 테스트 준비됨).
 
 **완료 (활동 2.0 Playwright e2e · 2026-11-11):** tip `ee4eb22`(#31)+`c7d4e14`(#32). Actions [42853506579](https://github.com/h3clo/hazeflow/actions/runs/42853506579) success (build 20s · deploy 3m30s). live `main-DEfGsQ4u.js`에 `-primary-activity` 제외·rescue 확인. 로컬 desktop+375 시나리오 1~10 통과 · Pages에서 1–6+smoke 재통과. **실계정 Supabase 왕복 e2e 없음.**
 
