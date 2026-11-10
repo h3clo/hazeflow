@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Classic 오늘 일기 미리보기 기본 접힘(브랜치 `cursor/classic-diary-fold-03b4`). 건강 요약 접힘 배포됨(`b1c340f`). **실기기·계정 왕복·Q4-B 2·4~6 미승인/미검증.** 시안 A/B 기각·문서만 보존. 다음 자동화: a11y 소폭·실사용 피드백.
+**다음 시작점:** 사용자 실사용·피드백 대기. Classic 건강·일기 접힘 배포됨. **실기기·계정 왕복·Q4-B 2·4~6 미승인/미검증.** 시안 A/B 기각·문서만 보존. 다음 자동화: a11y 소폭(Life/기록 달 이동 라벨 등)·실사용 피드백.
+
+**배포 (2026-11-10 · Classic 일기 접힘):** tip `7b98c9c` · PR #13. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42759763321) success. live `app-B0USC12G.js`에 `classic-diary-fold`·`7b98c9c` 확인. URL https://h3clo.github.io/hazeflow/ .
 
 **배포 (2026-11-10 · Classic 건강 접힘):** tip `b1c340f` · PR #12. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42759069131) success. live `app-Bf-rOnt6.js`에 `classic-health-fold`·`b1c340f` 확인. URL https://h3clo.github.io/hazeflow/ .
 

@@ -13,7 +13,7 @@
 
 - 사용성: Classic `dayWorkspace`의 `day-memo`를 `classic-diary-fold`로 기본 접힘(summary 44px). 일기가 있으면 요약 한 줄, 없으면「일기 · 하루 마감」. Life·스키마·동기화 불변.
 - 검사: `tests/classic-diary-fold.test.js` · `npm test` · build · `diff --check`.
-- 브랜치 `cursor/classic-diary-fold-03b4`.
+- tip `7b98c9c` · PR #13 merged · Actions #42759763321 success · live `classic-diary-fold` 확인.
 
 ### 2026-11-10 Cursor · Classic 오늘 건강 요약 접힘
 
