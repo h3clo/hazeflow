@@ -44,9 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** 무료 슬롯이 없어도 됨 — [supabase-live-qa.md](supabase-live-qa.md) **옵션 D**: 운영 `hazeflow`에 **테스트 전용 Auth 유저 2명** + Cursor `HAZEFLOW_SYNC_TEST_*`(개인 실계정 금지). 시크릿 준비되면 `node --test tests/supabase-live.optional.test.js`. **그 전엔 실서버 동기화 완료로 쓰지 말 것.** 네이티브는 [native-readiness.md](native-readiness.md)만 — **구현·Watch 금지.**
+**다음 시작점:** 실서버 동기화 시나리오 1–10 **통과**(2026-11-11 · QA Auth 2명 · `sandbox`만). 네이티브는 [native-readiness.md](native-readiness.md) 순서 — **구현·Watch 착수 금지(승인 전).** UX sim 잔여·대기열 병행 가능. 라이브 재실행: gitignore `.private/hazeflow-sync-qa.env` source 후 `node --test tests/supabase-live.optional.test.js`.
 
-**차단 (실 Supabase 라이브 QA · 2026-11-11):** 두 무료 프로젝트 모두 실사용 → 새 QA 프로젝트 불가. Preview Branch ≈$0.01344/h 미합의. Secrets 없음. **우회:** 옵션 D(동일 프로젝트·QA 유저·`sandbox`만). 개인/`main` 미사용. 상세 [supabase-live-qa.md](supabase-live-qa.md).
+**완료 (실 Supabase 라이브 QA · 2026-11-11):** 옵션 D. Dashboard 세션 만료로 UI 대신 SQL로 QA 유저 2명 생성·확인. live suite **6 pass / 1 skip(미설정 가드)** — 로그인·듀얼기기 생성/종료/동시/대표·오프라인·충돌·idempotent·레거시/독립·계정 격리. 개인 실계정 `main` 기록 미변경. 시나리오9 PostgREST `in(item_key)` 버그 → eq 단건 조회로 수정. 상세 [supabase-live-qa.md](supabase-live-qa.md).
 
 **완료 (대표 활동 계정 동기화 · #34):** tip `02ce098`. Actions [42857203878](https://github.com/h3clo/hazeflow/actions/runs/42857203878) success (build 24s · deploy 15s). live에 `preferences`/`activityUi`/`primaryUpdatedAt` 확인. 스키마 변경 없음. **격리 테스트 계정 live 왕복은 시크릿 부재로 미실행**(optional 테스트 준비됨).
 

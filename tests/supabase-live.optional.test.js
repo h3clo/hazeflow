@@ -254,10 +254,16 @@ test('9. legacy chain and independent timing coexist on server',{skip:!ready},as
   });
   await a.engine.sync();
   assert.equal(a.status.phase,'synced',a.status.error||'legacy sync');
-  const {data:rows}=await client.from('hazeflow_records').select('item_key,payload').eq('space',SPACE).in('item_key',keys);
-  const byKey=Object.fromEntries((rows||[]).map(r=>[r.item_key,r.payload]));
+  // Fetch keys one-by-one — PostgREST `in()` is unsafe for JSON item_key commas.
+  const byKey={};
+  for(const key of keys){
+   const {data:rows,error}=await client.from('hazeflow_records').select('item_key,payload').eq('space',SPACE).eq('item_key',key).limit(1);
+   assert.equal(error,null,error?.message||'read '+key);
+   byKey[key]=rows?.[0]?.payload;
+  }
   assert.equal(byKey[itemKey('logs',legacyId)]?.activityTiming,undefined);
   assert.equal(byKey[itemKey('logs',indieId)]?.activityTiming,'independent');
+  assert.equal(a.state.logs.find(l=>l.id===indieId)?.activityTiming,'independent');
  }finally{
   a.engine.stop();
   await wipeSandboxKeys(client,keys);

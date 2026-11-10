@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · 실 Supabase 라이브 스위트 통과 (옵션 D)
+
+- 사용자: 브라우저로 직접 구성 요청. Dashboard 세션은 만료 → MCP SQL로 QA Auth 2명 생성·비밀번호 로테이션. 개인/`main` 미변경.
+- 실행: `.private/hazeflow-sync-qa.env`(gitignore) · `node --test tests/supabase-live.optional.test.js` → **6 pass / 1 skip**.
+- 수정: 시나리오 9에서 `in(item_key)` 대신 `eq` 단건(JSON 키 쉼표). 실패는 제품 버그 아님.
+- 다음: PR #36 병합. 네이티브는 native-readiness만 · 구현 금지.
+
 ### 2026-11-11 Cursor · 실사용 프로젝트만 있을 때 라이브 QA 경로
 
 - 사용자: 두 무료 프로젝트 모두 실사용 → pause/새 프로젝트 불가.

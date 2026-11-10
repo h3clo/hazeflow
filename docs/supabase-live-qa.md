@@ -10,11 +10,12 @@ Activity 2.0 이후 기기 간 동기화를 **테스트 전용 Auth 계정**으�
 
 | 항목 | 결과 |
 | --- | --- |
-| Cursor 에이전트 Secrets | `HAZEFLOW_SYNC_TEST_*` 없음 |
-| GitHub Actions Secrets | 이 환경에서 읽기/쓰기 권한 없음(403) |
-| 운영 프로젝트 `hazeflow` | 스키마·`hazeflow_apply` 있음. auth 실사용 1명. **개인 계정/`main` 시험 금지** |
-| `family flow` 등 | 둘 다 실사용 중이면 pause·새 무료 프로젝트 **불가**(한도 2) |
+| Cursor Dashboard Secrets | 채팅에 값 금지. 로컬은 gitignore `.private/hazeflow-sync-qa.env` 사용 가능 |
+| GitHub Actions Secrets | 이 환경에서 읽기/쓰기 권한 없음(403) · CI는 라이브 skip 유지 |
+| 운영 프로젝트 `hazeflow` | 스키마·`hazeflow_apply` 있음. **개인 계정/`main` 시험 금지** · QA 유저·`sandbox`만 |
+| `family flow` 등 | 둘 다 실사용 → 새 무료 프로젝트 **불가**(한도 2) → **옵션 D 사용** |
 | Preview Branch | 시간당 약 **$0.01344** — 합의 전 생성 금지 |
+| 라이브 실행 (2026-11-11) | 시나리오 1–10 **통과**(가드 skip 1). Dashboard 로그인 만료 시 SQL로 QA 유저 생성 |
 
 ## 권장: 옵션 D — 같은 프로젝트 + 테스트 전용 계정 (무료 · 프로젝트 한도 불필요)
 
