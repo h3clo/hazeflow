@@ -9,6 +9,12 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 Cursor · Classic 오늘 일기 미리보기 접힘
+
+- 사용성: Classic `dayWorkspace`의 `day-memo`를 `classic-diary-fold`로 기본 접힘(summary 44px). 일기가 있으면 요약 한 줄, 없으면「일기 · 하루 마감」. Life·스키마·동기화 불변.
+- 검사: `tests/classic-diary-fold.test.js` · `npm test` · build · `diff --check`.
+- 브랜치 `cursor/classic-diary-fold-03b4`.
+
 ### 2026-11-10 Cursor · Classic 오늘 건강 요약 접힘
 
 - 사용성: Classic Today에서 `healthDayStrip`을 Life와 같이 기본 접힘(`classic-health-fold`, summary 44px). 건강 데이터 없으면 블록 자체 없음. Life `life-health-fold`·스키마·동기화 불변.
