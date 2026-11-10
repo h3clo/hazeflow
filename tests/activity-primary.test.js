@@ -23,3 +23,9 @@ test('대표 선택은 로컬 키에만 저장되고 기록 필드를 만들지 
  const payload=primaryPreferencePayload('act-2',100,'phone');
  assert.deepEqual(payload,{primaryActivityId:'act-2',primaryUpdatedAt:100,primaryUpdatedBy:'phone'});
 });
+
+test('IndexedDB 이전 마커는 대표 활동 id로 읽지 않는다',()=>{
+ const store=new Map([['hazeflow-qa-primary-activity','hazeflow-indexeddb-v1']]);
+ const storage={getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)};
+ assert.equal(readPrimaryActivityId(storage,'hazeflow-qa'),null);
+});
