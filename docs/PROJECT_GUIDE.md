@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 사용자 실사용·피드백 대기. Classic 건강·일기 접힘 배포됨. **실기기·계정 왕복·Q4-B 2·4~6 미승인/미검증.** 시안 A/B 기각·문서만 보존. 다음 자동화: a11y 소폭(Life/기록 달 이동 라벨 등)·실사용 피드백.
+**다음 시작점:** Life/기록 달 이동 a11y 라벨(브랜치 `cursor/nav-aria-labels-03b4`). iCloud는 타 프로젝트(비관여). **실기기 P0·Q4-B 2·4~6 미승인/미검증.** Classic 건강·일기 접힘 배포됨.
 
 **배포 (2026-11-10 · Classic 일기 접힘):** tip `7b98c9c` · PR #13. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42759763321) success. live `app-B0USC12G.js`에 `classic-diary-fold`·`7b98c9c` 확인. URL https://h3clo.github.io/hazeflow/ .
 
@@ -95,7 +95,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - Q4-A 조사 완료(2026-11-08): `logs[].money` ↔ 원장 목표 매핑·단계 0~6.
 - Q4-B 단계 1+3 완료(2026-11-08): 읽기 전용 `money-diagnose` · 은행/카드 CSV 미리보기(`bank-csv-preview`). 기존 `logs[].money` 유지, 자동 수정·저장·동기화 없음. 합성 CSV·단위 테스트만. **단계 2·4~6·푸시·배포·계정 변경 없음.**
 
-**iCloud:** 별도 큐 I0–I3. 규모 미확인. 요청 없이 접근·변경하지 않음.
+**iCloud:** 별도 큐 I0–I3. **다른 프로젝트에서 진행 중(2026-11-10 사용자 확인).** 이 저장소 AI는 접근·변경·대기하지 않음.
 
 **Q5 · 통합 회귀 (2026-11-08) · 자동·sandbox 완료, 배포·실기기 미함**
 - `npm test` **496** · `build` · `diff --check`. 로컬 `main`이 `origin/main`보다 ahead(기능 7 + Q5 문서).
