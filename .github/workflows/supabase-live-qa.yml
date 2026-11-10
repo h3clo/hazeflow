@@ -1,0 +1,57 @@
+# Isolated live Supabase sync QA. Does NOT run on every PR.
+# Prefer manual workflow_dispatch; optional weekly schedule when secrets exist.
+name: Supabase live QA
+on:
+  workflow_dispatch:
+    inputs:
+      require_secrets:
+        description: 'Fail if HAZEFLOW_SYNC_TEST_* secrets are missing'
+        type: boolean
+        default: false
+  schedule:
+    # Sunday 18:00 UTC ≈ Monday 03:00 KST — low frequency; skips cleanly without secrets
+    - cron: '0 18 * * 0'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-live-qa
+  cancel-in-progress: true
+
+jobs:
+  live:
+    name: Live sync scenarios
+    runs-on: ubuntu-latest
+    # Secrets: repository Actions secrets (or Environment secrets if you add
+    # `environment: supabase-live-qa` after creating that environment in Settings).
+    # Missing secrets → job succeeds with "실제 서버 미검증" unless require_secrets.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Unit/build gate (no live secrets)
+        run: |
+          npm test
+          npm run build
+        env:
+          # Ensure default suite never picks up live credentials accidentally
+          HAZEFLOW_SYNC_TEST_URL: ''
+          HAZEFLOW_SYNC_TEST_ANON_KEY: ''
+          HAZEFLOW_SYNC_TEST_EMAIL: ''
+          HAZEFLOW_SYNC_TEST_PASSWORD: ''
+          HAZEFLOW_SYNC_TEST_EMAIL_B: ''
+          HAZEFLOW_SYNC_TEST_PASSWORD_B: ''
+      - name: Live Supabase QA
+        env:
+          HAZEFLOW_SYNC_TEST_URL: ${{ secrets.HAZEFLOW_SYNC_TEST_URL }}
+          HAZEFLOW_SYNC_TEST_ANON_KEY: ${{ secrets.HAZEFLOW_SYNC_TEST_ANON_KEY }}
+          HAZEFLOW_SYNC_TEST_EMAIL: ${{ secrets.HAZEFLOW_SYNC_TEST_EMAIL }}
+          HAZEFLOW_SYNC_TEST_PASSWORD: ${{ secrets.HAZEFLOW_SYNC_TEST_PASSWORD }}
+          HAZEFLOW_SYNC_TEST_EMAIL_B: ${{ secrets.HAZEFLOW_SYNC_TEST_EMAIL_B }}
+          HAZEFLOW_SYNC_TEST_PASSWORD_B: ${{ secrets.HAZEFLOW_SYNC_TEST_PASSWORD_B }}
+          HAZEFLOW_SYNC_TEST_REQUIRE: ${{ inputs.require_secrets && '1' || '0' }}
+        run: node scripts/run-supabase-live-qa.mjs
