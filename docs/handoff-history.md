@@ -14,7 +14,7 @@
 - 사용자: 영상은 늘 뜨면 안 됨·수십 개 대비·접힘. 휴식 저장해 달라. 시안 다시.
 - 시안 v2: 기본 접힘·최근 3·전체는 즐겨찾기. `workout-video-favorites.html` 교체.
 - 구현: `workoutRests` 선택 필드 · `다음 세트 시작` 시 경과 저장 · 평균 요약. 영상 앱 코드 없음.
-- 브랜치 `cursor/rest-save-video-mock-v2-03b4`.
+- tip `39be17e` · PR #19 · Actions #42815359679 success · live 확인.
 
 ### 2026-11-10 · 휴식 자동저장 확정 + 영상 즐겨찾기 시안
 
