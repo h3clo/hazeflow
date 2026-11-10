@@ -84,7 +84,7 @@ export function shiftSetDoneMarks(map,itemIndex,removedSetIndex,logId=''){
  return next;
 }
 
-export function installRestTimer({notify,storage,hasNextIncompleteSet,onCompleteNextSet}={}){
+export function installRestTimer({notify,storage,hasNextIncompleteSet,onCompleteNextSet,onRestCompleted}={}){
  const key='hazeflow-workout-rest-v1';
  let mode='idle',deadline=0,startedAt=0,targetSeconds=0,timer=null,lastSeconds=-1,anchor=null,readyRestSeconds=0;
  try{
@@ -181,11 +181,18 @@ export function installRestTimer({notify,storage,hasNextIncompleteSet,onComplete
   return readyRestSeconds;
  }
 
+ function emitCompletedRest(){
+  const current=normalizeRestAnchor(anchor);
+  const seconds=currentRestSeconds();
+  if(!current||!Number.isFinite(seconds)||seconds<1)return;
+  try{onRestCompleted?.({anchor:current,seconds:Math.floor(seconds),endedAt:Date.now()})}catch{}
+ }
+
  function beginReady(){
   readyRestSeconds=currentRestSeconds();
   mode='ready';deadline=0;startedAt=0;targetSeconds=0;lastSeconds=-1;clearInterval(timer);timer=null;save();
   paint(readyRestSeconds,'다음 세트',false,{ready:true});
- }
+}
 
  /** Optional target countdown. Does not change set completion state. */
  function start(seconds,nextAnchor){
@@ -238,6 +245,7 @@ export function installRestTimer({notify,storage,hasNextIncompleteSet,onComplete
   if(action==='start-next'){
    if(mode!=='elapsed'&&mode!=='countdown')return;
    const current=normalizeRestAnchor(anchor);
+   emitCompletedRest();
    if(restModeAfterStartNext(!!(current&&hasNextIncompleteSet?.(current)))==='ready'){
     beginReady();
     notify?.('휴식을 끝냈어요. 같은 자리의 세트 완료를 누르세요.');

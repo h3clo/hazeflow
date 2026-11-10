@@ -8,6 +8,7 @@ import {validSubject} from './study-subjects.js';
 import {validStudy,studyMarkdown} from './study.js';
 import {validNutrition,nutritionText} from './nutrition.js';
 import {validWorkoutFeedback} from './workout-feedback.js';
+import {validWorkoutRests} from './workout-rests.js';
 import {validAsset} from './assets.js';
 import {validMoney} from './money.js';
 import {expenseForMeal} from './meal-money.js';
@@ -158,6 +159,7 @@ export function validateBackup(v){
    if(key==='logs'&&x.incomeDocument!==undefined&&(x.kind!=='소득자료'||!x.memo||x.money!==undefined||!validIncomeDocument(x.incomeDocument)))throw Error('연간 소득 자료를 확인해주세요.');
    if(key==='logs'&&x.study!==undefined&&(x.kind!=='공부'||!validStudy(x.study)))throw Error('공부 기록의 과목·복습·링크 형식을 확인해주세요.');
    if(key==='logs'&&x.workoutFeedback!==undefined&&!validWorkoutFeedback(x.workoutFeedback))throw Error('운동 느낌 기록을 확인해주세요.');
+   if(key==='logs'&&x.workoutRests!==undefined&&!validWorkoutRests(x.workoutRests))throw Error('운동 휴식 기록을 확인해주세요.');
    if(key==='logs'&&x.workoutPlan!==undefined&&(!str(x.workoutPlan)||x.workoutPlan.length>5000))throw Error('운동 목표 원문을 확인해주세요.');
    if(key==='logs'&&x.healthDaily!==undefined&&(!validHealthDaily(x.healthDaily,x.date)||x.kind!=='건강요약'||!x.memo))throw Error('건강 요약의 형식을 확인해주세요.');
    if(key==='logs'&&x.healthWorkouts!==undefined&&(!Array.isArray(x.healthWorkouts)||x.healthWorkouts.length>100||new Set(x.healthWorkouts.map(w=>w.id)).size!==x.healthWorkouts.length||!x.healthWorkouts.every(validHealthWorkout)))throw Error('건강 운동 측정값을 확인해주세요.');

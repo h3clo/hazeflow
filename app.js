@@ -8,7 +8,8 @@ import {openSyncJournal} from './sync-journal-store.js';
 import {recordStorage} from './storage-runtime.js';
 import {healthPanel,healthDayStrip,workoutHealthCard,hasFullHealthMeasurement,watchGuide,createHealthFlow} from './health-ui.js';
 import {workoutLibrary,appendWorkoutSelection} from './workout-library.js';
-import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave,readSetDoneMap,pruneSetDoneMap,shiftSetDoneMarks,changedWorkoutLogIds} from './rest-timer.js';
+import {installRestTimer,shouldKeepRestTimer,captureRestAfterSave,readSetDoneMap,pruneSetDoneMap,shiftSetDoneMarks,changedWorkoutLogIds,formatRestClock} from './rest-timer.js';
+import {appendWorkoutRest,mergeWorkoutRests,averageRestSeconds} from './workout-rests.js';
 import {exerciseGuide} from './exercise-guide.js';
 import {recentMeals,reuseMealDraft} from './meal-reuse.js';
 import {replaceFavorite,removeUnchangedFavorite} from './favorite-edit.js';
@@ -118,7 +119,32 @@ const restTimer=installRestTimer({
  notify,
  hasNextIncompleteSet:anchor=>restHooks.hasNextIncompleteSet?.(anchor),
  onCompleteNextSet:anchor=>restHooks.onCompleteNextSet?.(anchor),
+ onRestCompleted:payload=>queueMicrotask(()=>persistMeasuredRest(payload)),
 });
+async function persistMeasuredRest({anchor,seconds,endedAt}={}){
+ const current=anchor;
+ if(!current||!Number.isFinite(seconds)||seconds<1)return;
+ const entry={itemIndex:current.itemIndex,seconds,endedAt};
+ try{
+  if(current.source==='log'&&current.logId){
+   await commit(d=>{
+    const log=d.logs.find(l=>l.id===current.logId&&l.kind==='운동'&&!l.sourceId);
+    if(!log)return;
+    log.workoutRests=appendWorkoutRest(log.workoutRests,entry);
+   },{paint:false});
+   return;
+  }
+  const draft=drafts[date]||{};
+  drafts[date]={...draft,workoutRests:appendWorkoutRest(draft.workoutRests,entry)};
+  scheduleDrafts();
+ }catch(error){notify(error.message||'휴식 시간을 저장하지 못했어요.')}
+}
+function workoutRestsSummary(l){
+ const avg=averageRestSeconds(l?.workoutRests);
+ if(avg==null)return '';
+ const count=l.workoutRests.length;
+ return `<small class="workout-rests-summary">세트 사이 휴식 ${count}회 · 평균 ${esc(formatRestClock(avg))}</small>`;
+}
 const reminders=createReminders({storage:recordStorage,getOwner:()=>key,getData:()=>data,openEditor,esc,notify,baseURL:import.meta.env.BASE_URL,navigate(nextView,nextDate){if(isDate(nextDate)){date=nextDate;view=nextView;render()}}});
 let exercisePickerRows=[];
 let exercisePickerTarget={source:'capture',logId:''};
@@ -372,7 +398,7 @@ function workoutFeeling(l){
  const f=l.workoutFeedback;
  // Muscle feeling fits strength sessions; keep showing if feedback already exists.
  if(!f&&!workoutHasStrength(l.text))return '';
- return `<div class="workout-feeling">${f?`<small>직접 느낀 자극: ${f.muscles.length?esc(f.muscles.map(n=>muscleLabels[n]||n).join(' · ')):'미입력'}${f.effort?' · 힘듦 '+f.effort+'/5':''}${f.soreness?' · 근육통 '+esc(f.soreness):''}</small>${f.note?`<p>${esc(f.note)}</p>`:''}`:''}${!l.legacy&&!l.sourceId?btn(f?'운동 느낌 수정':'운동 느낌 남기기','workout-feeling',l.id,'small-button'):''}</div>`;
+ return `<div class="workout-feeling">${workoutRestsSummary(l)}${f?`<small>직접 느낀 자극: ${f.muscles.length?esc(f.muscles.map(n=>muscleLabels[n]||n).join(' · ')):'미입력'}${f.effort?' · 힘듦 '+f.effort+'/5':''}${f.soreness?' · 근육통 '+esc(f.soreness):''}</small>${f.note?`<p>${esc(f.note)}</p>`:''}`:''}${!l.legacy&&!l.sourceId?btn(f?'운동 느낌 수정':'운동 느낌 남기기','workout-feeling',l.id,'small-button'):''}</div>`;
 }
 function expectedMuscles(log,index='all'){const rows=workoutSession(log.text).exercises;return [...new Set((index==='all'?rows:rows.filter((_,i)=>i===Number(index))).flatMap(r=>exerciseMuscles(r.name)))]}
 function feelingExerciseKey(index){return index==='all'||index==null||index===''?'all':String(index)}
@@ -839,7 +865,7 @@ document.addEventListener('submit',async e=>{
  if(type==='weekly-review'){const start=form.dataset.start;if(!isDate(start)||weekStart(start)!==start)return;try{const opened=JSON.parse(form.dataset.original||'{}');const ok=await commit(d=>{const next=saveWeeklyReview(d.weeklyReviews[start],opened,values,form.dataset.existed==='1');if(next)d.weeklyReviews[start]=next;else delete d.weeklyReviews[start]},{undo:true,message:'이 주의 회고를 저장했어요.'});if(ok)await render()}catch(error){const status=$('#review-status');if(status)status.textContent=error.message;else notify(error.message)}return}
  if(type==='capture'){
   if(future()){notify('실제 활동은 오늘이나 지난 날짜에 남겨주세요. 미래 계획은 일정에 추가해요.');return}
-  if(photoBusy.has('capture:'+k)){notify('사진을 처리하고 있어요. 잠시 후 저장해주세요.');return}const text=values.text.trim(),photos=drafts[k]?.photos||[];if(!text&&!photos.length){notify('내용이나 사진을 추가해주세요.');return}const kind=drafts[k]?.manualKind?values.kind:(text?classifyActivity(text):values.kind||'일상');let money,nutrition,end;try{money=mealExpense({...values,kind,text});if(kind==='식사')nutrition=readNutrition(values);end=captureActivityEnd({mode:values.mode,date:k,time:values.time||'',endDate:values.endDate||'',endTime:values.endTime||''})}catch(error){notify(error.message);return}const workoutPlan=kind==='운동'?snapshotWorkoutPlan(drafts[k]?.workoutPlan,text):'';const savedId=uid();if(await commit(d=>d.logs.push({id:savedId,date:k,time:values.time||'',kind,text,photos,memo:values.mode==='memo',...end,...(money?{money}:{} ),...(nutrition?{nutrition}:{}),...(workoutPlan?{workoutPlan}:{})}),{paint:false})){settleCaptureRest(savedId,kind,text,values.mode,end);delete drafts[k];photoFeedback.delete(photoStatusKey({target:'capture',k}));await render();notify(end.endTime?'끝난 활동을 기록했어요.':'기록을 남겼어요.')}
+  if(photoBusy.has('capture:'+k)){notify('사진을 처리하고 있어요. 잠시 후 저장해주세요.');return}const text=values.text.trim(),photos=drafts[k]?.photos||[];if(!text&&!photos.length){notify('내용이나 사진을 추가해주세요.');return}const kind=drafts[k]?.manualKind?values.kind:(text?classifyActivity(text):values.kind||'일상');let money,nutrition,end;try{money=mealExpense({...values,kind,text});if(kind==='식사')nutrition=readNutrition(values);end=captureActivityEnd({mode:values.mode,date:k,time:values.time||'',endDate:values.endDate||'',endTime:values.endTime||''})}catch(error){notify(error.message);return}const workoutPlan=kind==='운동'?snapshotWorkoutPlan(drafts[k]?.workoutPlan,text):'';const draftRests=kind==='운동'?drafts[k]?.workoutRests:undefined;const savedId=uid();if(await commit(d=>d.logs.push({id:savedId,date:k,time:values.time||'',kind,text,photos,memo:values.mode==='memo',...end,...(money?{money}:{} ),...(nutrition?{nutrition}:{}),...(workoutPlan?{workoutPlan}:{}),...(draftRests?.length?{workoutRests:mergeWorkoutRests([],draftRests)}:{})}),{paint:false})){settleCaptureRest(savedId,kind,text,values.mode,end);delete drafts[k];photoFeedback.delete(photoStatusKey({target:'capture',k}));await render();notify(end.endTime?'끝난 활동을 기록했어요.':'기록을 남겼어요.')}
  }
  if(type==='task-editor'){
   const dueDate=values.hasDate?values.dueDate:null,dueTime=values.hasDate?values.dueTime||'':'';
