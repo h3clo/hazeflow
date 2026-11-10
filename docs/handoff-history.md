@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · PR #40 병합 + N0 iOS 우선 환경 검증
+
+- PR #40 merge `df498dc`. 우선순위 재정렬: iPhone → Watch → Android → DeX.
+- N0: `build:app`·`cap sync` 통과 · `scripts/verify-native-n0.mjs` · unit. Linux에 Xcode/Android SDK 없음 → 시뮬·실기기·APK 미실행.
+- 문서 `native-n0-verification.md`. Live Activity 등 **기능 미착수.**
+- 다음: 사용자 Mac에서 **N1 iOS Simulator 스모크**.
+
 ### 2026-11-11 Cursor · 네이티브·Watch·Samsung DeX 설계 문서 (구현 없음)
 
 - `docs/native-execution-plan.md`: Capacitor iOS/Android · Watch SwiftUI · **DeX=웹/PWA 우선**(전용 앱·UA 분기 금지) · PR N0/D1/N1–N8 · Playwright 창 리사이즈(D1) · 실기기-only §9.5 · 동일 Supabase 계정.

@@ -1,8 +1,9 @@
 # iOS · Android · Apple Watch · Samsung DeX — 선행 분석 (구현 금지)
 
-기준: 2026-11-11. **설계·순서·환경 제약만.** Capacitor 네이티브·Watch·DeX 전용 코드는 별도 승인 전까지 시작하지 않는다.
+기준: 2026-11-11. **설계·N0 환경 검증.** Live Activity·Watch UI·Android 기능·DeX 전용 코드는 별도 승인 전 시작하지 않는다.
 
-상세 실행 계획(PR 분해·아키텍처·DeX): [native-execution-plan.md](native-execution-plan.md).
+**우선순위:** iPhone → Watch → Android → DeX.
+상세 계획: [native-execution-plan.md](native-execution-plan.md) · N0 결과: [native-n0-verification.md](native-n0-verification.md).
 
 ## 현재 코드 구조
 
@@ -16,15 +17,15 @@
 
 세션은 기기별이지만 같은 이메일로 로그인하면 같은 서버 기록을 쓴다. 상세: [mobile-app.md](mobile-app.md). 웹 라이브 QA: [supabase-live-qa.md](supabase-live-qa.md) (**2026-11-11 통과**).
 
-## 권장 개발 순서 (승인 후 · 구현은 아직 금지)
+## 권장 개발 순서 (승인 후 · Live Activity 등 기능은 N1 이후)
 
-0. **DeX / 데스크톱 웹 (D1)** — Playwright로 창 리사이즈·입력 유지·포커스. DeX는 **웹/PWA 우선**, 전용 앱·UA 분기 금지. 상세 §9 [native-execution-plan.md](native-execution-plan.md).
-1. **로컬 툴체인 준비 (사용자 PC)** — 아래 도구·약관. 클라우드 에이전트만으로는 iOS 서명·실기기 불가.
-2. **Capacitor 스모크 (N1)** — `npm run app:sync` → iOS Simulator / Android Emulator에서 QA 계정 로그인·Today 로드. Android `resizeableActivity` 확인만. 실계정·`main` 데이터 금지.
-3. **iOS 실기기** — 인증 콜백(`io.h3clo.hazeflow://auth/callback`), 사진 1장, 활동 시작/종료가 웹(동일 QA)과 왕복.
-4. **Android 실기기** — 동일 시나리오 + 뒤로가기. DeX에서 앱 실행은 선택·부가(웹이 데스크 기본).
-5. **네이티브 편의 (선택)** — Keychain/Keystore 세션, 공유 시트. 푸시·FGS·Live Activity는 별도 PR(N3–N5).
-6. **Apple Watch (별도 승인)** — Capacitor 웹뷰 아님. SwiftUI 최소안. HealthKit은 더 뒤.
+0. **N0** — 구조·`build:app`·`cap sync` 검증([native-n0-verification.md](native-n0-verification.md)). Cloud에서는 시뮬 컴파일 불가.
+1. **사용자 Mac 툴체인** — Xcode 약관·Personal Team. 클라우드 에이전트는 iOS 서명·실기기 불가.
+2. **N1 iOS 셸 스모크** — `app:sync` → **iOS Simulator** · QA 로그인·Today. **기능 추가 없음.** Android는 현황만.
+3. **N2 iOS 활동 QA** — 콜백·사진·시작/종료(가능하면 실 iPhone).
+4. **N3/N5** — 로컬 알림 · Live Activities(앱 내 갱신만).
+5. **N7 Watch** — SwiftUI + WCSession. HealthKit 후순위.
+6. **Android N4…** — 후순위. **DeX D1** — 최후순위(웹/PWA).
 
 ## 필요한 도구
 
@@ -66,15 +67,15 @@
 | 자동 검증 | D1 Playwright 창 크기 변경(§9.4) |
 | 실기기만 | §9.5 체크리스트(사용자 UX 체감) |
 
-## 착수 전 체크 (구현 PR 전)
+## 착수 전 체크 (기능 PR 전)
 
 - [x] 웹 실 Supabase 라이브 QA 1–10 (옵션 D)
 - [x] DeX/네이티브 **설계 문서** (`native-execution-plan.md`)
-- [ ] 사용자 Mac에서 Xcode 약관·첫 빌드
-- [ ] Android Studio SDK 설치 또는 실기기
-- [ ] QA 계정으로만 앱 로그인 시험 합의
-- [ ] Watch/푸시/HealthKit/DeX 전용 코드 **미승인 유지**
-- [ ] (승인 후) D1 또는 N1 첫 구현 PR
+- [x] **N0** Linux: `build:app` · `cap sync` · `verify:native-n0` · unit
+- [ ] 사용자 Mac에서 Xcode 약관·**N1** iOS Simulator
+- [ ] QA 계정으로만 앱 로그인 시험
+- [ ] Watch/푸시/HealthKit/DeX 전용·Live Activity 코드 **N1 전 미착수**
+- [ ] Android SDK는 후순위(현황만)
 
 ## 하지 말 것
 
