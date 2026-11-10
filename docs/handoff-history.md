@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · 백업 export/import 게이트 단위 테스트
+
+- 범위: `backup-state.js`에 idle/owner/파일 크기/복구 모드·커밋 결과 헬퍼 추출. `app.js` `exportRecords`·`importFile`가 동일 게이트 사용.
+- 검사: `tests/backup-state.test.js` 보강 · `npm test` **519** · `npm run build` · `git diff --check`. 실계정·Pages·스키마 변경 없음.
+- 브랜치 `cursor/export-restore-guard-tests-03b4` (main `a2930e6` 기준). **미병합·미배포.**
+- 참고: 사진 `putBatch`가 커밋보다 앞서는 기존 순서는 그대로(이번 범위 밖). P0 stale PR #8/#9/#10도 미병합.
+- 다음: 열린 P0 PR 회귀 또는 a11y/사용성 소폭. 병합·배포·Q4-B 2·4~6은 승인 후.
+
 ### 2026-11-09 Cursor · Today Life Pages 배포
 
 - 검증 후 PR #5만 `main` 병합(`794d24f`). 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions #42591226027 success → https://h3clo.github.io/hazeflow/

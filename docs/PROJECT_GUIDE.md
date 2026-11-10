@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Today Life가 Pages에 배포됨(기본 Classic, 설정에서 Life 선택). 사용자 실사용 피드백 대기. **PR #4는 미병합.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** 백업 내보내기·가져오기 게이트를 `backup-state.js`로 추출·단위 테스트 고정(브랜치 `cursor/export-restore-guard-tests-03b4`, 미병합). P0 stale-screen 가드 PR #8/#9/#10도 미병합. Today Life는 Pages 배포됨·실사용 피드백 대기. **PR #4 미병합.** 실기기·계정 왕복·Q4-B 2·4~6 미승인. 다음 자동 작업: a11y/사용성 소폭 또는 열린 P0 PR 회귀 점검(병합·배포 없이).
 
 **배포 (2026-11-09 · Life 디자인):** PR #5 → `main` merge `794d24f`. 복구 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42591226027) success. URL https://h3clo.github.io/hazeflow/ . Life 활성: 설정 → Today 화면 디자인 → **새 디자인** → 저장(기기 로컬 `*-ui-design`, 스키마·동기화 불변). 사전 QA: Classic/Life 전환·캡처/운동/일정·515 tests·build·반응형·live Life 확인. PR #5에 포함된 UX 위계 1커밋으로 PR #3도 merged 표시. **PR #4 미병합. 실계정 Supabase 왕복은 단위/sandbox만.**
 
