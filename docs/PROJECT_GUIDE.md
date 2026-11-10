@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** **네이티브 준비만** — [native-readiness.md](native-readiness.md). **구현·Watch 금지.** CI live는 시크릿 등록·수동 실행으로 검증됨([supabase-live-qa.md](supabase-live-qa.md)). UX sim·대기열 병행 가능.
+**다음 시작점:** **네이티브·DeX 설계만 완료** — [native-execution-plan.md](native-execution-plan.md) · [native-readiness.md](native-readiness.md). **구현·Watch·DeX 전용 코드 금지.** 승인 후 첫 구현은 **D1**(Playwright 창 리사이즈) 또는 **N1**(셸 스모크). CI live는 시크릿·수동 실행으로 검증됨([supabase-live-qa.md](supabase-live-qa.md)). UX sim·대기열 병행 가능.
+
+**완료 (네이티브·DeX 설계 · 2026-11-11):** `native-execution-plan.md` — iOS/Android Capacitor · Watch SwiftUI · **DeX=웹/PWA 우선**(전용 앱 금지) · PR N0/D1/N1–N8 · Playwright 리사이즈 계획 · 실기기-only 목록 · 무료 Personal Team 7일 제약. **코드 구현 없음.**
 
 **완료 (CI Supabase live QA · 2026-11-11):** Actions secrets 6개 등록. workflow_dispatch [42875539394](https://github.com/h3clo/hazeflow/actions/runs/42875539394) **success** — 시크릿 확인·sandbox live 시나리오 1–10 **통과**(6 pass / 2 skip 가드). 개인/`main` 미사용.
 
@@ -199,7 +201,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 - [2주 개발 계획](DEVELOPMENT_PLAN.md) · [제품 비전·UX](PRODUCT_VISION.md) · [운동 기록 UX](WORKOUT_UX.md) · [활동 UX 인계](UX_HANDOFF.md)
 - [결제 원장 중심 설계](payment-ledger-plan.md)
-- [저장·동기화](sync-reliability.md) · [실서버 동기화 QA](supabase-live-qa.md) · [네이티브 선행](native-readiness.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
+- [저장·동기화](sync-reliability.md) · [실서버 동기화 QA](supabase-live-qa.md) · [네이티브 선행](native-readiness.md) · [네이티브·DeX 실행 계획](native-execution-plan.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
 - [현재 쇼핑몰 파일 가져오기(레거시)](shopping-connection.md) · [기존 영수증 대조(레거시)](receipt-reconciliation.md)
 - [소득](income-records.md) · [세금](annual-tax-records.md) · [앱](mobile-app.md)
 - [이전 인계 이력](handoff-history.md). 과거 날짜의 완료·대기 상태를 현재 지시로 재해석하지 않는다.

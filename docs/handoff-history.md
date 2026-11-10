@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · 네이티브·Watch·Samsung DeX 설계 문서 (구현 없음)
+
+- `docs/native-execution-plan.md`: Capacitor iOS/Android · Watch SwiftUI · **DeX=웹/PWA 우선**(전용 앱·UA 분기 금지) · PR N0/D1/N1–N8 · Playwright 창 리사이즈(D1) · 실기기-only §9.5 · 동일 Supabase 계정.
+- `native-readiness.md`·가이드·`mobile-app.md` 링크 갱신. **네이티브/DeX 코드 미작성.**
+- 다음(승인 후): D1 또는 N1. 현재는 설계만.
+
 ### 2026-11-11 Cursor · CI live QA secrets + 첫 실행 통과
 
 - GitHub Actions secrets 6개 브라우저로 등록(CLI secrets write 403).

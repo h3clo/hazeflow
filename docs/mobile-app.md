@@ -1,6 +1,6 @@
 # Haze Flow 앱 전환 준비
 
-네이티브·Watch **구현 착수 전** 선행 조건과 순서는 [native-readiness.md](native-readiness.md). 실 Supabase 격리 QA는 [supabase-live-qa.md](supabase-live-qa.md).
+네이티브·Watch·DeX **구현 착수 전** 선행 조건은 [native-readiness.md](native-readiness.md), PR 분해·DeX 웹 우선 설계는 [native-execution-plan.md](native-execution-plan.md). 실 Supabase 격리 QA는 [supabase-live-qa.md](supabase-live-qa.md).
 
 ## 구성
 
