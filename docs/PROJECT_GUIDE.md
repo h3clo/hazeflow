@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** AI 가능 소폭 계속. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.**
+**다음 시작점:** 홈 아이콘(노란 구름) PR 배포 확인 후 AI 가능 소폭 계속. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.**
+
+**진행 중 (2026-11-10 · 홈 아이콘):** 브랜치 `cursor/home-icon-yellow-cloud-03b4`. PWA 192/512·apple-touch·favicon을 첨부 노란 구름 PNG로 교체(`*-haze-cloud-20261110.png` + `manifest.webmanifest`). 앱 UI/데이터 미변경.
 
 **배포 (2026-11-10 · 데이터 안정성 회귀):** tip `4dcbcf7` · PR #21 merge. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42829622525) success (build 27s · deploy 6m23s). live `app-CVOZP2tV.js`에 `4dcbcf7`·가져오기 사진 롤백 문구 확인. `withImportedPhotos(keep)`·동일 id retain. **실기기·실계정 왕복 미검증.** URL https://h3clo.github.io/hazeflow/ .
 
