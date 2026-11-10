@@ -9,6 +9,11 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 · AI 운동·루틴 추천 (기록만)
+
+- 사용자: 나중에 AI로 운동 추천·루틴 추천도 하면 좋겠다. **후순위 기록만 · 구현하지 말 것.**
+- 가이드 P3에 추가. 착수·설계·코드 변경 없음.
+
 ### 2026-11-10 Cursor · 일정·할 일 삭제 stale 가드
 
 - 버그 보호: `eventEditor`/`taskEditor` 삭제 버튼에 `originalAttribute` (가계부와 동일). 없는 id로 열면 편집창을 열지 않음.
