@@ -13,7 +13,7 @@
 
 - 사용자: iCloud(I0–I3)는 다른 프로젝트에서 진행 → 이 저장소 AI는 비관여. 할 수 있는 소폭부터 계속.
 - a11y: Life `‹›`에「이전/다음 날짜」, 기록 `month-prev/next`에「이전/다음 달」`aria-label`. Classic 날짜바는 기존 유지.
-- 브랜치 `cursor/nav-aria-labels-03b4`.
+- tip `1c90388` · PR #14 merged · Actions #42760336135 success · live 라벨 확인.
 
 ### 2026-11-10 Cursor · Classic 오늘 일기 미리보기 접힘
 

@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Life/기록 달 이동 a11y 라벨(브랜치 `cursor/nav-aria-labels-03b4`). iCloud는 타 프로젝트(비관여). **실기기 P0·Q4-B 2·4~6 미승인/미검증.** Classic 건강·일기 접힘 배포됨.
+**다음 시작점:** AI 가능 소폭 계속(테스트 보강·사용성). iCloud는 타 프로젝트(비관여). **실기기 P0·Q4-B 2·4~6 미승인/미검증.**
+
+**배포 (2026-11-10 · 달 이동 a11y):** tip `1c90388` · PR #14. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42760336135) success. live `app-CTSmemSL.js`에「이전 날짜」·「다음 달」확인. URL https://h3clo.github.io/hazeflow/ .
 
 **배포 (2026-11-10 · Classic 일기 접힘):** tip `7b98c9c` · PR #13. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42759763321) success. live `app-B0USC12G.js`에 `classic-diary-fold`·`7b98c9c` 확인. URL https://h3clo.github.io/hazeflow/ .
 
