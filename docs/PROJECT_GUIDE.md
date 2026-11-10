@@ -44,11 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** 활동 2.0 **A~E 배포 확인** 후 UX sim 잔여(터치·헤더 등) 또는 대기열. **F(물질화)·네이티브 금지.** Life 모바일 밀도/사용성 깨짐은 별도 티켓.
+**다음 시작점:** UX sim 잔여(Life 모바일 사용성·터치 44px·헤더 밀도 등) 또는 대기열. **활동 2.0 F(물질화)·네이티브 금지.**
 
-**완료 (활동 2.0 A~D):** #23 A · #24 B · #25 C · #26 D. `npm test` **596**. B deploy success(#42847083275). A deploy timeout 후 B로 live 갱신. C/D deploy 확인 중.
-
-**진행 중 (PR E 문서):** VISION §4.2 · WORKOUT_UX 시간 규칙 갱신.
+**완료 (활동 2.0 A~E · 2026-11-10):** #23~#27 → tip `f652803`. `npm test` **596**. Pages: A timeout(#42845113283) · B/C/E success(최종 #42848071770). live `app-DdPNZn-d.js`에 `activityTiming`·유지/종료 확인·대표 전환 확인.
 
 **배포 (2026-11-10 · 홈 아이콘):** tip `f84c474` · PR #22. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42833697783) success (build 28s · deploy 51s). live에 `manifest.webmanifest`·`icon-*-haze-cloud-20261110.png`·apple-touch·favicon 확인. 앱 UI/데이터 미변경. URL https://h3clo.github.io/hazeflow/ .
 
