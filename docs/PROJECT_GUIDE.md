@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 사용자 실사용 시작(2026-11-10). PR #4·#6·#7·#8·#9·#10·#11을 `main`에 병합·Pages 배포. Today Life 사용 가능(기본 Classic, 설정에서 Life). **실기기·계정 왕복·Q4-B 2·4~6은 여전히 미승인/미검증.** 시안 A/B는 기각·문서만 보존([UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)). 다음 자동화: a11y/사용성 소폭(하루 화면 길이 등)·실사용 피드백 반영.
+**다음 시작점:** Classic 오늘 화면 건강 요약 기본 접힘(브랜치 `cursor/classic-health-fold-03b4`). 사용자 실사용 중(2026-11-10 Pages tip `ba7b3a7`). **실기기·계정 왕복·Q4-B 2·4~6 미승인/미검증.** 시안 A/B 기각·문서만 보존. 다음 자동화: a11y 소폭·실사용 피드백·하루 화면의 다른 보조 블록(일기 미리보기 등)은 피드백 후.
 
 **배포 (2026-11-10 · 미병합 PR 일괄):** tip `90459c5`. 포함 — 시안 문서(#4), 캡처 추가설정 좁은 폭(#6), 가계부 도구 접기(#7), 가계부/자산/일정·루틴·사진·운동 stale 가드(#8–#10), 백업 export/import 게이트 테스트(#11). 로컬·Actions `npm test` **536** · build. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42758126437) success (build 23s · deploy 9s). 복구 태그 `pre-deploy-before-batch-2026-11-10`=`a2930e6`. URL https://h3clo.github.io/hazeflow/ (번들 `app-Ct7AFvn1.js`에 `90459c5`·`money-tool-fold` 확인). 스키마·실계정 데이터 변경 없음. **실기기·로그인 왕복 미확인.**
 
@@ -65,7 +65,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - **수정:** 종료 후 휴식 위젯 잔존(`shouldKeepRestTimer`+`syncRestWithSession`) · sticky와 아젠다 끝내기 중복 제거 · `aria-current="false"` 제거 · 다크 primary 대비(`--accent-fill` 4.78:1) · 무라벨 `＋` 제거(이전).
 - **후속:** 캡처에서 세트를 완료한 뒤 저장하면, 끝난 활동은 휴식을 끄고 진행 중 근력만 새 기록으로 휴식을 옮김(`captureRestAfterSave`). 초안이 없어지면 캡처 휴식을 유지하지 않음.
 - 검사: `npm test` **505** · build · `diff --check` · sandbox 재현.
-- **제안(일부 진행):** 좁은 폭 캡처「추가 설정」터치/분류 그리드(자동화 자율 범위). 남은 제안: 하루 화면 길이·돈 관리 도구 밀도·Q4-B 2·4~6(미승인).
+- **제안(일부 진행):** 좁은 폭 캡처「추가 설정」·가계부 도구 접기·Classic 건강 요약 접힘. 남은 제안: 하루 화면 보조 블록 추가 접힘·Q4-B 2·4~6(미승인).
 - **미검증:** 실기기·백그라운드 타이머·실계정 Supabase 왕복·사진 실기기.
 
 **배포 (2026-11-08):** `731cbbc`→`b17f5cf` 일반 push (force 없음). Actions [Run #101](https://github.com/h3clo/hazeflow/actions/runs/42489282618) success (build 26s · deploy 10s). URL https://h3clo.github.io/hazeflow/ . Pages 번들 `app-CtR-TtyP.js`·account에 `b17f5cf`·`운동 중`·`data-rest-primary`/`complete-set` 확인. **실기기·로그인 왕복 미확인. 감사 수정분은 미배포.**

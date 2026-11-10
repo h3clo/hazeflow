@@ -9,6 +9,12 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 Cursor · Classic 오늘 건강 요약 접힘
+
+- 사용성: Classic Today에서 `healthDayStrip`을 Life와 같이 기본 접힘(`classic-health-fold`, summary 44px). 건강 데이터 없으면 블록 자체 없음. Life `life-health-fold`·스키마·동기화 불변.
+- 검사: `tests/classic-health-fold.test.js` · `npm test` **538** · build · `diff --check`.
+- 브랜치 `cursor/classic-health-fold-03b4`. 실사용 배포는 CI 후 진행.
+
 ### 2026-11-10 Cursor · 열린 PR 일괄 main 병합·Pages 배포
 
 - 사용자 승인: CI(로컬 test/build) 후 배포 가능한 열린 PR 전부 main 배포.
