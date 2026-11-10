@@ -2,12 +2,17 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · P0 오래된 화면 보호 잔여 마감 (PR #10)
+
+- 추가: 루틴 단계 `data-shown-checked`+`applyShownRoutineStep`(이미 목표면 no-op). 일기/신체 사진 `data-original-photos`+`assertSamePhotos`. 운동 세션 `data-original`+`openedRecord`로 `writeWorkoutText`/`mutateWorkoutSets`가 라이브 fallback 대신 화면 원본 비교.
+- 검사: `npm test` **523** · build · `diff --check`. 브랜치 `cursor/plan-run-shown-status-03b4`. **병합·배포 없음. 실계정 미검증.**
+- P0 약한 경로 시리즈(코드) 완료. 다음: PR #8·#9·#10 병합 승인 또는 다른 큐.
+
 ### 2026-11-10 Cursor · 일정·루틴 실행 화면 상태 보호
 
 - P0: 일정/루틴 시작·완료·건너뛰기·초기화 버튼이 화면 상태 없이 최신 `data`에 바로 적용되어, 지연 재그리기 중 다른 상태(예: 완료)를 덮을 수 있었음.
 - 수정: `shownStatusAttribute` + `applyShownEventAction`/`applyShownRoutineAction`. 화면 상태와 같을 때만 적용, 이미 목표 상태면 재적용 없음. 계획/아젠다 버튼에 `data-shown-status`.
-- 검사: `tests/screen-guard.test.js` · `npm test` · build · `diff --check`. 브랜치 `cursor/plan-run-shown-status-03b4` PR만. **병합·배포 없음.**
-- 미포함: 루틴 단계 체크박스(`routine-step`).
+- 후속 커밋에서 단계·사진·운동 쓰기까지 같은 PR에 포함.
 
 ### 2026-11-09 Cursor · Today Life Pages 배포
 

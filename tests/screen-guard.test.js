@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {renderedOriginal,originalAttribute,applyShownFlag,applyShownClose,draftContext,controlFromMarkup,applyShownEventAction,applyShownRoutineAction,shownStatusAttribute} from '../screen-guard.js';
+import {renderedOriginal,originalAttribute,applyShownFlag,applyShownClose,draftContext,controlFromMarkup,applyShownEventAction,applyShownRoutineAction,shownStatusAttribute,shownCheckedAttribute,applyShownRoutineStep,assertSamePhotos} from '../screen-guard.js';
 import {setTaskFlag,emptyState,eventAction,routineAction,setRoutineVersion} from '../domain.js';
-import {removeUnchangedItem} from '../record-edit.js';
+import {removeUnchangedItem,assertRecordUnchanged} from '../record-edit.js';
 import {toggleDiaryClosed,applyOpenedJournalDraft} from '../journal.js';
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 test('화면 재그리기가 보류된 삭제 버튼은 갱신된 최신 기록을 지우지 않는다',()=>{const painted={id:'t',title:'예전'},live={id:'t',title:'최신'},html=`<button data-act="delete-task" data-id="t" ${originalAttribute(esc,painted)}></button>`,opened=renderedOriginal(controlFromMarkup(html),live),tasks=[live];assert.equal(opened.title,'예전');assert.throws(()=>removeUnchangedItem(tasks,'t',opened),/바뀐 기록/);assert.equal(tasks[0].title,'최신')});
@@ -44,9 +44,38 @@ test('루틴 실행은 화면 상태와 같을 때만 적용하고 이미 목표
  applyShownRoutineAction(d,'2026-11-10','r',controlFromMarkup(`<button ${shownStatusAttribute('pending')}></button>`),'start','07:99',routineAction);
  assert.deepEqual(d,once);
 });
-test('일정·루틴 실행 버튼 마크업은 화면 상태를 싣는다',()=>{
+test('오래된 루틴 단계 체크는 이미 목표면 다시 뒤집지 않고 화면과 같을 때만 적용한다',()=>{
+ const d=emptyState();
+ setRoutineVersion(d,'r',{effectiveFrom:'2026-11-01',title:'아침',time:'07:00',days:[0,1,2,3,4,5,6],steps:[{id:'s',title:'물',minutes:1}]});
+ routineAction(d,'2026-11-10','r','step','s','07:01');
+ const before=structuredClone(d);
+ applyShownRoutineStep(d,'2026-11-10','r','s',controlFromMarkup(`<input ${shownCheckedAttribute(false)}>`),'07:02',routineAction);
+ assert.deepEqual(d,before);
+ applyShownRoutineStep(d,'2026-11-10','r','s',controlFromMarkup(`<input ${shownCheckedAttribute(true)}>`),'07:03',routineAction);
+ assert.equal(d.routineRuns['2026-11-10'].r.checked.includes('s'),false);
+ const pending=emptyState();
+ setRoutineVersion(pending,'r',{effectiveFrom:'2026-11-01',title:'아침',time:'07:00',days:[0,1,2,3,4,5,6],steps:[{id:'s',title:'물',minutes:1}]});
+ assert.throws(()=>applyShownRoutineStep(pending,'2026-11-10','r','s',controlFromMarkup('<input>'),'07:04',routineAction),/루틴 단계를 다시 확인/);
+});
+test('일기·신체 사진 목록이 바뀌면 오래된 첨부/해제를 막는다',()=>{
+ assert.throws(()=>assertSamePhotos([{id:'a'}],[{id:'b'}]),/바뀐 사진/);
+ assert.doesNotThrow(()=>assertSamePhotos([{id:'a'}],[{id:'a'}]));
+});
+test('운동 세션 화면 원본이 있으면 라이브 텍스트보다 우선한다',()=>{
+ const painted={id:'w',kind:'운동',text:'스쿼트 60 8 3',date:'2026-11-10'};
+ const live={...painted,text:'스쿼트 80 8 3'};
+ const opened=renderedOriginal(controlFromMarkup(`<div data-workout-log="w" ${originalAttribute(esc,painted)}></div>`),live);
+ assert.equal(opened.text,'스쿼트 60 8 3');
+ assert.throws(()=>assertRecordUnchanged(live,opened),/다른 기기|바뀐 기록/);
+});
+test('일정·루틴·사진·운동 보호 마크업이 연결된다',()=>{
  const source=readFileSync(new URL('../app.js',import.meta.url),'utf8');
  assert.ok(source.includes('shownStatusAttribute(status)'));
+ assert.ok(source.includes('shownCheckedAttribute(done)'));
  assert.ok(source.includes('applyShownEventAction('));
  assert.ok(source.includes('applyShownRoutineAction('));
+ assert.ok(source.includes('applyShownRoutineStep('));
+ assert.ok(source.includes('assertSamePhotos('));
+ assert.ok(source.includes('openedRecord'));
+ assert.ok(source.includes('data-original-photos'));
 });

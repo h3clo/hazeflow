@@ -53,7 +53,7 @@ import {createPhotoPicker} from './photo-picker.js';
 import {readAndReviewPhoto} from './photo-review.js';
 import {mealExpense,setMealExpense,unlinkMealExpense,expenseForMeal,linkMealToExpense} from './meal-money.js';
 import {journalDraft,applyOpenedJournalDraft,assertSameDiary,toggleDiaryClosed} from './journal.js';
-import {renderedOriginal,applyShownFlag,applyShownClose,draftContext,originalAttribute,shownStatusAttribute,applyShownEventAction,applyShownRoutineAction} from './screen-guard.js';
+import {renderedOriginal,applyShownFlag,applyShownClose,draftContext,originalAttribute,shownStatusAttribute,applyShownEventAction,applyShownRoutineAction,shownCheckedAttribute,applyShownRoutineStep,assertSamePhotos} from './screen-guard.js';
 import {moneyCategory,moneyScopes,moneyScope,moneyTypes,validMoney,parseMoney,moneyText,monthMoney,moneyCSV,parseMoneyCSV,planMoneyImport} from './money.js';
 import {diagnoseMoneyLogs,moneyDiagnoseReportHtml} from './money-diagnose.js';
 import {previewBankCsv,bankCsvDuplicateCandidates,bankCsvPreviewHtml,decodeCsvBytes,decodeCsvText} from './bank-csv-preview.js';
@@ -172,9 +172,11 @@ async function appendWorkoutFromUi(button){
  workoutAppendBusy=true;
  if(button)button.disabled=true;
  try{
-  const base=source==='capture'?($('#capture-text')?.value||drafts[date]?.text||''):(data.logs.find(l=>l.id===logId)?.text||'');
+  const host=button?.closest?.('[data-original]')||document.querySelector(`[data-workout-log="${CSS.escape(logId||'')}"]`);
+  const opened=source==='log'?renderedOriginal(host||button,structuredClone(data.logs.find(l=>l.id===logId)||null)):null;
+  const base=source==='capture'?($('#capture-text')?.value||drafts[date]?.text||''):(opened?.text||data.logs.find(l=>l.id===logId)?.text||'');
   const next=appendWorkoutLine(base,line);
-  await writeWorkoutText(source,logId,next,{openedText:base,message:'운동을 추가했어요.'});
+  await writeWorkoutText(source,logId,next,{openedText:base,openedRecord:opened,message:'운동을 추가했어요.'});
   if(input)input.value='';
   if(source==='log')await render();
   else notify('운동을 추가했어요.');
@@ -225,14 +227,14 @@ function refreshWorkoutSetsHost(){
  host.innerHTML=workoutSetsMarkup(text,{plan,source:'capture',live:date===todayKey()});
  restTimer.attach();
 }
-async function writeWorkoutText(source,logId,nextText,{openedText='',message='세트를 수정했어요.'}={}){
+async function writeWorkoutText(source,logId,nextText,{openedText='',openedRecord=null,message='세트를 수정했어요.'}={}){
  if(source==='capture'){
   const ta=$('#capture-text');if(ta)ta.value=nextText;
   const old=drafts[date]||{};
   drafts[date]={...old,text:nextText,kind:'운동',manualKind:true,workoutPlan:old.workoutPlan||''};
   applyCaptureKind('운동',{manual:true,persist:false});rememberCapture();refreshWorkoutSetsHost();updateCapturePreview();return;
  }
- const opened=structuredClone(data.logs.find(l=>l.id===logId));
+ const opened=openedRecord||structuredClone(data.logs.find(l=>l.id===logId));
  if(!opened||opened.kind!=='운동'||opened.sourceId)throw Error('수정할 운동 기록을 찾지 못했어요.');
  await commit(d=>{
   const l=d.logs.find(l=>l.id===logId);
@@ -242,10 +244,12 @@ async function writeWorkoutText(source,logId,nextText,{openedText='',message='�
   l.text=nextText;
  },{undo:true,message});
 }
-async function mutateWorkoutSets(source,logId,mutator){
- const text=source==='capture'?($('#capture-text')?.value??drafts[date]?.text??''):(data.logs.find(l=>l.id===logId)?.text||'');
+async function mutateWorkoutSets(source,logId,mutator,control=null){
+ const host=control?.closest?.('[data-original]')||(logId?document.querySelector(`[data-workout-log="${CSS.escape(logId)}"]`):null);
+ const opened=source==='log'?renderedOriginal(host||control,structuredClone(data.logs.find(l=>l.id===logId)||null)):null;
+ const text=source==='capture'?($('#capture-text')?.value??drafts[date]?.text??''):(opened?.text||data.logs.find(l=>l.id===logId)?.text||'');
  const next=serializeWorkoutItems(mutator(workoutItems(text)));
- await writeWorkoutText(source,logId,next,{openedText:text});
+ await writeWorkoutText(source,logId,next,{openedText:text,openedRecord:opened});
  if(source==='log')await render();
 }
 $('#notice').addEventListener('pointerenter',()=>toast.setPaused('pointer',true));
@@ -297,7 +301,7 @@ function settleCaptureRest(logId,kind,text,mode,end){
  if(decision==='stop')restTimer.stop();
  else if(decision==='retarget')restTimer.retarget({source:'log',logId,itemIndex:anchor.itemIndex});
 }
-function stepList(r,disabled=false){return `<div class="steps">${r.steps.map(s=>`<label class="step"><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${r.run?.checked.includes(s.id)?'checked':''} ${disabled?'disabled':''}><span>${esc(s.title)}</span>${s.minutes?`<small>${s.minutes}분</small>`:''}</label>`).join('')}</div>`}
+function stepList(r,disabled=false){return `<div class="steps">${r.steps.map(s=>{const done=!!r.run?.checked.includes(s.id);return `<label class="step"><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${shownCheckedAttribute(done)} ${done?'checked':''} ${disabled?'disabled':''}><span>${esc(s.title)}</span>${s.minutes?`<small>${s.minutes}분</small>`:''}</label>`}).join('')}</div>`}
 function routineCard(r){const status=r.run?.status||'pending',shown=shownStatusAttribute(status);return `<article class="routine-run ${status}" id="routine-run-${esc(r.id)}" tabindex="-1"><div class="row"><div><small>${r.time||'시간 미정'} · 반복 루틴</small><h3>${esc(r.title)}</h3></div><span class="badge">${stateName(status)}</span></div>${stepList(r,future()||status==='skipped')}<div class="routine-progress"><progress aria-label="${esc(r.title)} 단계 완료" value="${r.run?.checked.length||0}" max="${r.steps.length}"></progress><small>${r.run?.checked.length||0} / ${r.steps.length} 단계 완료</small></div>${r.run?.startedAt||r.run?.endedAt?`<p class="hint">실제 ${r.run.startedAt?'시작 '+r.run.startedAt:''} ${r.run.endedAt?'완료 '+r.run.endedAt:''}</p>`:''}<div class="row-actions">${future()?'<span class="hint">미래의 실행 체크는 해당 날짜에 할 수 있어요.</span>':`${status==='pending'?btn('지금 시작','routine-start',r.id,'',shown):''}${status==='doing'||status==='pending'?btn('모두 완료','routine-done',r.id,'',shown):''}${status==='pending'||status==='doing'?btn('오늘 건너뛰기','routine-skip',r.id,'',shown):btn('실행 초기화','routine-reset',r.id,'',shown)}`}</div></article>`}
 function eventCard(e,timeline=false){const status=e.status||'planned',shown=shownStatusAttribute(status);return `<article class="plan-row ${status}"><div><small>${timeline?'계획 · 일정':e.start+'–'+e.end} · ${stateName(status)}</small><button class="text-button" data-act="edit-event" data-id="${e.id}">${esc(e.title)}</button>${e.actualStart||e.actualEnd?`<p class="hint">실제 ${e.actualStart?'시작 '+e.actualStart:''} ${e.actualEnd?'완료 '+e.actualEnd:''}</p>`:''}</div><div class="row-actions">${future()?'':status==='planned'?btn('지금 시작','event-doing',e.id,'',shown):status==='doing'?btn('완료','event-done',e.id,'',shown)+btn('초기화','event-planned',e.id,'',shown):btn('되돌리기','event-planned',e.id,'',shown)}${!future()&&status==='planned'?btn('건너뛰기','event-skipped',e.id,'',shown):''}</div></article>`}
 function taskRow(t,sticky=false){const overdue=!t.done&&t.dueDate&&t.dueDate<todayKey();return `<article class="reminder-row ${sticky===true?'sticky-task':''} ${t.flagged?'is-important':''} ${t.done?'sticky-done':''}">${sticky&&t.flagged?'<span class="sticky-important">★ 중요</span>':''}<label class="reminder-check"><input type="checkbox" data-task="${t.id}" aria-label="${esc(t.title)} 완료" ${t.done?'checked':''}><span class="${t.done?'strike':''}">${esc(t.title)}</span></label><div class="reminder-detail">${t.note?(t.note.length>160||t.note.includes('\n')?`<details class="task-note"><summary>세부 내용 보기</summary><p>${esc(t.note)}</p></details>`:`<p>${esc(t.note)}</p>`):''}<small class="${overdue?'overdue':''}">${t.dueDate?`${t.dueDate}${t.dueTime?' '+t.dueTime:''}${overdue?' · 기한 지남':''}`:'기한 없음'} · ${esc(t.listName)}</small></div><div class="reminder-actions"><button type="button" class="small-button" data-act="flag-task" data-id="${esc(t.id)}" aria-pressed="${!!t.flagged}" aria-label="${t.flagged?'중요 표시 해제':'중요 표시'}">${t.flagged?'★ 중요':'☆ 중요'}</button>${btn('수정','edit-task',t.id,'small-button')}<button type="button" class="small-button" data-act="delete-task" data-id="${esc(t.id)}" ${originalAttribute(esc,t)} aria-label="${esc(t.title)} 삭제">×</button></div></article>`}
@@ -315,12 +319,12 @@ function workoutBody(l,{compact=false}={}){
  // Set-done/rest only while the activity is still ongoing — ended today logs keep editable kg/reps without restarting rest.
  const live=l.date===todayKey()&&!l.legacy&&!l.sourceId&&!!activityIntervals(data).get(l.id)?.ongoing;
  const summary=workoutSessionSummary(l.text);
- return `<div class="workout-session" data-workout-log="${esc(l.id)}">${workoutHealthCard(l,{esc})}<header><strong>${esc(workoutSessionHeading('운동'))}</strong>${summary?`<small>${esc(summary)}</small>`:''}</header>${workoutSetsMarkup(l.text,{plan:l.workoutPlan||'',source:'log',logId:l.id,live})}${workoutEnergy(l)}${workoutFeeling(l)}<details><summary>입력 원문</summary><p>${esc(l.text)}</p></details></div>`;
+ return `<div class="workout-session" data-workout-log="${esc(l.id)}" ${originalAttribute(esc,l)}>${workoutHealthCard(l,{esc})}<header><strong>${esc(workoutSessionHeading('운동'))}</strong>${summary?`<small>${esc(summary)}</small>`:''}</header>${workoutSetsMarkup(l.text,{plan:l.workoutPlan||'',source:'log',logId:l.id,live})}${workoutEnergy(l)}${workoutFeeling(l)}<details><summary>입력 원문</summary><p>${esc(l.text)}</p></details></div>`;
 }
 function liveWorkoutSessionCard(l){
  const interval=activityIntervals(data).get(l.id);
  const summary=activitySummaryLabel(l);
- return `<section class="card live-workout-session activity-ongoing" aria-labelledby="live-workout-heading" data-activity-id="${esc(l.id)}"><div class="card-body"><div class="live-workout-heading"><div><small>진행 중 운동 세션</small><h2 id="live-workout-heading">${esc(activityTitle(l,60,{ongoing:true}))}</h2><div class="activity-range">${esc(activityTimeLabel(l,interval))}${summary?` · ${esc(summary)}`:''}</div></div><span class="ongoing-badge"><i></i>진행 중</span></div><div class="workout-sets-host">${workoutSetsMarkup(l.text,{plan:l.workoutPlan||'',source:'log',logId:l.id,live:date===todayKey()})}</div>${workoutAppendControls('log',l.id)}${workoutPickerDetails('log',l.id)}${workoutEnergy(l)}${workoutFeeling(l)}<details><summary>입력 원문</summary><p>${esc(l.text)}</p></details></div></section>`;
+ return `<section class="card live-workout-session activity-ongoing" aria-labelledby="live-workout-heading" data-activity-id="${esc(l.id)}" data-workout-log="${esc(l.id)}" ${originalAttribute(esc,l)}><div class="card-body"><div class="live-workout-heading"><div><small>진행 중 운동 세션</small><h2 id="live-workout-heading">${esc(activityTitle(l,60,{ongoing:true}))}</h2><div class="activity-range">${esc(activityTimeLabel(l,interval))}${summary?` · ${esc(summary)}`:''}</div></div><span class="ongoing-badge"><i></i>진행 중</span></div><div class="workout-sets-host">${workoutSetsMarkup(l.text,{plan:l.workoutPlan||'',source:'log',logId:l.id,live:date===todayKey()})}</div>${workoutAppendControls('log',l.id)}${workoutPickerDetails('log',l.id)}${workoutEnergy(l)}${workoutFeeling(l)}<details><summary>입력 원문</summary><p>${esc(l.text)}</p></details></div></section>`;
 }
 function ongoingFinishBar(){
  if(view!=='day'||date!==todayKey())return '';
@@ -411,7 +415,7 @@ function lifeRoutinePanel(routines){
  const disabled=future();
  const items=routines.flatMap(r=>r.steps.map(s=>{
   const done=!!r.run?.checked.includes(s.id);
-  return `<div class="life-routine-item ${done?'is-done':''}"><label><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${done?'checked':''} ${disabled?'disabled':''}><span>${esc(s.title)}</span></label></div>`;
+  return `<div class="life-routine-item ${done?'is-done':''}"><label><input type="checkbox" data-step="${esc(s.id)}" data-routine="${esc(r.id)}" ${shownCheckedAttribute(done)} ${done?'checked':''} ${disabled?'disabled':''}><span>${esc(s.title)}</span></label></div>`;
  }));
  return `<div class="life-routine-list">${items.join('')}</div><div class="life-inline-links">${btn('루틴 상세','view-routines','','text-link')}</div>`;
 }
@@ -423,7 +427,7 @@ function lifeQuoteCard(){
 function lifeLiveWorkoutCard(l){
  const interval=activityIntervals(data).get(l.id);
  const summary=activitySummaryLabel(l);
- return `<section class="life-live-card activity-ongoing" data-activity-id="${esc(l.id)}" aria-labelledby="life-live-heading">
+ return `<section class="life-live-card activity-ongoing" data-activity-id="${esc(l.id)}" data-workout-log="${esc(l.id)}" ${originalAttribute(esc,l)} aria-labelledby="life-live-heading">
   <div class="life-live-top"><div><small>진행 중 운동</small><h3 id="life-live-heading">${esc(activityTitle(l,52,{ongoing:true}))}</h3><p>${esc(activityTimeLabel(l,interval))}${summary?' · '+esc(summary):''}</p></div><span class="ongoing-badge"><i></i>진행 중</span></div>
   <details class="life-fold"><summary>세트 · 휴식 · 한 줄 추가</summary><div class="life-fold-body"><div class="workout-sets-host">${workoutSetsMarkup(l.text,{plan:l.workoutPlan||'',source:'log',logId:l.id,live:date===todayKey()})}</div>${workoutAppendControls('log',l.id)}${workoutPickerDetails('log',l.id)}${workoutEnergy(l)}${workoutFeeling(l)}</div></details>
   <details class="life-fold"><summary>입력 원문</summary><p class="life-fold-body">${esc(l.text)}</p></details>
@@ -611,7 +615,7 @@ document.addEventListener('change',async e=>{
   const {source,log,item,set:setIndex,workoutField}=e.target.dataset;
   try{
    const patch={};patch[workoutField]=e.target.value;
-   await mutateWorkoutSets(source,log,items=>updateStrengthSet(items,Number(item),Number(setIndex),patch));
+   await mutateWorkoutSets(source,log,items=>updateStrengthSet(items,Number(item),Number(setIndex),patch),e.target);
   }catch(error){notify(error.message);if(source==='capture')refreshWorkoutSetsHost();else await render()}
   return;
  }
@@ -619,7 +623,7 @@ document.addEventListener('change',async e=>{
  const t=e.target;if(t.name==='kind'&&t.closest('[data-form=favorite]')){const fields=$('#favorite-nutrition');fields.hidden=t.value!=='식사';fields.disabled=t.value!=='식사'}if(t.matches('[data-split-toggle]')){const fields=t.closest('.payment-splits').querySelector('.payment-split-fields');fields.hidden=!t.checked;fields.disabled=!t.checked}if(t.name==='kind'&&t.closest('[data-form=log]')){const fields=$('#log-meal-fields');fields.hidden=t.value!=='식사';fields.disabled=t.value!=='식사';const old=data.logs.find(l=>l.id===t.closest('form').dataset.id);t.closest('form').querySelectorAll('[data-act=choose-photo]').forEach(b=>b.dataset.read=t.value==='식사'&&!old?.expenseId?'meal-receipt':'');$('#form-error').textContent=[old?.money&&t.value!=='식사'?'분류를 바꾸면 식사 지출 연결도 해제돼요. 원하지 않으면 식사로 되돌려주세요.':'',old?.nutrition&&t.value!=='식사'?'식사 분류를 해제하면 영양정보도 함께 정리돼요.':'',old?.workoutFeedback&&t.value!=='운동'?'운동 분류를 해제하면 운동 느낌도 함께 정리돼요.':''].filter(Boolean).join(' ')}if(t.name==='muscles'&&t.closest('[data-form=workout-feeling]')){stashFeelingMuscles(t.closest('[data-form=workout-feeling]'));paintMuscleMap()}
  if(t.id==='purchase-chart-family'){purchaseChartFamily=t.value;await render()}if(t.id==='task-date-toggle'){$('#task-date-fields').hidden=!t.checked;$('#task-date-fields [name=dueDate]').required=t.checked}if(t.id==='task-list-filter'){taskListFilter=t.value;await render()}if(t.id==='selected-date'&&isDate(t.value)){date=t.value;await render()}
  if(t.closest('[data-form=capture]')){if(t.name==='mode')syncCaptureEndVisibility();rememberCapture(t.id==='capture-time')}
- if(t.dataset.routine&&!future())await commit(d=>routineAction(d,date,t.dataset.routine,'step',t.dataset.step,executionTime()),{undo:true,message:'루틴 실행을 저장했어요.'});
+ if(t.dataset.routine&&!future())await commit(d=>applyShownRoutineStep(d,date,t.dataset.routine,t.dataset.step,t,executionTime(),routineAction),{undo:true,message:'루틴 실행을 저장했어요.'});
  if(t.dataset.task)await commit(d=>taskComplete(d,t.dataset.task,t.checked,todayKey(),timeNow()),{undo:true,message:'할 일 상태를 저장했어요.'});
  if(t.id==='import-file')await importFile(t.files[0]);
 });
@@ -676,14 +680,14 @@ document.addEventListener('click',async e=>{
   return;
  }
  if(act==='workout-set-add'){
-  try{await mutateWorkoutSets(b.dataset.source||'capture',b.dataset.log||'',items=>addStrengthSet(items,Number(b.dataset.item)));notify('세트를 추가했어요.');}
+  try{await mutateWorkoutSets(b.dataset.source||'capture',b.dataset.log||'',items=>addStrengthSet(items,Number(b.dataset.item)),b);notify('세트를 추가했어요.');}
   catch(error){notify(error.message)}
   return;
  }
  if(act==='workout-set-remove'){
   try{
    const source=b.dataset.source||'capture',logId=b.dataset.log||'',itemIndex=Number(b.dataset.item),setIndex=Number(b.dataset.set);
-   await mutateWorkoutSets(source,logId,items=>removeStrengthSet(items,itemIndex,setIndex));
+   await mutateWorkoutSets(source,logId,items=>removeStrengthSet(items,itemIndex,setIndex),b);
    if(source==='log'&&logId){replaceLiveWorkoutDone(shiftSetDoneMarks(liveWorkoutDone,itemIndex,setIndex,logId));await render()}
    else{const draft=drafts[date]||{};drafts[date]={...draft,workoutSetDone:shiftSetDoneMarks(draft.workoutSetDone||{},itemIndex,setIndex)};scheduleDrafts();refreshWorkoutSetsHost()}
    notify('세트를 삭제했어요.');
@@ -855,11 +859,17 @@ setInterval(updateVisibleClock,15000);document.addEventListener('visibilitychang
 function photoGallery(photos=[],target='',read=''){return `<div class="photo-gallery">${photos.map(p=>`<figure><button type="button" class="photo-open" data-act="photo-open" data-id="${esc(p.id)}" aria-label="${esc(p.name)} 크게 보기"><img class="photo-thumb" data-photo-id="${esc(p.id)}" alt="${esc(p.name)}" loading="lazy"></button>${target?`<button type="button" class="photo-remove" data-act="remove-photo" data-target="${target}" data-id="${esc(p.id)}" aria-label="사진 첨부 해제">×</button>`:''}${read?`<button type="button" class="photo-reread" data-act="read-saved-photo" data-id="${esc(p.id)}" data-target="${target}" data-read="${read}">다시 읽기</button>`:''}</figure>`).join('')}</div>`}
 function photoStatusKey({photoKey=key,target,k=date,token=editorPhotoToken}){return [photoKey,target,target==='editor'?token:k].join('|')}
 function setPhotoFeedback(context,text){photoFeedback.set(photoStatusKey(context),text);if(photoFeedback.size>100)photoFeedback.delete(photoFeedback.keys().next().value);if(context.photoKey!==key)return;if(context.target==='editor'&&context.token!==editorPhotoToken||context.target!=='editor'&&context.k!==date)return;const status=$('#photo-status-'+context.target);if(status)status.textContent=text;}
-function photoField(target,photos,read=''){const label=['receipt','meal-receipt'].includes(read)?'영수증 사진':read==='body'?'인바디 결과지':'사진';return `<div class="photo-field"><div class="photo-choices"><span>${label}${read?' · 읽고 확인 후 적용':''}</span><div class="row-actions"><button type="button" class="small-button" data-act="choose-photo" data-target="${target}" data-read="${read}" data-source="camera">사진 촬영</button><button type="button" class="small-button" data-act="choose-photo" data-target="${target}" data-read="${read}" data-source="library">사진 보관함</button></div></div><small>최대 ${MAX_PHOTOS}장</small><p class="photo-status" id="photo-status-${target}" role="status" aria-live="polite">${esc(photoFeedback.get(photoStatusKey({target}))||'')}</p><div id="photo-gallery-${target}">${photoGallery(photos,target,read)}</div></div>`}
+function photoField(target,photos,read=''){const label=['receipt','meal-receipt'].includes(read)?'영수증 사진':read==='body'?'인바디 결과지':'사진';return `<div class="photo-field" data-photo-target="${esc(target)}" ${['diary','body'].includes(target)?`data-original-photos="${esc(JSON.stringify(photos||[]))}"`:''}><div class="photo-choices"><span>${label}${read?' · 읽고 확인 후 적용':''}</span><div class="row-actions"><button type="button" class="small-button" data-act="choose-photo" data-target="${target}" data-read="${read}" data-source="camera">사진 촬영</button><button type="button" class="small-button" data-act="choose-photo" data-target="${target}" data-read="${read}" data-source="library">사진 보관함</button></div></div><small>최대 ${MAX_PHOTOS}장</small><p class="photo-status" id="photo-status-${target}" role="status" aria-live="polite">${esc(photoFeedback.get(photoStatusKey({target}))||'')}</p><div id="photo-gallery-${target}">${photoGallery(photos,target,read)}</div></div>`}
+function paintedPhotoOriginal(target){
+ const field=document.querySelector(`.photo-field[data-photo-target="${target}"]`);
+ const raw=field?.getAttribute?.('data-original-photos');
+ if(raw!=null)return JSON.parse(raw);
+ return target==='diary'?(data.diary[date]?.photos||[]):target==='body'?(data.life[date]?.bodyPhotos||[]):[];
+}
 
 async function hydratePhotos(root=document){const store=photoStore,images=[...root.querySelectorAll('img[data-photo-id]')].filter(img=>!img.getAttribute('src'));let next=0;async function worker(){while(next<images.length){const img=images[next++];try{const url=await store.url(img.dataset.photoId);if(store!==photoStore||!img.isConnected)continue;if(url)img.src=url;else if(!img.hidden){img.hidden=true;const span=document.createElement('span');span.className='photo-missing';span.textContent='사진 파일을 찾을 수 없어요';img.parentElement.append(span)}}catch{if(store===photoStore&&img.isConnected)img.alt='사진을 읽지 못했어요.'}}}await Promise.all(Array.from({length:Math.min(4,images.length)},worker))}
 
-async function refreshPhotoField(target){if(target==='capture')persistDrafts();const host=$('#photo-gallery-'+target);if(!host)return;const refs=target==='capture'?drafts[date]?.photos||[]:target==='diary'?data.diary[date]?.photos||[]:target==='body'?data.life[date]?.bodyPhotos||[]:editorPhotos;const read=host.closest('.photo-field')?.querySelector('[data-act=choose-photo]')?.dataset.read||'';host.innerHTML=photoGallery(refs,target,read);await hydratePhotos(host)}
+async function refreshPhotoField(target){if(target==='capture')persistDrafts();const host=$('#photo-gallery-'+target);if(!host)return;const refs=target==='capture'?drafts[date]?.photos||[]:target==='diary'?data.diary[date]?.photos||[]:target==='body'?data.life[date]?.bodyPhotos||[]:editorPhotos;const field=host.closest('.photo-field');const read=field?.querySelector('[data-act=choose-photo]')?.dataset.read||'';if(field&&['diary','body'].includes(target))field.setAttribute('data-original-photos',JSON.stringify(refs||[]));host.innerHTML=photoGallery(refs,target,read);await hydratePhotos(host)}
 async function rereadPhoto(id,target,mode){const context={photoKey:key,target,k:date,token:editorPhotoToken},slot=target==='editor'?context.token:date,busyKey=target+':'+slot;if(photoBusy.has(busyKey)){notify('사진을 읽고 있어요. 잠시 기다려주세요.');return}const ref=[...collectPhotoRefs(data),...editorPhotos,...(drafts[date]?.photos||[])].find(p=>p.id===id);if(!ref){notify('사진을 찾지 못했어요.');return}photoBusy.add(busyKey);setPhotoFeedback(context,'보관된 사진을 다시 읽고 있어요…');try{const blob=await photoStage(photoStore.get(id),'사진 저장소가 응답하지 않아요.',15000);if(!blob)throw Error('사진 파일이 없어요. 원본을 다시 선택해주세요.');if(key!==context.photoKey||date!==context.k||target==='editor'&&editorPhotoToken!==context.token)throw Error('화면이 바뀌어 사진 읽기를 중단했어요.');await scanAttachedPhoto({blob,previewBlob:blob,ref,mode,target,k:context.k,token:context.token,photoKey:context.photoKey});setPhotoFeedback(context,'사진은 추가하지 않고 다시 읽었어요. 확인한 값만 적용돼요.');}catch(error){setPhotoFeedback(context,error.message);notify(error.message)}finally{photoBusy.delete(busyKey);if(needsPaint)await repaintWhenIdle()}}
 async function scanAttachedPhoto({blob,previewBlob,ref,mode,k,token,photoKey}){const receipt=mode!=='body',mapping=mode==='meal-receipt'?{date:'date',merchant:'mealMerchant',amount:'mealAmount',payment:'mealPayment'}:{},form=receipt?document.querySelector('#editor [data-form='+ (mode==='meal-receipt'?'log':'money')+']'):$('#body-form');if(!form)return;const existing=Object.fromEntries(new FormData(form));for(const [name,field]of Object.entries(mapping))existing[name]=existing[field]??'';if(!receipt)existing.date=k;const isCurrent=()=>key===photoKey&&(receipt?$('#editor').open&&editorPhotoToken===token:date===k&&view==='life');await readAndReviewPhoto({blob,previewBlob,mode,existing,date:k,isCurrent,onApply:async selected=>{
  const targetDate=selected.date||k;if(!isDate(targetDate)||targetDate>todayKey())throw Error('날짜는 오늘이나 지난 날짜로 정해주세요.');
@@ -875,14 +885,14 @@ async function addPhotos(input,context={photoKey:key,target:input.dataset.photoI
  photoBusy.add(busyKey);let saved=0,readPhoto=null;const errors=[];setStatus('③ 사진 파일을 확인하고 있어요…');
  try{for(const [index,file]of files.entries()){try{setStatus(`${index+1}/${files.length} 사진을 준비하고 있어요…`);const {blob,ref,ocrBlob}=await photoStage(preparePhoto(file,setStatus),'사진 파일을 읽는 시간이 길어졌어요. 사진 보관함에서 다시 선택해주세요.',90000);if(key!==photoKey)throw Error('계정이 바뀌어 사진 첨부를 중단했어요.');if(target==='editor'&&(token!==editorPhotoToken||!$('#editor').open))break;await photoStage(store.put(ref.id,blob),'사진 저장소가 응답하지 않아요. 다른 사진 한 장으로 다시 시도해주세요.',15000);
  if(target==='capture'){drafts[k]??={};drafts[k].photos=[...(drafts[k].photos||[]),ref];persistDrafts();}
- if(target==='diary'||target==='body'){const collection=target==='diary'?'diary':'life',field=target==='diary'?'photos':'bodyPhotos';if(!await commit(d=>{d[collection][k]={...d[collection][k],[field]:[...(d[collection][k]?.[field]||[]),ref]}},{paint:false}))throw Error('사진 기록을 저장하지 못했어요.');}
+ if(target==='diary'||target==='body'){const collection=target==='diary'?'diary':'life',field=target==='diary'?'photos':'bodyPhotos',openedPhotos=paintedPhotoOriginal(target);if(!await commit(d=>{assertSamePhotos(d[collection][k]?.[field]||[],openedPhotos);d[collection][k]={...d[collection][k],[field]:[...(d[collection][k]?.[field]||[]),ref]}},{paint:false}))throw Error('사진 기록을 저장하지 못했어요.');}
  if(target==='editor')editorPhotos=[...editorPhotos,ref];if(input.dataset.readPhoto)readPhoto={blob:ocrBlob||blob,previewBlob:blob,ref,mode:input.dataset.readPhoto};saved++;if(date===k&&key===photoKey)await refreshPhotoField(target);
  }catch(error){errors.push(`${file.name}: ${error.message}`);if(key!==photoKey)break;}}
  const message=errors.length?`${saved}장 첨부됨 · ${errors.join(' / ')}`:`${saved}장 ${['diary','body'].includes(target)?'저장됐어요.':'첨부됐어요. 활동을 저장하면 함께 보관돼요.'}`;setStatus(message);if(errors.length)notify(message);if(readPhoto&&key===photoKey)await scanAttachedPhoto({...readPhoto,target,k,token,photoKey});
  }finally{photoBusy.delete(busyKey);input.value='';if(needsPaint)await repaintWhenIdle();}
 }
 
-async function removePhoto(target,id){if(target==='capture'){drafts[date]??={};drafts[date].photos=(drafts[date].photos||[]).filter(p=>p.id!==id)}else if(target==='body')await commit(d=>{if(d.life[date])d.life[date].bodyPhotos=(d.life[date].bodyPhotos||[]).filter(p=>p.id!==id)},{paint:false,undo:true,message:'결과지 첨부를 해제했어요.'});else if(target==='editor')editorPhotos=editorPhotos.filter(p=>p.id!==id);else await commit(d=>{if(d.diary[date])d.diary[date].photos=(d.diary[date].photos||[]).filter(p=>p.id!==id)},{paint:false,undo:true,message:'사진 첨부를 해제했어요.'});await refreshPhotoField(target)}
+async function removePhoto(target,id){if(target==='capture'){drafts[date]??={};drafts[date].photos=(drafts[date].photos||[]).filter(p=>p.id!==id)}else if(target==='body'){const openedPhotos=paintedPhotoOriginal('body');await commit(d=>{if(!d.life[date])throw Error('삭제된 측정 기록이거나 찾을 수 없어요.');assertSamePhotos(d.life[date].bodyPhotos||[],openedPhotos);d.life[date].bodyPhotos=(d.life[date].bodyPhotos||[]).filter(p=>p.id!==id)},{paint:false,undo:true,message:'결과지 첨부를 해제했어요.'});}else if(target==='editor')editorPhotos=editorPhotos.filter(p=>p.id!==id);else{const openedPhotos=paintedPhotoOriginal('diary');await commit(d=>{if(!d.diary[date])throw Error('삭제된 일기이거나 찾을 수 없어요.');assertSamePhotos(d.diary[date].photos||[],openedPhotos);d.diary[date].photos=(d.diary[date].photos||[]).filter(p=>p.id!==id)},{paint:false,undo:true,message:'사진 첨부를 해제했어요.'});}await refreshPhotoField(target)}
 async function openPhoto(id){const photoKey=key;try{const url=await photoStore.url(id);if(key!==photoKey)return;if(!url)throw Error('사진 파일을 찾을 수 없어요. 사진이 포함된 JSON 백업을 불러와주세요.');const ref=collectPhotoRefs(data).find(p=>p.id===id)||[...(drafts[date]?.photos||[]),...editorPhotos].find(p=>p.id===id);$('#photo-full').src=url;$('#photo-caption').textContent=ref?.name||'첨부 사진';$('#photo-download').dataset.id=id;$('#photo-viewer').showModal()}catch(error){notify(error.message)}}
 
 
