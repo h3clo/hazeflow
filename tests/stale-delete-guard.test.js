@@ -27,6 +27,22 @@ test('가계부 편집창 마크업은 폼·삭제 버튼에 화면 원본을 �
  assert.ok(body.includes('linked?`data-original="${esc(JSON.stringify(linked))}"'));
  assert.ok(body.includes("btn('거래 삭제','delete-log',id,'danger',originalAttribute(esc,linked))"));
 });
+test('자산 잔액 목록의 오래된 삭제 버튼은 바뀐 스냅샷을 지우지 않는다',()=>{
+ const painted={id:'snap',date:'2026-11-07',asset:{accountId:'cash',name:'생활비',category:'cash',balance:1000}};
+ const live={...painted,asset:{...painted.asset,balance:2500}};
+ const markup=`<button data-act="delete-asset" data-id="snap" ${originalAttribute(esc,painted)}></button>`;
+ const opened=renderedOriginal(controlFromMarkup(markup),live);
+ const logs=[live];
+ assert.equal(opened.asset.balance,1000);
+ assert.throws(()=>removeUnchangedItem(logs,'snap',opened),/다른 기기나 화면에서 바뀐 기록/);
+ assert.equal(logs[0].asset.balance,2500);
+ assert.equal(removeUnchangedItem([structuredClone(painted)],'snap',painted).length,0);
+});
+test('자산 잔액 목록·편집창 삭제 마크업은 화면 원본을 싣는다',()=>{
+ const source=readFileSync(new URL('../app.js',import.meta.url),'utf8');
+ assert.ok(source.includes("btn('기록 삭제','delete-asset',row.id,'small-button',originalAttribute(esc,row))"));
+ assert.ok(source.includes("btn('이 날짜 기록 삭제','delete-asset',snapshotId,'danger',originalAttribute(esc,snapshot))"));
+});
 test('그대로인 활동은 지우고 연결된 식사만 지출 연결을 해제한다',()=>{const next=removeUnchangedLog([log,meal],log.id,log);assert.deepEqual(next.map(l=>l.id),['meal']);assert.equal(next[0].expenseId,undefined);assert.equal(meal.expenseId,'a')});
 test('다른 화면에서 내용·종료·사진이 바뀌거나 삭제된 활동은 오래된 창에서 지우지 않는다',()=>{for(const current of [{...log,text:'다른 내용'},{...log,endTime:'10:20'},{...log,photos:[{id:'p'}]}]){const logs=[current,meal];assert.throws(()=>removeUnchangedLog(logs,log.id,log),/다른 기기/);assert.equal(logs.length,2);assert.equal(meal.expenseId,'a')}assert.throws(()=>removeUnchangedLog([meal],log.id,log),/삭제된 기록/)});
 test('빈 종료값만 정규화된 기록과 할 일·일정은 삭제를 허용한다',()=>{assert.equal(removeUnchangedLog([{...log,endTime:null}],log.id,log).length,0);const task={id:'t',title:'점검',done:false};assert.equal(removeUnchangedItem([task],'t',task).length,0);assert.throws(()=>removeUnchangedItem([{...task,done:true}],'t',task),/다른 기기/)});
