@@ -13,7 +13,7 @@
 
 - 버그 보호: `eventEditor`/`taskEditor` 삭제 버튼에 `originalAttribute` (가계부와 동일). 없는 id로 열면 편집창을 열지 않음.
 - 검사: `tests/stale-delete-guard.test.js` 보강. 스키마·실계정 불변.
-- 브랜치 `cursor/event-task-stale-delete-03b4`.
+- tip `c72c82c` · PR #15 merged · Actions #42761685428 success · live 확인.
 
 ### 2026-11-10 Cursor · iCloud 범위 분리 + 달 이동 a11y
 
