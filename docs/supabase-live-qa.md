@@ -74,6 +74,18 @@ HAZEFLOW_SYNC_TEST_PASSWORD_B=<qa-pass-b>
 
 시크릿이 없으면 스위트는 **skip**이며 `npm test`를 실패시키지 않는다.
 
+## 데이터 격리·정리 정책
+
+- **격리:** QA Auth만 사용. 하네스는 `p_space='sandbox'`만. RLS로 다른 유저 행 불가. QA의 `main` 쓰기는 금지·검사에서 0건이어야 한다.
+- **실행 중 정리:** 각 시나리오 `finally`에서 건드린 `item_key`를 `hazeflow_apply` tombstone(`deleted:true`)으로 되돌린다.
+- **사후 정리:** QA 유저의 `sandbox` 행(활성·tombstone)은 관리 SQL로 물리 삭제해도 된다. **다른 유저·`main`·`family flow`는 절대 삭제하지 않는다.**
+- **계정:** QA 유저 자체는 재실행용으로 남겨 둔다. 폐기할 때는 Dashboard/Auth에서 QA 이메일만 삭제.
+
+## 비밀정보
+
+- 값은 gitignore `.private/hazeflow-sync-qa.env` 또는 Cursor Secrets에만. **Git 추적·PR·채팅·Artifacts 로그에 비밀번호/anon JWT를 넣지 않는다.**
+- `npm test` 기본은 시크릿 없으면 live **skip**. CI(`pages.yml`)는 `main` push만이며 live 시크릿을 넣지 않는다.
+
 ## 금지
 
 - 개인 실계정으로 로그인한 채 라이브 QA 실행 · `main` 공간 시험 쓰기/삭제

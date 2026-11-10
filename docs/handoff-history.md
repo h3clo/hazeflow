@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · PR #36 병합 전 최종 점검 + 네이티브 준비 문서
+
+- 격리: QA auth 2 · QA `main` 0 · live sandbox 0 · tombstone 28 → QA sandbox만 물리 삭제. 개인/`main` 미변경.
+- 비밀: `.private/hazeflow-sync-qa.env` gitignore·히스토리 없음. Artifacts에 JWT/비밀번호 없음. 문서 placeholder만.
+- 빌드: 시크릿 없이 `npm test` 611/6skip · `build` OK. PR 브랜치 Actions 체크 없음(`pages.yml`은 main만).
+- 네이티브: `native-readiness.md`에 순서·도구·권한·무료 제약 정리. **구현 시작 안 함.**
+
 ### 2026-11-11 Cursor · 실 Supabase 라이브 스위트 통과 (옵션 D)
 
 - 사용자: 브라우저로 직접 구성 요청. Dashboard 세션은 만료 → MCP SQL로 QA Auth 2명 생성·비밀번호 로테이션. 개인/`main` 미변경.
