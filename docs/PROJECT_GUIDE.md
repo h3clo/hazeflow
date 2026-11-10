@@ -46,7 +46,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **다음 시작점:** 사용자 실사용 시작(2026-11-10). PR #4·#6·#7·#8·#9·#10·#11을 `main`에 병합·Pages 배포. Today Life 사용 가능(기본 Classic, 설정에서 Life). **실기기·계정 왕복·Q4-B 2·4~6은 여전히 미승인/미검증.** 시안 A/B는 기각·문서만 보존([UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)). 다음 자동화: a11y/사용성 소폭(하루 화면 길이 등)·실사용 피드백 반영.
 
-**배포 (2026-11-10 · 미병합 PR 일괄):** 포함 — 시안 문서(#4), 캡처 추가설정 좁은 폭(#6), 가계부 도구 접기(#7), 가계부/자산/일정·루틴·사진·운동 stale 가드(#8–#10), 백업 export/import 게이트 테스트(#11). 로컬 `npm test` **536** · `build` · `diff --check` 후 `main` push. Actions 성공 여부는 배포 직후 확인. URL https://h3clo.github.io/hazeflow/ . 스키마·실계정 데이터 변경 없음.
+**배포 (2026-11-10 · 미병합 PR 일괄):** tip `90459c5`. 포함 — 시안 문서(#4), 캡처 추가설정 좁은 폭(#6), 가계부 도구 접기(#7), 가계부/자산/일정·루틴·사진·운동 stale 가드(#8–#10), 백업 export/import 게이트 테스트(#11). 로컬·Actions `npm test` **536** · build. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42758126437) success (build 23s · deploy 9s). 복구 태그 `pre-deploy-before-batch-2026-11-10`=`a2930e6`. URL https://h3clo.github.io/hazeflow/ (번들 `app-Ct7AFvn1.js`에 `90459c5`·`money-tool-fold` 확인). 스키마·실계정 데이터 변경 없음. **실기기·로그인 왕복 미확인.**
 
 ### 자동화 자율 범위 (2026-11-09 확정 · ~2026-11-16 00:00 KST)
 

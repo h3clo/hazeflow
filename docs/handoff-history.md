@@ -15,7 +15,7 @@
 - 병합: #4 시안 문서, #6 캡처 추가설정 좁은 폭, #7 가계부 도구 접기, #8 가계부 stale 삭제, #9 자산 스냅샷 stale 삭제, #10 일정·루틴·사진·운동 shown-status 가드, #11 백업 export/import 게이트 테스트.
 - 검사: `npm test` **536** · `npm run build` · `git diff --check`. 스키마·실계정·마이그레이션 없음.
 - 문서 충돌은 `PROJECT_GUIDE`/`handoff`를 통합 상태로 정리. 코드 충돌은 `stale-delete-guard` 테스트만 수동 병합(가계부+자산).
-- 복구: Life 태그 `pre-deploy-before-life-2026-11-09` 유지. 이번 tip은 push 후 SHA/Actions로 기록.
+- tip `90459c5`. Actions #42758126437 success. 복구 태그 `pre-deploy-before-batch-2026-11-10`=`a2930e6`. Life 태그 유지. Pages 번들 `app-Ct7AFvn1.js`에 build id 확인.
 
 ### 2026-11-09 Cursor · Today Life Pages 배포
 
