@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-09 Cursor · 자동화 자율 범위 + 캡처 추가 설정 좁은 폭
+
+- 사용자: 11/15까지(문서상 ~11/16 00:00 KST) Automations가 “승인 미완료 없음”만으로 종료하지 말고, 조건 충족 미완료 1건을 자동 선정·PR(병합/배포 금지).
+- 문서: `AGENTS.md`·`PROJECT_GUIDE.md`에 **자동화 자율 범위** 기록. 우선순위 버그→a11y→사용성→반응형→테스트→내보내기/복원. 실계정 동기화·마이그레이션·결제 원장·대규모 기능 제외.
+- 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
+- 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
+
 ### 2026-11-09 Cursor · Today Life Pages 배포
 
 - 검증 후 PR #5만 `main` 병합(`794d24f`). 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions #42591226027 success → https://h3clo.github.io/hazeflow/
