@@ -62,7 +62,8 @@ import {previewBankCsv,bankCsvDuplicateCandidates,bankCsvPreviewHtml,decodeCsvBy
 import {bodyFields,bodyNames,parseBodyCSV,mergeBodyRows,bodyHistory,saveBodyMeasurement} from './body.js';
 import {workoutSession,workoutSessionSummary,workoutSessionHeading,previousExercise} from './workout.js';
 import {workoutItems,serializeWorkoutItems,updateStrengthSet,addStrengthSet,removeStrengthSet,appendWorkoutLine,applyPlanGoals,snapshotWorkoutPlan,formatExerciseItem,nextIncompleteSetIndex as findNextIncompleteSet,strengthItemComplete,shouldContinueRestAfterSet,lastCompletedStrengthIndex} from './workout-sets.js';
-import {activityIntervals,activityTimeLabel,recordKindLabel,activityEndForEdit,captureActivityEnd} from './domain.js';
+import {activityIntervals,activityTimeLabel,recordKindLabel,activityEndForEdit,captureActivityEnd,ongoingActivities} from './domain.js';
+import {shouldConfirmOngoingStart,resolveOngoingEndChoices,applyOngoingEnds,captureTimingFields} from './activity-start-confirm.js';
 import {buildDayAgenda} from './agenda.js';
 import {createToast} from './toast.js';
 import {cloudConfig} from './cloud-config.js';
@@ -74,6 +75,7 @@ import {weekdays,todayKey,uid,emptyState,migrate,isDate,isTime,routinesForDate,v
 const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search),sandbox=params.has('sandbox'),qaDevice=sandbox&&/^[a-z0-9-]{1,30}$/.test(params.get('device')||'')?params.get('device'):'';
 const guestKey=sandbox?'hazeflow-qa-v2'+(qaDevice?'-device-'+qaDevice:''):'hazeflow-v1';let key=guestKey;
+let pendingCaptureStart=null;
 
 const iconPaths={goals:'<path d="M5 21V3m0 1h14l-3 5 3 5H5"/>',assets:'<path d="M3 20h18M5 20v-7h4v7m2 0V8h4v12m2 0V4h4v16"/>',money:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18m-6 5h3"/>',day:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',week:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/>',tasks:'<circle cx="12" cy="12" r="8"/><path d="m8 12 3 3 5-6"/>',routines:'<path d="M4 8h12l-3-3m7 11H8l3 3M4 8v5m16 3v-5"/>',history:'<path d="M6 4h12v16H6zM9 8h6m-6 4h6m-6 4h4"/>',diary:'<path d="M5 4h14v16H5zM9 4v16m3-11h4m-4 4h4"/>',compare:'<path d="M4 8h16l-4-4M20 16H4l4 4"/>',review:'<path d="M5 20V10m7 10V4m7 16v-7M3 20h18"/>',favorites:'<path d="m12 3 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1Z"/>',life:'<path d="M20 7c-2-4-6-3-8 0-2-3-6-4-8 0-2 4 2 7 8 12 6-5 10-8 8-12Z"/>',moon:'<path d="M20 14a8 8 0 0 1-10-10 8 8 0 1 0 10 10Z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/>'};
 const icon=name=>`<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]||''}</svg>`;
@@ -157,6 +159,31 @@ function dropSetDoneForLogs(ids){const drop=new Set(ids||[]);if(!drop.size)retur
 function loadLiveWorkoutDone(){for(const mark of Object.keys(liveWorkoutDone))delete liveWorkoutDone[mark];try{Object.assign(liveWorkoutDone,readSetDoneMap(JSON.parse(sessionStorage.getItem(key+'-workout-set-done')||'{}')))}catch{}}
 function pruneLiveWorkoutDone(){const next=pruneSetDoneMap(liveWorkoutDone,ongoingActivityLogs().map(l=>l.id));const marks=Object.keys(liveWorkoutDone);if(marks.length===Object.keys(next).length&&marks.every(mark=>next[mark]))return;for(const mark of marks)delete liveWorkoutDone[mark];Object.assign(liveWorkoutDone,next);persistLiveWorkoutDone()}
 loadLiveWorkoutDone();
+
+async function commitCaptureStart({k,values,kind,text,photos,end,money,nutrition,workoutPlan,draftRests,endOngoingIds=[]}){
+ const savedId=uid(),timing=captureTimingFields(values.mode);
+ if(await commit(d=>{
+  applyOngoingEnds(d.logs,endOngoingIds);
+  d.logs.push({id:savedId,date:k,time:values.time||'',kind,text,photos,memo:values.mode==='memo',...end,...timing,...(money?{money}:{}),...(nutrition?{nutrition}:{}),...(workoutPlan?{workoutPlan}:{}),...(draftRests?.length?{workoutRests:mergeWorkoutRests([],draftRests)}:{})});
+ },{paint:false})){
+  settleCaptureRest(savedId,kind,text,values.mode,end);
+  delete drafts[k];
+  photoFeedback.delete(photoStatusKey({target:'capture',k}));
+  pendingCaptureStart=null;
+  await render();
+  const ended=endOngoingIds.length;
+  notify(end.endTime?'끝난 활동을 기록했어요.':ended?('선택한 활동을 종료하고 새 기록을 남겼어요.'):'기록을 남겼어요.');
+  account?.sync();
+  return true;
+ }
+ return false;
+}
+async function openCaptureOngoingConfirm(pending){
+ pendingCaptureStart=pending;
+ const rows=pending.ongoing.map(({log,interval})=>'<label class="ongoing-confirm-row"><span><b>'+esc(activityTitle(log,60,{ongoing:true}))+'</b><small>'+esc(recordKindLabel(log.kind))+' · '+esc(activityTimeLabel(log,interval))+'</small></span><span class="ongoing-confirm-choice"><input type="checkbox" name="endId" value="'+esc(log.id)+'"> 종료</span></label>').join('');
+ await openEditor('진행 중인 활동','<form data-form="capture-ongoing-confirm"><p class="hint">새 활동을 시작하기 전에, 지금 진행 중인 활동을 끝낼지 골라 주세요. 체크하지 않으면 그대로 유지돼요.</p><div class="ongoing-confirm-list" role="group" aria-label="진행 중 활동 종료 선택">'+rows+'</div><p class="hint">선택하지 않은 활동은 자동으로 끝내지 않아요.</p><p class="error" id="form-error" role="alert"></p><button class="primary">선택대로 새 활동 시작</button></form>');
+}
+
 function ongoingActivityLogs(now=new Date()){
  const intervals=activityIntervals(data,now);
  return [...intervals.entries()].filter(([,v])=>v.ongoing).map(([id])=>data.logs.find(l=>l.id===id)).filter(Boolean)
@@ -823,7 +850,7 @@ document.addEventListener('click',async e=>{
  if(act==='body-import'){await bodyImportEditor();return}if(act==='body-preview'){try{bodyImportPreview()}catch(error){$('#body-import-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='body-template'){download('\uFEFF날짜,체중,골격근량,체지방량,체지방률\n'+todayKey()+',,,,\n','hazeflow-body-template.csv','text/csv;charset=utf-8');return}if(act==='body-date'){date=id;view='life';await render();return}
  if(act==='money-import'){await moneyImportEditor();return}if(act==='money-preview'){try{moneyImportPreview()}catch(error){$('#money-import-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='money-diagnose'){await moneyDiagnoseEditor();return}if(act==='bank-csv-preview'){await bankCsvPreviewEditor();return}if(act==='bank-csv-show'){try{bankCsvShowPreview()}catch(error){$('#bank-csv-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='unlink-meal-money'){await commit(d=>{d.logs=d.logs.map(l=>l.id===id?unlinkMealExpense(l):l)},{undo:true,message:'지출 연결만 해제했어요. 식사 기록은 남아 있어요.'});return}if(act==='new-money'){await moneyEditor();return}if(act==='edit-money'){await moneyEditor(id);return}if(act==='money-export'){download(moneyCSV(monthMoney(data.logs.filter(l=>moneyScopeFilter==='all'||l.money&&moneyScope(l.money)===moneyScopeFilter),date.slice(0,7)).rows),'hazeflow-money-'+date.slice(0,7)+'.csv','text/csv;charset=utf-8');return}
  if(act==='edit-log')await logEditor(id);
- if(act==='finish-activity'){if(await commit(d=>{const l=d.logs.find(l=>l.id===id);if(!l)throw Error('활동 기록을 찾지 못했어요. 목록을 다시 확인해주세요.');if(isDate(l.endDate)&&isTime(l.endTime))return;l.endDate=todayKey();l.endTime=timeNow()},{undo:true,message:'활동 종료를 이 기기에 저장했어요.'})){syncRestWithSession();account?.sync();if(data.logs.find(l=>l.id===id)?.kind==='공부')await studyFlow.edit(id)}return}
+ if(act==='finish-activity'){if(await commit(d=>{const l=d.logs.find(l=>l.id===id);if(!l)throw Error('활동 기록을 찾지 못했어요. 목록을 다시 확인해주세요.');applyOngoingEnds(d.logs,[id],new Date(todayKey()+'T'+timeNow()+':00'))},{undo:true,message:'활동 종료를 이 기기에 저장했어요.'})){syncRestWithSession();account?.sync();if(data.logs.find(l=>l.id===id)?.kind==='공부')await studyFlow.edit(id)}return}
  if(act==='edit-legacy')await logEditor(id,true);
  if(act==='edit-task')await taskEditor(id);
  if(act==='close-editor'){$('#editor').close();editorPhotoToken++}
@@ -881,7 +908,17 @@ document.addEventListener('submit',async e=>{
  if(type==='weekly-review'){const start=form.dataset.start;if(!isDate(start)||weekStart(start)!==start)return;try{const opened=JSON.parse(form.dataset.original||'{}');const ok=await commit(d=>{const next=saveWeeklyReview(d.weeklyReviews[start],opened,values,form.dataset.existed==='1');if(next)d.weeklyReviews[start]=next;else delete d.weeklyReviews[start]},{undo:true,message:'이 주의 회고를 저장했어요.'});if(ok)await render()}catch(error){const status=$('#review-status');if(status)status.textContent=error.message;else notify(error.message)}return}
  if(type==='capture'){
   if(future()){notify('실제 활동은 오늘이나 지난 날짜에 남겨주세요. 미래 계획은 일정에 추가해요.');return}
-  if(photoBusy.has('capture:'+k)){notify('사진을 처리하고 있어요. 잠시 후 저장해주세요.');return}const text=values.text.trim(),photos=drafts[k]?.photos||[];if(!text&&!photos.length){notify('내용이나 사진을 추가해주세요.');return}const kind=drafts[k]?.manualKind?values.kind:(text?classifyActivity(text):values.kind||'일상');let money,nutrition,end;try{money=mealExpense({...values,kind,text});if(kind==='식사')nutrition=readNutrition(values);end=captureActivityEnd({mode:values.mode,date:k,time:values.time||'',endDate:values.endDate||'',endTime:values.endTime||''})}catch(error){notify(error.message);return}const workoutPlan=kind==='운동'?snapshotWorkoutPlan(drafts[k]?.workoutPlan,text):'';const draftRests=kind==='운동'?drafts[k]?.workoutRests:undefined;const savedId=uid();if(await commit(d=>d.logs.push({id:savedId,date:k,time:values.time||'',kind,text,photos,memo:values.mode==='memo',...end,...(money?{money}:{} ),...(nutrition?{nutrition}:{}),...(workoutPlan?{workoutPlan}:{}),...(draftRests?.length?{workoutRests:mergeWorkoutRests([],draftRests)}:{})}),{paint:false})){settleCaptureRest(savedId,kind,text,values.mode,end);delete drafts[k];photoFeedback.delete(photoStatusKey({target:'capture',k}));await render();notify(end.endTime?'끝난 활동을 기록했어요.':'기록을 남겼어요.')}
+  if(photoBusy.has('capture:'+k)){notify('사진을 처리하고 있어요. 잠시 후 저장해주세요.');return}const text=values.text.trim(),photos=drafts[k]?.photos||[];if(!text&&!photos.length){notify('내용이나 사진을 추가해주세요.');return}const kind=drafts[k]?.manualKind?values.kind:(text?classifyActivity(text):values.kind||'일상');let money,nutrition,end;try{money=mealExpense({...values,kind,text});if(kind==='식사')nutrition=readNutrition(values);end=captureActivityEnd({mode:values.mode,date:k,time:values.time||'',endDate:values.endDate||'',endTime:values.endTime||''})}catch(error){notify(error.message);return}const workoutPlan=kind==='운동'?snapshotWorkoutPlan(drafts[k]?.workoutPlan,text):'';const draftRests=kind==='운동'?drafts[k]?.workoutRests:undefined;const pending={k,values,kind,text,photos,end,money,nutrition,workoutPlan,draftRests,ongoing:ongoingActivities(data)};
+  if(shouldConfirmOngoingStart(values.mode,pending.ongoing.length)){await openCaptureOngoingConfirm(pending);return}
+  await commitCaptureStart({...pending,endOngoingIds:[]});return
+ }
+ if(type==='capture-ongoing-confirm'){
+  if(!pendingCaptureStart){notify('시작할 활동 내용을 다시 확인해주세요.');$('#editor').close();return}
+  const ongoingIds=pendingCaptureStart.ongoing.map(row=>row.log.id);
+  const {endIds}=resolveOngoingEndChoices(ongoingIds,new FormData(form).getAll('endId'));
+  const ok=await commitCaptureStart({...pendingCaptureStart,endOngoingIds:endIds});
+  if(ok)$('#editor').close();
+  return
  }
  if(type==='task-editor'){
   const dueDate=values.hasDate?values.dueDate:null,dueTime=values.hasDate?values.dueTime||'':'';

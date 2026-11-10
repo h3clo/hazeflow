@@ -44,6 +44,12 @@
 3. 두 기기가 동시에 바꾸면 `primaryUpdatedAt` LWW. 동일 시각이면 `primaryUpdatedBy` 사전식 등으로 결정적 tie-break.
 4. PR A~B에서는 이 필드를 **쓰지 않는다**.
 
+## PR B (구현)
+
+- `activity-start-confirm.js`: `shouldConfirmOngoingStart` · `resolveOngoingEndChoices` · `applyOngoingEnds` · `captureTimingFields`
+- 활동 모드 저장 시 ongoing이 있으면 유지/종료 체크 UI. **미체크=유지**(자동 종료 없음)
+- 신규 활동에 `activityTiming:'independent'` 부여. memo는 확인·플래그 없음
+
 ## 비범위
 
-PR B(시작 확인 UI), 물질화 마이그레이션, 네이티브/Watch, 배포·실계정 변경.
+물질화(PR F), 네이티브/Watch, 실계정 변경.

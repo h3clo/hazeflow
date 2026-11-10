@@ -2,6 +2,11 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · 자율 병합·배포 + 활동 2.0 PR A/B
+
+- 사용자: 일반 기능은 테스트·리뷰·무결성 통과 시 **병합→배포→다음** 자율. F·네이티브·비가역만 중단.
+- PR A #23 merge `0a9928e`. PR B: `activity-start-confirm.js` · 캡처 확인 UI · independent 태깅.
+
 ### 2026-11-10 Cursor · 활동 시스템 2.0 PR A (도메인만)
 
 - 사용자: PR A만 승인. B~G·네이티브·Watch 금지. 전역 schema v3 안전성 검토 → **기록별 플래그** 채택.
