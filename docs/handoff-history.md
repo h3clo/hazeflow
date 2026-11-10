@@ -2,6 +2,11 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · PR #36 병합·Pages 배포 확인
+
+- tip `8cb0098` · Actions 42869536615 success · Pages `main-Bbya24zg.js` · Last-Modified ≈ deploy.
+- 다음: native-readiness만. 구현·Watch 금지. Xcode 약관·Android Studio는 사용자 PC.
+
 ### 2026-11-11 Cursor · PR #36 병합 전 최종 점검 + 네이티브 준비 문서
 
 - 격리: QA auth 2 · QA `main` 0 · live sandbox 0 · tombstone 28 → QA sandbox만 물리 삭제. 개인/`main` 미변경.
