@@ -2,13 +2,19 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · 실사용 프로젝트만 있을 때 라이브 QA 경로
+
+- 사용자: 두 무료 프로젝트 모두 실사용 → pause/새 프로젝트 불가.
+- 대응: **옵션 D** — 같은 `hazeflow`에 테스트 전용 Auth 2명 + Secrets. 하네스는 `sandbox`·RLS로 개인/`main`과 분리. 유료 branch 불필요.
+- 문서: `supabase-live-qa.md`·가이드 다음 시작점 갱신. 시크릿은 사용자가 Dashboard에만 넣고 채팅에 값 금지.
+
 ### 2026-11-11 Cursor · 실 Supabase 라이브 QA 시도 + 하네스/선행 문서
 
 - 사용자: PR #34–35 이후 실제 Supabase 10시나리오 통합 검증. 격리만. 네이티브 구현 금지·다음 순서만.
 - 조사: 에이전트 Secrets 공란 · GH secrets 403 · 운영 `hazeflow` auth 1명·기록 보존 · `family flow` 비관련.
 - 시도: `hazeflow-sync-qa`(eu-west-3) 생성 → **무료 프로젝트 2개 한도**로 거부. Branch ≈$0.01344/h는 미합의라 미생성. 운영 DB 시험 쓰기 없음.
 - 코드: `tests/supabase-live.optional.test.js` — `p_changes` 수정 + 시나리오 1–10(시크릿 없으면 skip). 문서 `supabase-live-qa.md` · `native-readiness.md` · 가이드 갱신.
-- 다음: 사용자 옵션 A(한도 확보+QA 프로젝트) / B(비용 합의 branch) / C(시크릿만) → 라이브 스위트 실행 → 실패 시 수정 PR. 그린 뒤 native-readiness 순서.
+- 다음: 옵션 D(동일 프로젝트 QA 유저) 우선. A/B/C는 여유 있을 때만.
 
 ### 2026-11-11 Cursor · 대표 활동 계정 동기화 + sync 회귀
 
