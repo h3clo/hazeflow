@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Classic 오늘 화면 건강 요약 기본 접힘(브랜치 `cursor/classic-health-fold-03b4`). 사용자 실사용 중(2026-11-10 Pages tip `ba7b3a7`). **실기기·계정 왕복·Q4-B 2·4~6 미승인/미검증.** 시안 A/B 기각·문서만 보존. 다음 자동화: a11y 소폭·실사용 피드백·하루 화면의 다른 보조 블록(일기 미리보기 등)은 피드백 후.
+**다음 시작점:** 사용자 실사용·피드백 대기. Classic 건강 요약 접힘 배포됨(`b1c340f`). **실기기·계정 왕복·Q4-B 2·4~6 미승인/미검증.** 시안 A/B 기각·문서만 보존. 다음 자동화: a11y 소폭·실사용 피드백·일기 미리보기 등 추가 접힘은 요청 시.
+
+**배포 (2026-11-10 · Classic 건강 접힘):** tip `b1c340f` · PR #12. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42759069131) success. live `app-Bf-rOnt6.js`에 `classic-health-fold`·`b1c340f` 확인. URL https://h3clo.github.io/hazeflow/ .
 
 **배포 (2026-11-10 · 미병합 PR 일괄):** tip `90459c5`. 포함 — 시안 문서(#4), 캡처 추가설정 좁은 폭(#6), 가계부 도구 접기(#7), 가계부/자산/일정·루틴·사진·운동 stale 가드(#8–#10), 백업 export/import 게이트 테스트(#11). 로컬·Actions `npm test` **536** · build. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42758126437) success (build 23s · deploy 9s). 복구 태그 `pre-deploy-before-batch-2026-11-10`=`a2930e6`. URL https://h3clo.github.io/hazeflow/ (번들 `app-Ct7AFvn1.js`에 `90459c5`·`money-tool-fold` 확인). 스키마·실계정 데이터 변경 없음. **실기기·로그인 왕복 미확인.**
 

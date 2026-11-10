@@ -13,7 +13,7 @@
 
 - 사용성: Classic Today에서 `healthDayStrip`을 Life와 같이 기본 접힘(`classic-health-fold`, summary 44px). 건강 데이터 없으면 블록 자체 없음. Life `life-health-fold`·스키마·동기화 불변.
 - 검사: `tests/classic-health-fold.test.js` · `npm test` **538** · build · `diff --check`.
-- 브랜치 `cursor/classic-health-fold-03b4`. 실사용 배포는 CI 후 진행.
+- tip `b1c340f` · PR #12 merged · Actions #42759069131 success · live `classic-health-fold` 확인.
 
 ### 2026-11-10 Cursor · 열린 PR 일괄 main 병합·Pages 배포
 
