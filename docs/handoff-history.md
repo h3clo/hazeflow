@@ -9,6 +9,11 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 · 휴식 자동저장 확정 + 영상 즐겨찾기 시안
+
+- 사용자: 휴식은 계산된 값만 저장·수동 입력 불필요. 유튜브 즐겨찾기는 **시안만**.
+- 문서: `WORKOUT_UX.md` 휴식 확정. 시안 `docs/design-mocks/workout-video-favorites.html`. 앱 코드·스키마 없음.
+
 ### 2026-11-10 Cursor · 세트 완료 표시·종목 끝 큐
 
 - 사용자 피드백: 완료됨≈버튼 혼동, 3세트 후·다음 종목 추가 후에도 휴식 타이머 잔존, 종목 끝 시 자극/추가 바로 노출, 휴식 초 저장·유튜브 즐겨찾기·헬스장 이후 홈트/등산.
