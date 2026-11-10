@@ -168,7 +168,8 @@ export async function ongoingSnapshot(page,device){
   return true;
  }).map(l=>({id:l.id,text:l.text,time:l.time,endDate:l.endDate||'',endTime:l.endTime||'',activityTiming:l.activityTiming||null,date:l.date}));
  const primary=await readPrimaryId(page,device);
- return {logs:state?.logs||[],ongoing,primary,now:now.toISOString()};
+ const activityUi=state?.preferences?.activityUi||null;
+ return {logs:state?.logs||[],ongoing,primary,activityUi,now:now.toISOString()};
 }
 
 export function uniqueDevice(prefix){

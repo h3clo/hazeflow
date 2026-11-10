@@ -64,7 +64,7 @@ import {workoutSession,workoutSessionSummary,workoutSessionHeading,previousExerc
 import {workoutItems,serializeWorkoutItems,updateStrengthSet,addStrengthSet,removeStrengthSet,appendWorkoutLine,applyPlanGoals,snapshotWorkoutPlan,formatExerciseItem,nextIncompleteSetIndex as findNextIncompleteSet,strengthItemComplete,shouldContinueRestAfterSet,lastCompletedStrengthIndex} from './workout-sets.js';
 import {activityIntervals,activityTimeLabel,recordKindLabel,activityEndForEdit,captureActivityEnd,ongoingActivities} from './domain.js';
 import {shouldConfirmOngoingStart,resolveOngoingEndChoices,applyOngoingEnds,captureTimingFields} from './activity-start-confirm.js';
-import {readPrimaryActivityId,writePrimaryActivityId,resolvePrimaryActivity} from './activity-primary.js';
+import {readPrimaryActivityId,resolvePrimaryActivity,readDeviceId,setPrimaryPreference,mirrorPrimaryPreference,primaryIdFromState} from './activity-primary.js';
 import {captureModeForShortcut,captureSubmitLabel} from './capture-shortcuts.js';
 import {buildDayAgenda} from './agenda.js';
 import {createToast} from './toast.js';
@@ -93,7 +93,8 @@ applyTheme();
 applyUiDesign();
 let photoStore=makePhotoStore(key+'-photos');let editorPhotos=[],editorPhotoToken=0;const photoBusy=new Set(),photoFeedback=new Map();let photoPicker=null;
 let recovery=null;
-function load(){const raw=recordStorage.getItem(key);if(!raw)return emptyState();try{return validateBackup(JSON.parse(raw))}catch{recovery=raw;return emptyState()}}
+function load(){const raw=recordStorage.getItem(key);if(!raw)return emptyState();try{const state=validateBackup(JSON.parse(raw));mirrorPrimaryPreference(localStorage,key,state);return state}catch{recovery=raw;return emptyState()}}
+function preferredPrimaryId(){return primaryIdFromState(data)||readPrimaryActivityId(localStorage,key)}
 const boardHashes=['#dashboard','#dashboard-all','#whiteboard','#whiteboard-all'];
 let data=load(),date=isDate(params.get('notification-date'))?params.get('notification-date'):todayKey(),view=['day','tasks','study'].includes(params.get('notification-view'))?params.get('notification-view'):boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',historyRecordLimit=100,historyDateLimit=60,diarySearchLimit=30,undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='',favoriteQuery='',studyHistory={subjectId:'',query:'',limit:60};
 let tossPortfolio=null,tossBusy=false,tossError='',tossCheckedKey='',tossCacheAt=0,tossEligible=false,tossHistory=[];
@@ -191,7 +192,7 @@ function ongoingActivityLogs(now=new Date()){
  return [...intervals.entries()].filter(([,v])=>v.ongoing).map(([id])=>data.logs.find(l=>l.id===id)).filter(Boolean)
   .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)||a.id.localeCompare(b.id));
 }
-function primaryOngoingActivity(now=new Date()){return resolvePrimaryActivity(ongoingActivityLogs(now),readPrimaryActivityId(localStorage,key))}
+function primaryOngoingActivity(now=new Date()){return resolvePrimaryActivity(ongoingActivityLogs(now),preferredPrimaryId())}
 function ongoingWorkoutSession(now=new Date()){return ongoingActivityLogs(now).filter(l=>l.kind==='운동'&&!l.legacy&&!l.sourceId).at(-1)||null}
 function activityTitle(l,max=48,{ongoing=false}={}){
  const heading=workoutSessionHeading(l?.kind,{ongoing});
@@ -432,7 +433,7 @@ function liveWorkoutSessionCard(l){
 function ongoingFinishBar(){
  if(view!=='day'||date!==todayKey())return '';
  const ongoing=ongoingActivityLogs();
- const l=resolvePrimaryActivity(ongoing,readPrimaryActivityId(localStorage,key));
+ const l=resolvePrimaryActivity(ongoing,preferredPrimaryId());
  if(!l)return '';
  const summary=activitySummaryLabel(l);
  const subtitle=summary||recordKindLabel(l.kind);
@@ -857,7 +858,18 @@ document.addEventListener('click',async e=>{
  if(act==='body-import'){await bodyImportEditor();return}if(act==='body-preview'){try{bodyImportPreview()}catch(error){$('#body-import-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='body-template'){download('\uFEFF날짜,체중,골격근량,체지방량,체지방률\n'+todayKey()+',,,,\n','hazeflow-body-template.csv','text/csv;charset=utf-8');return}if(act==='body-date'){date=id;view='life';await render();return}
  if(act==='money-import'){await moneyImportEditor();return}if(act==='money-preview'){try{moneyImportPreview()}catch(error){$('#money-import-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='money-diagnose'){await moneyDiagnoseEditor();return}if(act==='bank-csv-preview'){await bankCsvPreviewEditor();return}if(act==='bank-csv-show'){try{bankCsvShowPreview()}catch(error){$('#bank-csv-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='unlink-meal-money'){await commit(d=>{d.logs=d.logs.map(l=>l.id===id?unlinkMealExpense(l):l)},{undo:true,message:'지출 연결만 해제했어요. 식사 기록은 남아 있어요.'});return}if(act==='new-money'){await moneyEditor();return}if(act==='edit-money'){await moneyEditor(id);return}if(act==='money-export'){download(moneyCSV(monthMoney(data.logs.filter(l=>moneyScopeFilter==='all'||l.money&&moneyScope(l.money)===moneyScopeFilter),date.slice(0,7)).rows),'hazeflow-money-'+date.slice(0,7)+'.csv','text/csv;charset=utf-8');return}
  if(act==='edit-log')await logEditor(id);
- if(act==='set-primary-activity'){writePrimaryActivityId(localStorage,key,id);await render();notify('대표 활동만 바꿨어요. 기록 시간은 그대로예요.');return}
+ if(act==='set-primary-activity'){
+  const fingerprint=data.logs.map(l=>({id:l.id,time:l.time,endDate:l.endDate||'',endTime:l.endTime||'',activityTiming:l.activityTiming||null}));
+  if(await commit(d=>{setPrimaryPreference(d,id,{deviceId:readDeviceId(localStorage)})},{paint:false})){
+   mirrorPrimaryPreference(localStorage,key,data);
+   const after=data.logs.map(l=>({id:l.id,time:l.time,endDate:l.endDate||'',endTime:l.endTime||'',activityTiming:l.activityTiming||null}));
+   if(JSON.stringify(after)!==JSON.stringify(fingerprint)){notify('대표만 바꿔야 하는데 활동 시간이 바뀌었어요. 기록을 다시 확인해주세요.');}
+   await render();
+   notify('대표 활동만 바꿨어요. 기록 시간은 그대로예요.');
+   account?.sync();
+  }
+  return
+ }
  if(act==='finish-activity'){if(await commit(d=>{const l=d.logs.find(l=>l.id===id);if(!l)throw Error('활동 기록을 찾지 못했어요. 목록을 다시 확인해주세요.');applyOngoingEnds(d.logs,[id],new Date(todayKey()+'T'+timeNow()+':00'))},{undo:true,message:'활동 종료를 이 기기에 저장했어요.'})){syncRestWithSession();account?.sync();if(data.logs.find(l=>l.id===id)?.kind==='공부')await studyFlow.edit(id)}return}
  if(act==='edit-legacy')await logEditor(id,true);
  if(act==='edit-task')await taskEditor(id);

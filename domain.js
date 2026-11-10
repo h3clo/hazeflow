@@ -28,6 +28,7 @@ import {
  validActivityTiming,
  INDEPENDENT_TIMING
 } from './activity-timing.js';
+import {ACTIVITY_UI_ID,validActivityUiPreference,mergePrimaryPreference} from './activity-primary.js';
 export {
  activityIntervals,
  ongoingActivities,
@@ -42,10 +43,11 @@ export {
 };
 export const weekdays = ['일','월','화','수','목','금','토'];
 export const uid = () => typeof crypto.randomUUID==='function'?crypto.randomUUID():'record-'+[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
-export const emptyState = () => ({schemaVersion:2,events:[],tasks:[],routines:[],checks:{},diary:{},exercises:[],logs:[],life:{},routineTemplates:[],routineRuns:{},favorites:[],weeklyReviews:{},studySubjects:[]});
+export const emptyState = () => ({schemaVersion:2,events:[],tasks:[],routines:[],checks:{},diary:{},exercises:[],logs:[],life:{},routineTemplates:[],routineRuns:{},favorites:[],weeklyReviews:{},studySubjects:[],preferences:{}});
 const clone = v => structuredClone(v);
 export function migrate(input){
  const d={...emptyState(),...clone(input)};
+ d.preferences=plain(d.preferences)?d.preferences:{};
  if(input.schemaVersion!==2){
   for(const r of d.routines){
    if(!d.routineTemplates.some(t=>t.id===r.id))d.routineTemplates.push({id:r.id,versions:[{effectiveFrom:r.createdOn||'1900-01-01',title:r.title,time:'',days:[0,1,2,3,4,5,6],steps:[{id:'legacy-'+r.id,title:r.title,minutes:0}],archived:!!r.archived}]});
@@ -196,6 +198,7 @@ export function validateBackup(v){
   return !['식사','운동'].includes(t.kind)||!str(t.text)||!t.text.trim()||t.text.length>5000;
  }))throw Error('즐겨찾기 형식을 확인해주세요.');}
  if(v.weeklyReviews!==undefined){if(!plain(v.weeklyReviews))throw Error('주간 회고 형식을 확인해주세요.');for(const [date,row]of Object.entries(v.weeklyReviews))if(!isDate(date)||new Date(date+'T12:00:00').getDay()!==1||!plain(row)||Object.entries(row).some(([k,x])=>!['remember','adjust','next'].includes(k)||!str(x)||x.length>5000))throw Error('주간 회고 내용을 확인해주세요.');}
+ if(v.preferences!==undefined){if(!plain(v.preferences))throw Error('환경설정 동기화 형식을 확인해주세요.');for(const [id,row]of Object.entries(v.preferences)){if(!safeId(id)||!plain(row))throw Error('환경설정 동기화 형식을 확인해주세요.');if(id===ACTIVITY_UI_ID&&!validActivityUiPreference(row))throw Error('대표 활동 동기화 형식을 확인해주세요.');if(id!==ACTIVITY_UI_ID)throw Error('알 수 없는 환경설정 항목이에요.');}}
  return migrate(v);
 }
 export function mergeBackup(current,incoming){
@@ -203,6 +206,13 @@ export function mergeBackup(current,incoming){
  for(const key of ['events','tasks','routines','logs','exercises','routineTemplates','favorites','studySubjects']){result[key]??=[];const ids=new Set(result[key].map(x=>x.id));result[key].push(...source[key].filter(x=>!ids.has(x.id)));}
  for(const key of ['checks','diary','life','weeklyReviews'])result[key]={...source[key],...result[key]};
  for(const [date,runs]of Object.entries(source.routineRuns))result.routineRuns[date]={...runs,...result.routineRuns[date]};
+ result.preferences={...result.preferences};
+ for(const [id,row]of Object.entries(source.preferences||{})){
+  if(id===ACTIVITY_UI_ID){
+   const picked=mergePrimaryPreference(undefined,result.preferences[id],row).value;
+   if(picked===undefined)delete result.preferences[id];else result.preferences[id]=picked;
+  }else result.preferences[id]=clone(row);
+ }
  return result;
 }
 export const lifeLabels={height:'키 (cm)',fitnessGoal:'운동 목표',bed:'취침',wake:'기상',sleep:'수면 만족도',energy:'기운',mood:'감정',stress:'스트레스',trigger:'마음에 남은 일',care:'나에게 필요한 것',breakfast:'아침',lunch:'점심',dinner:'저녁',snack:'간식',water:'물 (ml)',waterGoal:'내 수분 목표 (ml)',weight:'체중 (kg)',muscle:'골격근량 (kg)',fat:'체지방량 (kg)',fatPercent:'체지방률 (%)',condition:'컨디션',progress:'운동 변화',focus:'집중한 일',study:'집중 시간 (분)',next:'다음 행동',home:'살림',people:'관계',expense:'지출 (원)',other:'메모'};

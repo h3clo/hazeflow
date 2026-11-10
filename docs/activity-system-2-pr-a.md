@@ -24,12 +24,11 @@
 - `mergedElapsedMinutes` — 겹친 구간 병합 후 실제 경과
 - `independentTimingFields` / `isIndependentTiming`
 
-## 대표 활동(동기화는 미구현 · 구조만)
+## 대표 활동(계정 동기화 · 구현됨)
 
-기기 로컬만 두면 iPhone·Galaxy·Watch가 어긋난다. 향후 계정 단위 제안:
+`preferences.activityUi`를 `hazeflow_records`의 `["preferences","activityUi"]` 행으로 동기화한다. **Postgres 스키마 변경 없음.** 기기 로컬 `{owner}-primary-activity`는 즉시 UI 캐시이며, 로드·동기화 후 계정 state에서 미러한다.
 
 ```text
-// sync item 예: preferences / activityUi (logs와 별도 row)
 {
   primaryActivityId: string | null,
   primaryUpdatedAt: number,   // ms epoch, 충돌 시 큰 값 우선(LWW)
@@ -37,12 +36,13 @@
 }
 ```
 
-규칙 초안:
+규칙:
 
 1. 대표는 **표시만** 바꾸고 `activityIntervals` 분에 영향 없음.
-2. `primaryActivityId`가 진행 중이 아니면 UI는 진행 중 목록의 안전한 기본값(예: 시작 시각 최신)으로 폴백하고, 다음 동기화에서 id를 고치거나 null로 둔다.
-3. 두 기기가 동시에 바꾸면 `primaryUpdatedAt` LWW. 동일 시각이면 `primaryUpdatedBy` 사전식 등으로 결정적 tie-break.
-4. PR A~B에서는 이 필드를 **쓰지 않는다**.
+2. `primaryActivityId`가 진행 중이 아니면 UI는 진행 중 목록의 안전한 기본값(시작 시각 최신)으로 폴백한다.
+3. 두 기기가 동시에 바꾸면 `primaryUpdatedAt` LWW. 동일 시각이면 `primaryUpdatedBy` 사전식 tie-break. 일반 기록 필드 병합과 달리 사용자 충돌 UI를 띄우지 않는다.
+4. 기기 시계 오차로 오래된 값이 이길 수 있는 위험이 남아 있다. 서버 `version` 기반 causality를 쓰려면 후속 개선.
+5. 로그아웃·계정 전환 시 owner 네임스페이스가 바뀌어 다른 계정의 대표가 노출되지 않는다.
 
 ## PR B (구현)
 

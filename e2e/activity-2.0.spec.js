@@ -81,15 +81,19 @@ test('1-6 · concurrent / finish A / confirm / cancel / primary / reload',async(
  await setPrimaryByText(page,target);
  const afterPrimary=await ongoingSnapshot(page,device);
  expect(afterPrimary.logs.map(l=>({id:l.id,text:l.text,time:l.time,endDate:l.endDate||'',endTime:l.endTime||'',activityTiming:l.activityTiming||null}))).toEqual(fingerprint);
- expect(await readPrimaryId(page,device)).toBe(afterPrimary.ongoing.find(o=>o.text===target).id);
+ const targetId=afterPrimary.ongoing.find(o=>o.text===target).id;
+ expect(await readPrimaryId(page,device)).toBe(targetId);
+ expect(afterPrimary.activityUi?.primaryActivityId).toBe(targetId);
+ expect(afterPrimary.activityUi?.primaryUpdatedAt).toBeTruthy();
  await expect(page.locator('.ongoing-finish-bar strong')).toContainText(target.slice(0,8));
 
- // 6 reload keeps ongoing + primary
+ // 6 reload keeps ongoing + primary (local cache + synced preferences row)
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForSelector('#capture-text');
  const afterReload=await ongoingSnapshot(page,device);
  expect(afterReload.ongoing.map(o=>o.text).sort()).toEqual([B,C].sort());
- expect(await readPrimaryId(page,device)).toBe(afterPrimary.ongoing.find(o=>o.text===target).id);
+ expect(await readPrimaryId(page,device)).toBe(targetId);
+ expect(afterReload.activityUi?.primaryActivityId).toBe(targetId);
  await expect(page.locator('.ongoing-finish-bar strong')).toContainText(target.slice(0,8));
 });
 
