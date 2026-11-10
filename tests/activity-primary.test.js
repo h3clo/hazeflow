@@ -12,7 +12,7 @@ test('대표는 진행 중인 선호 id를 쓰고 없으면 마지막 진행 중
  assert.equal(resolvePrimaryActivity([],'a'),null);
 });
 
-test('대표 선택은 로컬 키에만 저장되고 기록 필드를 만들지 않는다',()=>{
+test('대표 선택 로컬 캐시는 owner 키에 저장되고 기록 필드를 만들지 않는다',()=>{
  const store=new Map();
  const storage={getItem:k=>store.has(k)?store.get(k):null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)};
  assert.equal(primaryStorageKey('hazeflow-qa'),'hazeflow-qa-primary-activity');

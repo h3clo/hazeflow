@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · 대표 활동 계정 동기화 + sync 회귀
+
+- 사용자: 실 Supabase 통합 검증(격리 계정) + 대표 활동 기기 간 동기화. 네이티브/Watch 금지. 스키마 위험 변경 사전 승인.
+- 구현: `preferences.activityUi`를 sync-state에 편입, LWW(`primaryUpdatedAt`→`primaryUpdatedBy`). app `set-primary-activity`가 계정 state에 기록·로컬 캐시 미러·`account.sync()`.
+- 검사: `npm test` **610** · PGlite RLS에 preferences 행 · sync 동시 독립 활동/충돌 · `tests/activity-primary-sync.test.js`. optional live 테스트는 시크릿 없으면 skip.
+- **차단:** CI/에이전트에 격리 테스트 계정·전용 프로젝트 시크릿 없음. 운영 `hazeflow`/`family flow`에 시험 데이터 미기록.
+- 다음: 테스트 계정 시크릿 바인딩 후 optional live · Pages 배포 확인.
+
 ### 2026-11-11 Cursor · 활동 2.0 Playwright e2e + 대표 선호 버그
 
 - 사용자: 활동 2.0 10시나리오 Playwright 자동 검증(데스크톱·375·가능 시 Pages)·sandbox만·실패 시 수정 PR·병합·배포.

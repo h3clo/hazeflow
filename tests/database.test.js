@@ -32,5 +32,9 @@ test('서버 권한: 본인 기록만 조회·수정하고 원자적 버전 검�
  assert.equal((await runAs(bob,()=>db.query('select * from storage.objects'))).rows.length,0);
  await assert.rejects(runAs(bob,()=>db.query('insert into storage.objects(bucket_id,name) values($1,$2)',['hazeflow-photos',alice+'/main/bad.jpg'])));
  assert.equal((await db.query("select public from storage.buckets where id='hazeflow-photos'")).rows[0].public,false);
+ const pref={item_key:'["preferences","activityUi"]',payload:{primaryActivityId:'act-1',primaryUpdatedAt:1,primaryUpdatedBy:'phone'},deleted:false,base_version:0,mutation_id:crypto.randomUUID()};
+ const prefApply=await runAs(alice,()=>apply([pref]));assert.equal(prefApply.applied,true);
+ assert.equal((await runAs(bob,()=>db.query('select * from public.hazeflow_records where item_key=$1',[pref.item_key]))).rows.length,0);
+ assert.equal((await runAs(alice,()=>db.query('select payload->>\'primaryActivityId\' as id from public.hazeflow_records where item_key=$1',[pref.item_key]))).rows[0].id,'act-1');
  }finally{await db.close()}
 });

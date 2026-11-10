@@ -81,3 +81,34 @@ test('전송 중 활동을 끝내고 곧바로 앱을 닫아도 재접속 후 �
 });
 
 test('비동기 대기 저장이 실패하면 서버 전송과 완료 표시를 하지 않는다',async()=>{const server=fakeServer(),d=emptyState();d.logs=[log()];let pushed=0;server.push=async()=>{pushed++;throw Error('must not push')};const x=device(server,d,null,{storage:{getItem:()=>null,setItem:async()=>{throw Error('기기 저장 실패')}}});await x.engine.sync();assert.equal(pushed,0);assert.equal(x.status.phase,'error');assert.match(x.status.error,/기기 저장 실패/);x.engine.stop()});
+
+test('동시에 진행 중인 독립 활동을 두 기기가 만들고 한쪽만 종료해도 나머지가 유지된다',async()=>{
+ const {independentTimingFields}=await import('../activity-timing.js');
+ const server=fakeServer(),a=device(server),b=device(server);
+ a.edit(s=>s.logs.push({...log('A'),id:'A',activityTiming:'independent',...independentTimingFields()}));
+ await a.engine.sync();await b.engine.sync();
+ b.edit(s=>s.logs.push({...log('B'),id:'B',time:'12:05',activityTiming:'independent',...independentTimingFields()}));
+ await b.engine.sync();await a.engine.sync();
+ assert.equal(a.state.logs.filter(l=>!l.endTime).length,2);
+ a.edit(s=>Object.assign(s.logs.find(l=>l.id==='A'),{endDate:'2026-10-31',endTime:'12:30'}));
+ await a.engine.sync();await b.engine.sync();
+ assert.equal(b.state.logs.find(l=>l.id==='A').endTime,'12:30');
+ assert.equal(b.state.logs.find(l=>l.id==='B').endTime||'','');
+ a.engine.stop();b.engine.stop();
+});
+
+test('같은 활동을 두 기기에서 다른 필드로 수정하면 합치고 같은 필드는 충돌한다',async()=>{
+ const server=fakeServer(),base=row(log());server.rows[base.item_key]=base;
+ const aState=emptyState();aState.logs=[{...log(),kind:'업무'}];
+ const bState=emptyState();bState.logs=[{...log(),text:'원격 수정'}];
+ const a=device(server,aState,{base:{[base.item_key]:base}}),b=device(server,bState,{base:{[base.item_key]:base}});
+ await a.engine.sync();await b.engine.sync();await a.engine.sync();
+ assert.equal(a.status.phase,'synced');
+ assert.equal(a.state.logs[0].kind,'업무');
+ assert.equal(a.state.logs[0].text,'원격 수정');
+ a.edit(s=>s.logs[0].text='로컬 최종');
+ b.edit(s=>s.logs[0].text='원격 최종');
+ await a.engine.sync();await b.engine.sync();
+ assert.equal(b.status.phase,'conflict');
+ a.engine.stop();b.engine.stop();
+});
