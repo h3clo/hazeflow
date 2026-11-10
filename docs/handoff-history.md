@@ -2,6 +2,34 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · PR #36 병합 전 최종 점검 + 네이티브 준비 문서
+
+- 격리: QA auth 2 · QA `main` 0 · live sandbox 0 · tombstone 28 → QA sandbox만 물리 삭제. 개인/`main` 미변경.
+- 비밀: `.private/hazeflow-sync-qa.env` gitignore·히스토리 없음. Artifacts에 JWT/비밀번호 없음. 문서 placeholder만.
+- 빌드: 시크릿 없이 `npm test` 611/6skip · `build` OK. PR 브랜치 Actions 체크 없음(`pages.yml`은 main만).
+- 네이티브: `native-readiness.md`에 순서·도구·권한·무료 제약 정리. **구현 시작 안 함.**
+
+### 2026-11-11 Cursor · 실 Supabase 라이브 스위트 통과 (옵션 D)
+
+- 사용자: 브라우저로 직접 구성 요청. Dashboard 세션은 만료 → MCP SQL로 QA Auth 2명 생성·비밀번호 로테이션. 개인/`main` 미변경.
+- 실행: `.private/hazeflow-sync-qa.env`(gitignore) · `node --test tests/supabase-live.optional.test.js` → **6 pass / 1 skip**.
+- 수정: 시나리오 9에서 `in(item_key)` 대신 `eq` 단건(JSON 키 쉼표). 실패는 제품 버그 아님.
+- 다음: PR #36 병합. 네이티브는 native-readiness만 · 구현 금지.
+
+### 2026-11-11 Cursor · 실사용 프로젝트만 있을 때 라이브 QA 경로
+
+- 사용자: 두 무료 프로젝트 모두 실사용 → pause/새 프로젝트 불가.
+- 대응: **옵션 D** — 같은 `hazeflow`에 테스트 전용 Auth 2명 + Secrets. 하네스는 `sandbox`·RLS로 개인/`main`과 분리. 유료 branch 불필요.
+- 문서: `supabase-live-qa.md`·가이드 다음 시작점 갱신. 시크릿은 사용자가 Dashboard에만 넣고 채팅에 값 금지.
+
+### 2026-11-11 Cursor · 실 Supabase 라이브 QA 시도 + 하네스/선행 문서
+
+- 사용자: PR #34–35 이후 실제 Supabase 10시나리오 통합 검증. 격리만. 네이티브 구현 금지·다음 순서만.
+- 조사: 에이전트 Secrets 공란 · GH secrets 403 · 운영 `hazeflow` auth 1명·기록 보존 · `family flow` 비관련.
+- 시도: `hazeflow-sync-qa`(eu-west-3) 생성 → **무료 프로젝트 2개 한도**로 거부. Branch ≈$0.01344/h는 미합의라 미생성. 운영 DB 시험 쓰기 없음.
+- 코드: `tests/supabase-live.optional.test.js` — `p_changes` 수정 + 시나리오 1–10(시크릿 없으면 skip). 문서 `supabase-live-qa.md` · `native-readiness.md` · 가이드 갱신.
+- 다음: 옵션 D(동일 프로젝트 QA 유저) 우선. A/B/C는 여유 있을 때만.
+
 ### 2026-11-11 Cursor · 대표 활동 계정 동기화 + sync 회귀
 
 - 사용자: 실 Supabase 통합 검증(격리 계정) + 대표 활동 기기 간 동기화. 네이티브/Watch 금지. 스키마 위험 변경 사전 승인.

@@ -1,5 +1,7 @@
 # Haze Flow 앱 전환 준비
 
+네이티브·Watch **구현 착수 전** 선행 조건과 순서는 [native-readiness.md](native-readiness.md). 실 Supabase 격리 QA는 [supabase-live-qa.md](supabase-live-qa.md).
+
 ## 구성
 
 기존 Vite 웹 + Capacitor 8. 아이폰/안드로이드/웹은 같은 저장 형식과 Supabase 계정을 사용한다. 앱에는 빌드된 화면을 넣으며 GitHub Pages를 띄우는 `server.url` 설정을 사용하지 않는다. 웹과 앱의 세션은 별도지만 같은 이메일로 로그인하면 같은 서버 기록을 이어쓴다.

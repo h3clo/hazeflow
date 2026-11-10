@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** UX sim 잔여(헤더 밀도 등) 또는 대기열. **활동 2.0 F·네이티브 금지.** 격리 테스트 계정 시크릿이 생기면 `tests/supabase-live.optional.test.js`로 live 왕복 보강.
+**다음 시작점:** PR #36 병합·Pages 배포 확인 후 **네이티브 준비만** — [native-readiness.md](native-readiness.md)(도구·권한·무료 제약). **구현·Watch 코드 착수 금지(승인 전).** 사용자 Mac에서 Xcode 약관·Android Studio가 병목. UX sim 잔여·대기열 병행 가능.
+
+**완료 (실 Supabase 라이브 QA · 2026-11-11):** 옵션 D · live **6 pass / 1 skip**. 병합 전 재확인: QA `main` 0 · QA↔타유저 cross 0 · QA sandbox tombstone 28건 물리 삭제 · `.private/` Git 미추적 · Artifacts에 시크릿 없음 · 시크릿 없이 `npm test` 611 pass/6 skip · `build` 통과. CI는 `pages.yml`이 `main` push만(PR 체크 없음). 상세 [supabase-live-qa.md](supabase-live-qa.md).
 
 **완료 (대표 활동 계정 동기화 · #34):** tip `02ce098`. Actions [42857203878](https://github.com/h3clo/hazeflow/actions/runs/42857203878) success (build 24s · deploy 15s). live에 `preferences`/`activityUi`/`primaryUpdatedAt` 확인. 스키마 변경 없음. **격리 테스트 계정 live 왕복은 시크릿 부재로 미실행**(optional 테스트 준비됨).
 
@@ -195,7 +197,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 - [2주 개발 계획](DEVELOPMENT_PLAN.md) · [제품 비전·UX](PRODUCT_VISION.md) · [운동 기록 UX](WORKOUT_UX.md) · [활동 UX 인계](UX_HANDOFF.md)
 - [결제 원장 중심 설계](payment-ledger-plan.md)
-- [저장·동기화](sync-reliability.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
+- [저장·동기화](sync-reliability.md) · [실서버 동기화 QA](supabase-live-qa.md) · [네이티브 선행](native-readiness.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
 - [현재 쇼핑몰 파일 가져오기(레거시)](shopping-connection.md) · [기존 영수증 대조(레거시)](receipt-reconciliation.md)
 - [소득](income-records.md) · [세금](annual-tax-records.md) · [앱](mobile-app.md)
 - [이전 인계 이력](handoff-history.md). 과거 날짜의 완료·대기 상태를 현재 지시로 재해석하지 않는다.
