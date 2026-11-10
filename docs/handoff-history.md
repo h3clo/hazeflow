@@ -9,6 +9,13 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 · 휴식 자동저장 구현 + 영상 시안 v2
+
+- 사용자: 영상은 늘 뜨면 안 됨·수십 개 대비·접힘. 휴식 저장해 달라. 시안 다시.
+- 시안 v2: 기본 접힘·최근 3·전체는 즐겨찾기. `workout-video-favorites.html` 교체.
+- 구현: `workoutRests` 선택 필드 · `다음 세트 시작` 시 경과 저장 · 평균 요약. 영상 앱 코드 없음.
+- 브랜치 `cursor/rest-save-video-mock-v2-03b4`.
+
 ### 2026-11-10 · 휴식 자동저장 확정 + 영상 즐겨찾기 시안
 
 - 사용자: 휴식은 계산된 값만 저장·수동 입력 불필요. 유튜브 즐겨찾기는 **시안만**.
