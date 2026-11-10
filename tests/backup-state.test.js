@@ -81,3 +81,36 @@ test('keep를 호출하지 않고 끝나면 신규 사진을 되돌린다',async
  await withImportedPhotos(store,[['fresh-photo',fresh]],async keep=>{});
  assert.equal(await store.get('fresh-photo'),null);
 });
+test('같은 사진 id를 쓰는 동시 가져오기에서 한쪽 롤백이 keep된 사진을 지우지 않는다',async()=>{
+ globalThis.indexedDB=new IDBFactory();
+ const store=makePhotoStore('qa-import-photos-same-id-'+Date.now());
+ const shared=new Blob([Uint8Array.of(9)],{type:'image/jpeg'});
+ const failing=withImportedPhotos(store,[['shared-photo',shared]],async keep=>{
+  await new Promise(r=>setTimeout(r,30));
+  throw Error('첫 가져오기 실패');
+ });
+ await new Promise(r=>setTimeout(r,5));
+ await withImportedPhotos(store,[['shared-photo',shared]],async keep=>{keep()});
+ await assert.rejects(failing,/첫 가져오기 실패/);
+ assert.ok(await store.get('shared-photo'));
+});
+test('복구 모드 저장은 시작 계정 키에만 쓰고 전환 후 다른 계정 기록·사진을 덮지 않는다',async()=>{
+ const records=new Map([['account-a',JSON.stringify({v:'old-a'})],['account-b',JSON.stringify({v:'live-b'})]]);
+ const storage={async setItem(k,v){records.set(k,v)},async read(k){return records.get(k)||null}};
+ globalThis.indexedDB=new IDBFactory();
+ const storeA=makePhotoStore('qa-restore-a-'+Date.now());
+ const storeB=makePhotoStore('qa-restore-b-'+Date.now());
+ const fresh=new Blob([Uint8Array.of(10)],{type:'image/jpeg'});
+ let current='account-a';
+ const importKey='account-a',store=storeA,incoming={v:'restored-a'};
+ await assert.rejects(withImportedPhotos(store,[['restore-photo',fresh]],async keep=>{
+  await storage.setItem(importKey,JSON.stringify(incoming));
+  keep();
+  current='account-b';
+  assertBackupOwner(importKey,current,'불러오기');
+ }),/계정이 바뀌어/);
+ assert.equal(JSON.parse(records.get('account-a')).v,'restored-a');
+ assert.equal(JSON.parse(records.get('account-b')).v,'live-b');
+ assert.ok(await storeA.get('restore-photo'));
+ assert.equal(await storeB.get('restore-photo'),null);
+});
