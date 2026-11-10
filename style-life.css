@@ -186,7 +186,8 @@ html[data-ui-design=life] body[data-view=day] .empty{
  padding:3px;border-radius:999px;background:var(--life-card);border:1px solid var(--life-line);
 }
 .life-date-pill-label{padding:0 8px;font-size:12px;font-weight:600;color:var(--life-ink)}
-.life-nav{border:0!important;background:transparent!important;min-width:28px;height:28px;border-radius:999px!important;color:var(--life-muted)!important}
+.life-nav{border:0!important;background:transparent!important;min-width:28px;height:28px;border-radius:999px!important;color:var(--life-ink)!important}
+.life-today-jump{border:0!important;background:transparent!important;border-radius:999px!important;color:var(--life-mint-deep)!important;font-size:12px!important;font-weight:700!important;padding:4px 10px!important;min-height:28px}
 .life-quick-record{
  border:0!important;border-radius:999px!important;padding:9px 14px!important;
  background:var(--life-lemon)!important;color:#2f3a1f!important;font-weight:700!important;
@@ -451,14 +452,18 @@ html[data-ui-design=life] .life-grid,
 }
 @media (max-width:820px){
  html[data-ui-design=life] body[data-view=day] main{margin-left:0;padding:12px 12px 92px}
- html[data-ui-design=life] body[data-view=day] > aside{width:100%}
+ html[data-ui-design=life] body[data-view=day] > aside{inset:auto 0 0;width:100%;height:auto;padding:6px 5px;border-right:0;border-top:1px solid var(--life-line);background:var(--life-card)}
+ html[data-ui-design=life] body[data-view=day] > aside .brand,html[data-ui-design=life] body[data-view=day] > aside .aside-note{display:none}
+ html[data-ui-design=life] body[data-view=day] > aside > nav{display:flex;flex-direction:row;margin-top:0;overflow-x:auto}
  html[data-ui-design=life] body[data-view=day] .ongoing-finish-bar{left:0}
  .life-progress-panel{grid-template-columns:1fr}
  html[data-ui-design=life] .life-grid,
  html[data-ui-design=life] .life-col-habit,
  .life-grid,.life-col-habit{grid-template-columns:1fr}
  .life-capture-tiles{grid-template-columns:1fr 1fr}
- .life-day-header{align-items:flex-start}
+ .life-day-header{align-items:flex-start;flex-direction:column}
+ .life-day-tools{width:100%}
+ .life-date-pill .life-nav,.life-day-tools .life-today-jump{min-width:44px;width:auto;height:44px;min-height:44px}
  .life-deco-leaves{width:150px;top:-4px;right:-18px;opacity:.45}
 }
 @media (max-width:560px){

@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** **네이티브 준비만** — [native-readiness.md](native-readiness.md)(도구·권한·무료 제약). **구현·Watch 코드 착수 금지(승인 전).** 병목: 사용자 Mac Xcode 약관·Android Studio. UX sim 잔여·대기열 병행 가능.
+**다음 시작점:** **네이티브 준비만** — [native-readiness.md](native-readiness.md). **구현·Watch 착수 금지.** 병목: 사용자 Mac Xcode 약관·Android Studio. Life 날짜 알약 PR은 **미병합·미배포**. 다음 자동화는 그 알약을 반복하지 말고, 같은 조건의 다른 작은 버그·접근성 1건.
+
+**진행 (Life 날짜 알약 · 2026-11-11 · 미병합):** Life Today는 공통 날짜 막대를 숨기는데 알약 한가운데가 항상 「오늘」이라 다른 날에서 돌아올 버튼이 없었다. 오늘이면 알약에 「오늘」, 아니면 그 날짜와 `오늘로 이동`. 820px 이하에서 ‹›·오늘 44px, 제목 아래 한 줄, 사이드바가 본문을 덮지 않고 하단 바로 내려감. Classic 날짜 막대 유지. `npm test` **613 pass / 6 skip** · build · sandbox `life-date-pill` 1280·768·375·다크. **Pages 배포 없음.**
 
 **완료 (실 Supabase 라이브 QA · #36):** tip `8cb0098` merge. Actions [42869536615](https://github.com/h3clo/hazeflow/actions/runs/42869536615) success (build ~23s · deploy ~10s). live Pages 200 · `main-Bbya24zg.js`. 옵션 D live **6 pass / 1 skip** · QA `main`/cross 0 · sandbox tombstone 정리 · 시크릿 Git 미추적. 상세 [supabase-live-qa.md](supabase-live-qa.md) · [native-readiness.md](native-readiness.md).
 

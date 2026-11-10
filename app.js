@@ -495,6 +495,8 @@ function dayOverviewClassic({done,events,checked,steps,records,due}){
 }
 function lifeDayHeader(){
  const label=new Date(date+'T12:00:00').toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+ const onToday=date===todayKey();
+ const pillLabel=onToday?'오늘':new Date(date+'T12:00:00').toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
  return `<header class="life-day-header">
   <div class="life-day-intro">
    <p class="life-day-kicker">${esc(label)}</p>
@@ -502,7 +504,8 @@ function lifeDayHeader(){
    <p class="life-day-motto">조금씩, 꾸준히. 오늘도 나다운 하루를 만들어요.</p>
   </div>
   <div class="life-day-tools">
-   <div class="life-date-pill" role="group" aria-label="날짜 이동">${btn('‹','prev','','life-nav','aria-label="이전 날짜"')}<span class="life-date-pill-label">오늘</span>${btn('›','next','','life-nav','aria-label="다음 날짜"')}</div>
+   <div class="life-date-pill" role="group" aria-label="날짜 이동">${btn('‹','prev','','life-nav','aria-label="이전 날짜"')}<span class="life-date-pill-label">${esc(pillLabel)}</span>${btn('›','next','','life-nav','aria-label="다음 날짜"')}</div>
+   ${onToday?'':btn('오늘','today','','life-today-jump','aria-label="오늘로 이동"')}
    ${btn(date>todayKey()?'＋ 할 일 계획':'＋ 빠른 기록','focus-capture','','life-quick-record')}
   </div>
  </header>`;
