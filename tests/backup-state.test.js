@@ -26,13 +26,58 @@ test('복구 모드 가져오기는 저장 성공 후에만 recovery를 해제�
 });
 test('기록 커밋 실패 시 이번에 새로 넣은 백업 사진만 되돌린다',async()=>{
  globalThis.indexedDB=new IDBFactory();
- const store=makePhotoStore('qa-import-photos-'+Date.now());
- const keep=new Blob([Uint8Array.of(1)],{type:'image/jpeg'});
+ const store=makePhotoStore('qa-import-photos-fail-'+Date.now());
+ const existing=new Blob([Uint8Array.of(1)],{type:'image/jpeg'});
  const fresh=new Blob([Uint8Array.of(2)],{type:'image/jpeg'});
- await store.put('keep-photo',keep);
- await assert.rejects(withImportedPhotos(store,[['keep-photo',keep],['fresh-photo',fresh]],async()=>{throw Error('기록 저장 실패')}),/기록 저장 실패/);
+ await store.put('keep-photo',existing);
+ await assert.rejects(withImportedPhotos(store,[['keep-photo',existing],['fresh-photo',fresh]],async keep=>{throw Error('기록 저장 실패')}),/기록 저장 실패/);
  assert.ok(await store.get('keep-photo'));
  assert.equal(await store.get('fresh-photo'),null);
- await withImportedPhotos(store,[['fresh-photo',fresh]],async()=>'ok');
+});
+test('기록 저장 성공 후 render 실패해도 참조 사진은 유지한다',async()=>{
+ globalThis.indexedDB=new IDBFactory();
+ const store=makePhotoStore('qa-import-photos-keep-'+Date.now());
+ const fresh=new Blob([Uint8Array.of(3)],{type:'image/jpeg'});
+ await assert.rejects(withImportedPhotos(store,[['fresh-photo',fresh]],async keep=>{
+  keep();
+  throw Error('화면 갱신 실패');
+ }),/화면 갱신 실패/);
  assert.ok(await store.get('fresh-photo'));
+});
+test('계정 전환으로 저장 전 중단되면 신규 사진만 되돌린다',async()=>{
+ globalThis.indexedDB=new IDBFactory();
+ const store=makePhotoStore('qa-import-photos-switch-'+Date.now());
+ const existing=new Blob([Uint8Array.of(4)],{type:'image/jpeg'});
+ const fresh=new Blob([Uint8Array.of(5)],{type:'image/jpeg'});
+ await store.put('keep-photo',existing);
+ await assert.rejects(withImportedPhotos(store,[['keep-photo',existing],['fresh-photo',fresh]],async keep=>{
+  assertBackupOwner('account-a','account-b','불러오기');
+  keep();
+ }),/계정이 바뀌어/);
+ assert.ok(await store.get('keep-photo'));
+ assert.equal(await store.get('fresh-photo'),null);
+});
+test('동시 가져오기에서 한쪽 실패는 다른 쪽 keep된 사진을 지우지 않는다',async()=>{
+ globalThis.indexedDB=new IDBFactory();
+ const store=makePhotoStore('qa-import-photos-concurrent-'+Date.now());
+ const a=new Blob([Uint8Array.of(6)],{type:'image/jpeg'});
+ const b=new Blob([Uint8Array.of(7)],{type:'image/jpeg'});
+ const first=withImportedPhotos(store,[['photo-a',a]],async keep=>{
+  await new Promise(r=>setTimeout(r,20));
+  keep();
+ });
+ const second=assert.rejects(withImportedPhotos(store,[['photo-b',b]],async keep=>{
+  await new Promise(r=>setTimeout(r,5));
+  throw Error('두 번째 가져오기 실패');
+ }),/두 번째 가져오기 실패/);
+ await Promise.all([first,second]);
+ assert.ok(await store.get('photo-a'));
+ assert.equal(await store.get('photo-b'),null);
+});
+test('keep를 호출하지 않고 끝나면 신규 사진을 되돌린다',async()=>{
+ globalThis.indexedDB=new IDBFactory();
+ const store=makePhotoStore('qa-import-photos-nokeep-'+Date.now());
+ const fresh=new Blob([Uint8Array.of(8)],{type:'image/jpeg'});
+ await withImportedPhotos(store,[['fresh-photo',fresh]],async keep=>{});
+ assert.equal(await store.get('fresh-photo'),null);
 });

@@ -23,11 +23,24 @@ export function importCommitOutcome({saved,mode}){
  return {clearRecovery:mode==='restore',status:'불러오기 완료'};
 }
 
-/** Write new backup photos, run the record commit, and roll back only newly added photo ids on failure. */
-export async function withImportedPhotos(store,photos,run){
+/**
+ * Write new backup photos, then run save(keep).
+ * Call keep() only after the record write actually succeeds.
+ * Newly added photo ids roll back only when keep() was never called
+ * (so post-save render/notify failures do not delete referenced photos).
+ */
+export async function withImportedPhotos(store,photos,save){
  const added=await store.putBatch(photos);
- try{return await run()}
- catch(error){if(added.length)try{await store.deleteBatch(added)}catch{/* keep original failure */}throw error}
+ let kept=false;
+ const keep=()=>{kept=true};
+ try{
+  const result=await save(keep);
+  if(!kept&&added.length)try{await store.deleteBatch(added)}catch{/* prefer original outcome */}
+  return result;
+ }catch(error){
+  if(!kept&&added.length)try{await store.deleteBatch(added)}catch{/* keep original failure */}
+  throw error;
+ }
 }
 
 export function emptyBackupFallback(){return emptyState()}

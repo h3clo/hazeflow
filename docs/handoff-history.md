@@ -6,7 +6,7 @@
 
 - 사용자: PR #6–#20 기준 백업·운동휴식·stale/동기화 안정성 점검 + 누락 회귀. UI/스키마/실데이터 금지. main 병합·배포 금지. 이어서「진행해」→ 남은 사진 고아 위험 최소 수정.
 - 분석: 기존 `backup-state`·`photos`·`workout-rests`·`stale-delete-guard`·`sync` 커버 확인. 공백 — 옛 백업/`workoutRests` 왕복·잘못된 휴식 거부·병합 id 우선·휴식 itemIndex 분리·동기화 필드 합침·충돌 시 로컬 유지·stale 삭제 vs 휴식 추가·초안 보존·app 배선.
-- 추가: `tests/data-stability-regression.test.js` (13). 후속 수정: `putBatch`→신규 id 반환, `deleteBatch`, `withImportedPhotos`로 importFile/importGuest 실패 시 신규 사진만 롤백. 기존 사진 유지.
+- 추가: `tests/data-stability-regression.test.js` (13). 후속: `putBatch`/`deleteBatch`/`withImportedPhotos(keep)` — 기록 저장 성공 후 `keep()` 호출, render 실패 시 사진 유지. 저장 전 실패·계정 전환만 신규 롤백.
 - 검사: `npm test` · `build` · `diff --check`. PR #21. **실기기·실계정 미검증. 병합·배포 미함.**
 
 ### 2026-11-09 Cursor · 자동화 자율 범위 + 캡처 추가 설정 좁은 폭
