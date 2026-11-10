@@ -23,4 +23,11 @@ export function importCommitOutcome({saved,mode}){
  return {clearRecovery:mode==='restore',status:'불러오기 완료'};
 }
 
+/** Write new backup photos, run the record commit, and roll back only newly added photo ids on failure. */
+export async function withImportedPhotos(store,photos,run){
+ const added=await store.putBatch(photos);
+ try{return await run()}
+ catch(error){if(added.length)try{await store.deleteBatch(added)}catch{/* keep original failure */}throw error}
+}
+
 export function emptyBackupFallback(){return emptyState()}

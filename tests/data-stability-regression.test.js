@@ -159,5 +159,7 @@ test('app 휴식 저장·계정 전환 가져오기 방어 배선이 유지된�
  assert.ok(app.includes("계정이 바뀌어 가져오기를 중단했어요."));
  assert.ok(app.includes('기존 기록은 변경하지 않았어요.'));
  assert.ok(app.includes('importCommitOutcome({saved,mode})'));
+ assert.ok(app.includes('withImportedPhotos(store,photos,'));
+ assert.ok(app.includes('withImportedPhotos(targetStore,photos,'));
  assert.ok(app.includes('decodePhotoBundle(payload.photoData,collectPhotoRefs(incoming))'));
 });

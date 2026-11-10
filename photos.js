@@ -9,9 +9,10 @@ export function makePhotoStore(name){
  const open=()=>dbPromise??=new Promise((resolve,reject)=>{const req=indexedDB.open(name,1);req.onupgradeneeded=()=>req.result.createObjectStore('photos');req.onsuccess=()=>resolve(req.result);req.onerror=()=>{dbPromise=null;reject(Error('사진 저장소를 열지 못했어요. 브라우저 저장 설정을 확인해주세요.'))}});
  async function get(id){const db=await open();return new Promise((resolve,reject)=>{const req=db.transaction('photos').objectStore('photos').get(id);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(Error('사진을 읽지 못했어요.'))})}
  async function put(id,blob){const db=await open();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(blob,id);tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(Error('사진을 저장하지 못했어요. 기기의 여유 공간을 확인해주세요.'))})}
- async function putBatch(entries){const db=await open();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite'),store=tx.objectStore('photos');for(const [id,blob]of entries){const request=store.get(id);request.onsuccess=()=>{if(!request.result)store.put(blob,id)}}tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(Error('백업 사진을 저장하지 못했어요. 기존 기록은 유지돼요.'))})}
+ async function putBatch(entries){const db=await open();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite'),store=tx.objectStore('photos'),added=[];for(const [id,blob]of entries){const request=store.get(id);request.onsuccess=()=>{if(!request.result){store.put(blob,id);added.push(id)}}}tx.oncomplete=()=>resolve(added);tx.onerror=tx.onabort=()=>reject(Error('백업 사진을 저장하지 못했어요. 기존 기록은 유지돼요.'))})}
+ async function deleteBatch(ids){if(!ids?.length)return;const db=await open();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite'),store=tx.objectStore('photos');for(const id of ids)store.delete(id);tx.oncomplete=()=>resolve();tx.onerror=tx.onabort=()=>reject(Error('임시 백업 사진을 정리하지 못했어요.'))})}
  const cache=createPhotoUrlCache(get);
- return {get,async put(id,blob){await put(id,blob);cache.invalidate(id)},putBatch,url:cache.url,dispose:cache.dispose};
+ return {get,async put(id,blob){await put(id,blob);cache.invalidate(id)},putBatch,deleteBatch,url:cache.url,dispose:cache.dispose};
 }
 export async function photoFormat(file){
  const bytes=new Uint8Array(await file.slice(0,64).arrayBuffer());

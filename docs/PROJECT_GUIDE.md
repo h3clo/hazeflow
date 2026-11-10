@@ -46,7 +46,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **다음 시작점:** 데이터 안정성 회귀 PR(`cursor/data-stability-regression-03b4`) 리뷰·병합 여부 결정. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인. main 병합·Pages 배포는 승인 전 금지.**
 
-**데이터 안정성 점검 (2026-11-10 · 미병합 PR):** 브랜치 `cursor/data-stability-regression-03b4`. PR #6–#20 경로 기준 회귀 테스트 `tests/data-stability-regression.test.js`(+13). 백업·`workoutRests`·stale 삭제·동기화 필드 병합·초안 보존. 제품 코드 변경 없음(결함 미재현). 검사: `npm test` **567** · `build` · `diff --check`. **실기기·실계정 동기화 미검증.** 남은 위험: 병합 가져오기 동일 id는 현재 우선(백업 쪽 `workoutRests` 미흡수), 사진 `putBatch` 후 커밋 실패 시 고아 사진 가능.
+**데이터 안정성 점검 (2026-11-10 · 미병합 PR #21):** 브랜치 `cursor/data-stability-regression-03b4`. 회귀 `tests/data-stability-regression.test.js`(+13) + 사진 가져오기 실패 시 신규 blob 롤백(`withImportedPhotos`/`deleteBatch`). 병합 동일 id는 현재 우선(설계). 검사: `npm test` · `build` · `diff --check`. **실기기·실계정 동기화 미검증. main 병합·Pages 배포 승인 대기.**
 
 **배포 (2026-11-10 · 영상 즐겨찾기):** tip `9e5a52d` · PR #20. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42816357028) success. live에 `workout-video-fold`·「영상 즐겨찾기」확인. URL https://h3clo.github.io/hazeflow/ .
 
