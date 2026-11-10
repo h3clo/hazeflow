@@ -1,6 +1,8 @@
-# Haze Flow 네이티브 실행 계획 (iOS · Android · Apple Watch)
+# Haze Flow 네이티브 실행 계획 (iOS · Android · Apple Watch · DeX)
 
-기준: 2026-11-11. **분석·설계·검증 범위만.** 이 문서는 다음 AI가 구현 PR을 순서대로 열 수 있게 하는 실행 계약이다. **이 문서만으로 네이티브 코드 착수를 승인하지 않는다** — 구현은 별도 사용자 승인 또는 가이드의 다음 시작점이 “구현 PR N1 착수”로 바뀐 뒤 시작한다.
+기준: 2026-11-11. **분석·설계·N0 검증.** 이 문서는 다음 AI가 구현 PR을 순서대로 열 수 있게 하는 실행 계약이다. **기능 구현(Live Activity·알림·Watch UI)은 별도 승인 또는 가이드 다음 시작점이 N1 착수로 바뀐 뒤.**
+
+**제품 우선순위 (2026-11-11 사용자 확정):** 1. **iPhone** → 2. **Apple Watch** → 3. **Android** → 4. **Samsung DeX 웹**. 사용자가 가장 자주 쓰는 기기는 iPhone이다.
 
 근거 문서: [mobile-app.md](mobile-app.md) · [native-readiness.md](native-readiness.md) · [notifications-plan.md](notifications-plan.md) · [supabase-live-qa.md](supabase-live-qa.md) · [activity-system-2-pr-a.md](activity-system-2-pr-a.md) · Apple Developer Account Help · Capacitor Local Notifications API · [Samsung DeX web guide](https://developer.samsung.com/browser/android/web-development-guide-for-dex.html) · [Samsung DeX FAQ](https://developer.samsung.com/samsung-dex/faq.html).
 
@@ -14,7 +16,8 @@
 | Apple Watch 가능? | **가능하되 Capacitor 웹뷰가 아님.** SwiftUI 워치 타깃 + (권장) iPhone 중계 + 선택적 Supabase. 일상 활동 포함. |
 | **Samsung DeX?** | **웹(PWA/브라우저) 우선.** DeX 전용 앱·플랫폼 분기 **금지.** Android 네이티브는 DeX에서도 실행 가능하나, DeX 데스크 사용의 기본 경로는 웹. |
 | 웹 재사용? | **도메인·동기화·UI 대부분 재사용.** Live Activity / 지속 알림 / Watch UI만 네이티브. |
-| 지금 구현 시작? | **아니오.** 툴체인(사용자 Mac Xcode 약관) 미검증. 본 문서는 설계만. |
+| N0 환경 검증? | **부분 완료** — Linux에서 `build:app`+`cap sync`+구조 검증 통과. **iOS 시뮬/실기기 컴파일은 사용자 Mac 대기.** 상세 [native-n0-verification.md](native-n0-verification.md). |
+| 지금 기능 구현? | **아니오.** N1(iOS 셸 스모크)까지는 환경·실행 확인만. Live Activity 등은 N1 이후. |
 | 유료 필수? | **개인 기기 디버그 설치는 무료 Personal Team으로 가능(7일 재설치).** Push·TestFlight·스토어·일부 entitlement는 **유료 Apple Developer Program(~$/년)** 필요. Google Play 게시는 별도. |
 
 ---
@@ -50,10 +53,11 @@
 
 서버: `hazeflow_records` + RLS. CI live QA 통과(2026-11-11). **스키마 변경 없이** 네이티브 확장 가능.
 
-### 1.4 이 클라우드 에이전트 환경
+### 1.4 이 클라우드 에이전트 환경 (N0 실측 2026-11-11)
 
-- OS: Linux. **Xcode/`xcodebuild` 없음.** Android SDK 미확인.
-- 따라서 **iOS/Watch 컴파일·실기기 설치는 사용자 Mac에서만** 검증 가능. 에이전트는 문서·JS·Android Gradle(환경 있으면)·웹 회귀만 담당.
+- OS: Linux. **`xcodebuild`/`pod` 없음.** `ANDROID_HOME` 없음 → `assembleDebug` SDK location 실패.
+- **통과:** `npm run build:app`, `npx cap sync`, `npm run verify:native-n0`, `npm test` 617 pass/2 skip.
+- **iOS/Watch 컴파일·실기기 설치는 사용자 Mac에서만.** 에이전트는 문서·JS·구조 검증·웹 회귀.
 
 ---
 
@@ -176,18 +180,18 @@
 
 | PR | 제목 | 내용 | 난이도 | 의존 | 자동 검증 | 실기기 필수 |
 | --- | --- | --- | --- | --- | --- | --- |
-| **N0** | 문서(본 계획+DeX) | 설계만 | L | — | 문서·링크 | — |
-| **D1** | DeX/데스크톱 웹 e2e | Playwright: 1280·창 리사이즈·포커스·입력 유지. DeX 전용 분기 없음 | L | N0 | CI Playwright | 없음(자동) |
-| **N1** | 툴체인·셸 스모크 | 사용자 Mac: Xcode 약관, `npm run app:sync`, iOS Sim·Android Emulator. Android `resizeableActivity` 확인만. **기능 추가 없음** | L | N0 | `npm test`/`build`; Sim | Sim으로 N1 가능 |
-| **N2** | 네이티브 셸에서 활동 QA | QA 계정으로 시작/종료/동시/대표 | L | N1 | unit/e2e/live | 권장 |
-| **N3** | Local Notifications | `@capacitor/local-notifications` | M | N2 | unit mock | 실기기 알림 |
-| **N4** | Android 지속 알림 | 대표 ongoing → FGS (폰 잠금/백그라운드 이점; DeX는 부가) | H | N2 | unit 브리지 | **실기기 권장** |
-| **N5** | iOS Live Activities | ActivityKit + JS 브리지(앱 내 갱신만) | H | N2 | 시뮬 16.1+ | 잠금화면 실기기 |
-| **N6** | 알람 정확도·권한 UX | Exact alarm / 재스케줄 | M | N3 | unit | 실기기 |
-| **N7** | Watch 컴패니언 | SwiftUI + WCSession | H | N2 | Watch 시뮬 | **Watch+iPhone** |
-| **N8** | 안정화 | 충돌·오프라인·DeX 실기기 체크리스트·선택 APK CI | M | D1,N4–N7 | live+회귀 | DeX·매트릭스 |
+| **N0** | 환경 검증 + 계획 | Linux: build/sync/구조. Mac 시뮬은 사용자. iOS 우선 문서 | L | — | `verify:native-n0` · unit | Mac은 사용자 |
+| **N1** | **iOS** 셸 스모크 | 사용자 Mac: Xcode 약관, `app:sync`, **iOS Simulator** Run, QA 로그인·Today. **기능 추가 없음**. Android는 열기/현황만 | L | N0 | `npm test`/`build`; Sim 스크린샷 | Sim으로 N1 가능 |
+| **N2** | iOS 셸 활동 QA | QA로 시작/종료/동시/대표·딥링크 스모크 | L | N1 | unit/e2e/live | iPhone 권장 |
+| **N3** | iOS 로컬 알림 | `@capacitor/local-notifications` | M | N2 | unit mock | iPhone 알림 |
+| **N5** | iOS Live Activities | ActivityKit + JS 브리지(**앱 내 갱신만**, Push 없음) | H | N2 | 시뮬 16.1+ | 잠금화면 실기기 |
+| **N7** | Watch 컴패니언 | SwiftUI + WCSession ↔ iPhone | H | N2 | Watch 시뮬 | **Watch+iPhone** |
+| **N4** | Android 지속 알림 | FGS (후순위) | H | N2 | unit 브리지 | Android 실기기 |
+| **N6** | 알람 정확도(Android 중심) | Exact alarm 등 | M | N3/N4 | unit | 실기기 |
+| **D1** | DeX/데스크톱 웹 e2e | Playwright 리사이즈 (최후순위) | L | N0 | CI Playwright | 없음 |
+| **N8** | 안정화 | 충돌·오프라인·선택 APK CI | M | N5/N7 | live+회귀 | 매트릭스 |
 
-**순서 조정 근거:** DeX는 **웹 품질(D1)을 네이티브보다 앞**에 둔다(사용자 일상 경로). Live Activity/FGS/Watch는 N2 이후.
+**순서 근거:** iPhone → Watch → Android → DeX. D1은 DeX가 4순위이므로 **뒤로**.
 
 **스키마 마이그레이션·실계정·유료 가입이 필요한 PR은 착수 전 한 줄 보고.**
 
@@ -231,27 +235,19 @@
 
 ---
 
-## 8. 첫 구현 PR — 승인 후 (D1 또는 N1)
+## 8. 첫 iOS 구현 준비 PR (N1) — 기능 구현 아님
 
-**권장 순서:** DeX/모니터 사용이 당장 중요하면 **D1 먼저**(클라우드만으로 CI 가능). 폰 셸·알림이 먼저면 **N1**. 둘 다 승인 전에는 착수하지 않는다. **새 기능·Watch·Live Activity·DeX 전용 분기 없음.**
+N0 다음. **Live Activity·알림·Watch 코드 작성 금지.** iOS Simulator(또는 실기기)에서 기존 웹 UI가 뜨는지만 확인.
 
-### D1 (데스크톱/DeX 웹 e2e)
+1. 사용자 Mac: Xcode 약관·Accounts에 Apple ID(Personal Team)
+2. `npm ci` → `.env.local` publishable만
+3. `npm run app:sync` → `npm run app:ios` → Simulator Run
+4. QA 계정 로그인 · Today · 활동 1건 시작/종료(가능하면) · 콘솔 오류 없음
+5. (선택) 케이블 iPhone Personal Team 설치 — 7일 재서명 안내
+6. Android Studio는 **열기·SDK 유무만** 기록(구현 없음)
+7. 가이드에 N1 결과·스크린샷 · `npm test`/`build`
 
-1. Playwright: viewport 왕복·입력 유지·포커스/Esc (§9.4)
-2. DeX UA 분기·전용 CSS **추가하지 않음**
-3. `npm test` · Playwright CI · 가이드에 D1 결과 기록
-
-### N1 (셸 스모크)
-
-1. 사용자 Mac에서 `npm ci` → `.env.local`에 **publishable** URL/key만 (service_role 금지)
-2. `npm run app:sync` 성공; 실패 시 Capacitor/경로 **최소 수정**
-3. `npm run app:ios` / `app:android` → 시뮬/에뮬 Today 로드
-4. Android `resizeableActivity` 설정 확인만(DeX 대비)
-5. 가이드에 N1 통과/실패·스크린샷 경로 기록
-6. `npm test` · `npm run build` · (해당 시) live QA
-7. 개인 데이터·스키마 변경 없음
-
-완료 후 다음 시작점을 **N2**(또는 남은 D1/N1)로 갱신.
+완료 후 다음 시작점 **N2**(iOS 활동 QA). Live Activity는 **N5**(별도).
 
 ---
 
@@ -331,11 +327,9 @@ Cursor/CI가 대신 할 수 없음 → 구현 후 **사용자 UX 확인**으로�
 
 ## 11. 최종 보고용 요약 표
 
-1. **구현 가능 여부:** iOS·Android = Capacitor. Watch = SwiftUI. **DeX = 웹/PWA 우선**, 네이티브는 선택.
-2. **무료 환경:** 시뮬 + 7일 재설치 실기기. Push/TestFlight/스토어는 유료.
-3. **재사용:** 웹 UI·도메인·sync 전체. 네이티브는 셸·브리지·Watch만.
-4. **아키텍처:** §4 + §9.
-5. **PR 계획:** §5 (N0, **D1**, N1–N8).
-6. **테스트:** §6 + §9.4–9.5.
-7. **준비물:** §7 + DeX는 기존 갤럭시·모니터(추가 비용 없음).
-8. **첫 구현 PR(승인 후):** 일정 여유 시 **D1(웹 리사이즈 e2e)** 또는 **N1(셸 스모크)**. DeX만 보면 D1이 사용자 가치 대비 더 빠름.
+1. **우선순위:** iPhone → Watch → Android → DeX.
+2. **N0:** Linux sync/구조 OK · Mac 시뮬 미실행 — [native-n0-verification.md](native-n0-verification.md).
+3. **재사용:** 웹 UI·도메인·sync. Live Activity/Watch만 네이티브 추가.
+4. **PR:** §5 (N0→**N1 iOS**→N2→N3/N5→N7→N4→D1…).
+5. **준비물:** §7 · 사용자 Mac Xcode 약관.
+6. **다음:** N1 iOS 셸 스모크(기능 구현 아님).
