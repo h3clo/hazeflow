@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · 가계부 편집창 stale delete 보호
+
+- P0: `moneyEditor`의「거래 삭제」가 `openedFor` 라이브 fallback이라, 편집창을 연 뒤 다른 화면에서 금액이 바뀌면 오래된 삭제가 최신 거래를 지울 수 있었음.
+- 수정: 폼·삭제 버튼에 화면 원본(`data-original` / `originalAttribute`). 저장 경로의 `moneyEditorBaseline`은 유지.
+- 검사: `tests/stale-delete-guard.test.js` +2 · `npm test` **517** · build · `diff --check`. 스키마·계정·Pages 없음. 브랜치 `cursor/money-stale-delete-guard-03b4` PR만.
+- 다음: 자산 스냅샷 목록 삭제·일정/루틴 실행 토글 등 남은 약한 경로, 또는 열린 PR #6/#7 병합은 사용자 승인 후.
+
 ### 2026-11-09 Cursor · Today Life Pages 배포
 
 - 검증 후 PR #5만 `main` 병합(`794d24f`). 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions #42591226027 success → https://h3clo.github.io/hazeflow/
