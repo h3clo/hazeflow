@@ -9,6 +9,12 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 Cursor · iCloud 범위 분리 + 달 이동 a11y
+
+- 사용자: iCloud(I0–I3)는 다른 프로젝트에서 진행 → 이 저장소 AI는 비관여. 할 수 있는 소폭부터 계속.
+- a11y: Life `‹›`에「이전/다음 날짜」, 기록 `month-prev/next`에「이전/다음 달」`aria-label`. Classic 날짜바는 기존 유지.
+- 브랜치 `cursor/nav-aria-labels-03b4`.
+
 ### 2026-11-10 Cursor · Classic 오늘 일기 미리보기 접힘
 
 - 사용성: Classic `dayWorkspace`의 `day-memo`를 `classic-diary-fold`로 기본 접힘(summary 44px). 일기가 있으면 요약 한 줄, 없으면「일기 · 하루 마감」. Life·스키마·동기화 불변.
