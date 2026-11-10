@@ -11,7 +11,10 @@ export function primaryStorageKey(ownerKey){
 export function readPrimaryActivityId(storage,ownerKey){
  try{
   const raw=storage?.getItem?.(primaryStorageKey(ownerKey));
-  return raw&&typeof raw==='string'&&raw.length&&raw.length<=200?raw:null;
+  if(!raw||typeof raw!=='string'||!raw.length||raw.length>200)return null;
+  // IndexedDB migration marker must never be treated as an activity id.
+  if(raw==='hazeflow-indexeddb-v1'||raw.startsWith('hazeflow-gzip-v1:'))return null;
+  return raw;
  }catch{return null}
 }
 

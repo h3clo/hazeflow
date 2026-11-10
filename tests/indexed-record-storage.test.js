@@ -9,3 +9,22 @@ test('이전 후 늦게 쓴 구버전 기록도 별도 보관해 버리지 않�
 test('클라우드 조회 중 생긴 새 로컬 기록과 종료 수정이 유지된다',()=>{const before=emptyState();before.logs=[{id:'a',date:'2026-11-06',time:'10:00',kind:'일상',text:'독서'}];const current=structuredClone(before);current.logs[0].endDate='2026-11-06';current.logs[0].endTime='11:00';current.logs.push({id:'new',date:'2026-11-06',time:'11:00',kind:'식사',text:'점심'});const remote=structuredClone(before);remote.logs[0].text='독서 아몬드';const merged=mergeDuringSave(current,before,remote);assert.equal(merged.logs.length,2);assert.equal(merged.logs.find(l=>l.id==='a').endTime,'11:00');assert.equal(merged.logs.find(l=>l.id==='a').text,'독서 아몬드')});
 
 test('오프라인 기록을 재시작 후 온라인으로 보낼 때 기록과 종료 시간을 보존한다',async()=>{const {openSyncJournal}=await import('../sync-journal-store.js'),{createSyncEngine}=await import('../sync-engine.js');const f=fixture(),key=f.namespace;let store=await openRecordStorage(f);const d=emptyState();d.logs=[{id:'offline',date:'2026-11-06',time:'10:00',endDate:'2026-11-06',endTime:'10:30',kind:'공부',text:'영어 공부'}];await store.setItem(key,JSON.stringify(d));store.close();store=await openRecordStorage(f);const journal=await openSyncJournal({key:key+'-sync',legacy:f.local,indexedDB:f.indexedDB}),remote=new Map();let online=false,status;const engine=createSyncEngine({storage:journal,photoStore:{},read:()=>JSON.parse(store.getItem(key)),write:s=>store.setItem(key,JSON.stringify(s)),online:()=>online,onStatus:s=>status=s,transport:{pull:async()=>[...remote.values()],async push(ops){const rows=ops.map(op=>({...op,version:1}));rows.forEach(row=>remote.set(row.item_key,row));return {applied:true,rows}}}});await engine.sync();assert.equal(status.phase,'offline');assert.equal(remote.size,0);online=true;await engine.sync();assert.equal(status.phase,'synced');assert.equal([...remote.values()].find(r=>r.payload?.id==='offline').payload.endTime,'10:30');engine.stop();store.close()});
+
+test('대표 활동 선호는 IndexedDB로 이전되지 않고 잘못 이전된 값은 localStorage로 복구한다',async()=>{
+ const f=fixture(),primary=f.namespace+'-primary-activity';
+ // Simulate older build: UUID already in IDB, marker left in localStorage
+ const seed=await openRecordStorage(f);
+ await seed.setItem(f.namespace,JSON.stringify(emptyState()));
+ // Force-write primary into IDB even though unmanaged now — use raw IDB
+ seed.close();
+ const db=await new Promise((resolve,reject)=>{const r=f.indexedDB.open('hazeflow-snapshots-v1',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+ await new Promise((resolve,reject)=>{const tx=db.transaction('records','readwrite');tx.objectStore('records').put({version:1,value:'act-primary-1'},primary);tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error)});
+ f.local.setItem(primary,'hazeflow-indexeddb-v1');
+ const store=await openRecordStorage(f);
+ assert.equal(f.local.getItem(primary),'act-primary-1');
+ assert.equal(store.getItem(primary),'act-primary-1');
+ store.setItem(primary,'act-primary-2');
+ assert.equal(f.local.getItem(primary),'act-primary-2');
+ assert.notEqual(f.local.getItem(primary),'hazeflow-indexeddb-v1');
+ store.close();
+});
