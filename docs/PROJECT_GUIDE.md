@@ -44,11 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** UX sim 잔여(헤더 밀도 등) 또는 대기열. **활동 2.0 F·네이티브 금지.** PR #31(대표 선호 localStorage)·활동 2.0 Playwright e2e 병합·Pages 확인 후 대기열.
+**다음 시작점:** UX sim 잔여(헤더 밀도 등) 또는 대기열. **활동 2.0 F·네이티브 금지.**
 
-**진행 (활동 2.0 Playwright e2e · 2026-11-11):** sandbox 전용 `e2e/activity-2.0.spec.js` — 시나리오 1~10(동시 진행·부분 종료·유지/종료 선택·취소·대표 변경·새로고침·Classic/Life·375·레거시 시간·오프라인 로컬 유지). `npm run test:e2e` · Pages smoke `npm run test:e2e:pages`. **실계정 Supabase 왕복은 단위 테스트만(이 e2e는 로컬 IndexedDB).**
-
-**버그 수정 PR #31:** 대표 활동 id가 IndexedDB 이전 마커(`hazeflow-indexeddb-v1`)로 덮이던 문제 · 선택창 닫을 때 `pendingCaptureStart` 미해제. 단위 11건 통과.
+**완료 (활동 2.0 Playwright e2e · 2026-11-11):** tip `ee4eb22`(#31)+`c7d4e14`(#32). Actions [42853506579](https://github.com/h3clo/hazeflow/actions/runs/42853506579) success (build 20s · deploy 3m30s). live `main-DEfGsQ4u.js`에 `-primary-activity` 제외·rescue 확인. 로컬 desktop+375 시나리오 1~10 통과 · Pages에서 1–6+smoke 재통과. **실계정 Supabase 왕복 e2e 없음.**
 
 **완료 (Life 모바일 1열 · #29):** tip `1486957` · Pages #42848846217 success. 375폭 sandbox에서 활동/일정이 세로 스택·입력 전폭 확인(usable). live `main-BuseS_EM.css`에 1열 미디어쿼리 포함.
 
