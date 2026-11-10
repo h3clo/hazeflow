@@ -64,6 +64,7 @@ import {workoutSession,workoutSessionSummary,workoutSessionHeading,previousExerc
 import {workoutItems,serializeWorkoutItems,updateStrengthSet,addStrengthSet,removeStrengthSet,appendWorkoutLine,applyPlanGoals,snapshotWorkoutPlan,formatExerciseItem,nextIncompleteSetIndex as findNextIncompleteSet,strengthItemComplete,shouldContinueRestAfterSet,lastCompletedStrengthIndex} from './workout-sets.js';
 import {activityIntervals,activityTimeLabel,recordKindLabel,activityEndForEdit,captureActivityEnd,ongoingActivities} from './domain.js';
 import {shouldConfirmOngoingStart,resolveOngoingEndChoices,applyOngoingEnds,captureTimingFields} from './activity-start-confirm.js';
+import {readPrimaryActivityId,writePrimaryActivityId,resolvePrimaryActivity} from './activity-primary.js';
 import {buildDayAgenda} from './agenda.js';
 import {createToast} from './toast.js';
 import {cloudConfig} from './cloud-config.js';
@@ -189,7 +190,7 @@ function ongoingActivityLogs(now=new Date()){
  return [...intervals.entries()].filter(([,v])=>v.ongoing).map(([id])=>data.logs.find(l=>l.id===id)).filter(Boolean)
   .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)||a.id.localeCompare(b.id));
 }
-function primaryOngoingActivity(now=new Date()){return ongoingActivityLogs(now).at(-1)||null}
+function primaryOngoingActivity(now=new Date()){return resolvePrimaryActivity(ongoingActivityLogs(now),readPrimaryActivityId(localStorage,key))}
 function ongoingWorkoutSession(now=new Date()){return ongoingActivityLogs(now).filter(l=>l.kind==='운동'&&!l.legacy&&!l.sourceId).at(-1)||null}
 function activityTitle(l,max=48,{ongoing=false}={}){
  const heading=workoutSessionHeading(l?.kind,{ongoing});
@@ -429,11 +430,15 @@ function liveWorkoutSessionCard(l){
 }
 function ongoingFinishBar(){
  if(view!=='day'||date!==todayKey())return '';
- const l=primaryOngoingActivity();
+ const ongoing=ongoingActivityLogs();
+ const l=resolvePrimaryActivity(ongoing,readPrimaryActivityId(localStorage,key));
  if(!l)return '';
  const summary=activitySummaryLabel(l);
  const subtitle=summary||recordKindLabel(l.kind);
- return `<div class="ongoing-finish-bar" role="region" aria-label="진행 중인 활동 종료"><div class="ongoing-finish-copy"><span class="ongoing-badge"><i></i>진행 중</span><div><strong>${esc(activityTitle(l,42,{ongoing:true}))}</strong><small>${esc(subtitle)}</small></div></div>${btn('■ 끝내기','finish-activity',l.id,'primary finish-activity')}</div>`;
+ const others=ongoing.filter(x=>x.id!==l.id);
+ const switcher=others.length?`<div class="ongoing-primary-switch" role="group" aria-label="대표 활동 바꾸기">${others.map(o=>btn('대표 · '+activityTitle(o,18,{ongoing:true}),'set-primary-activity',o.id,'small-button ongoing-primary-btn')).join('')}</div>`:'';
+ const count=ongoing.length>1?`<small class="ongoing-count">진행 중 ${ongoing.length}개 · 대표만 크게 보여요</small>`:'';
+ return `<div class="ongoing-finish-bar" role="region" aria-label="진행 중인 활동"><div class="ongoing-finish-copy"><span class="ongoing-badge"><i></i>진행 중</span><div><strong>${esc(activityTitle(l,42,{ongoing:true}))}</strong><small>${esc(subtitle)}</small>${count}</div></div><div class="ongoing-finish-actions">${switcher}${btn('■ 끝내기','finish-activity',l.id,'primary finish-activity')}</div></div>`;
 }
 function workoutFeeling(l){
  const f=l.workoutFeedback;
@@ -850,6 +855,7 @@ document.addEventListener('click',async e=>{
  if(act==='body-import'){await bodyImportEditor();return}if(act==='body-preview'){try{bodyImportPreview()}catch(error){$('#body-import-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='body-template'){download('\uFEFF날짜,체중,골격근량,체지방량,체지방률\n'+todayKey()+',,,,\n','hazeflow-body-template.csv','text/csv;charset=utf-8');return}if(act==='body-date'){date=id;view='life';await render();return}
  if(act==='money-import'){await moneyImportEditor();return}if(act==='money-preview'){try{moneyImportPreview()}catch(error){$('#money-import-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='money-diagnose'){await moneyDiagnoseEditor();return}if(act==='bank-csv-preview'){await bankCsvPreviewEditor();return}if(act==='bank-csv-show'){try{bankCsvShowPreview()}catch(error){$('#bank-csv-preview').textContent='';$('#form-error').textContent=error.message}return}if(act==='unlink-meal-money'){await commit(d=>{d.logs=d.logs.map(l=>l.id===id?unlinkMealExpense(l):l)},{undo:true,message:'지출 연결만 해제했어요. 식사 기록은 남아 있어요.'});return}if(act==='new-money'){await moneyEditor();return}if(act==='edit-money'){await moneyEditor(id);return}if(act==='money-export'){download(moneyCSV(monthMoney(data.logs.filter(l=>moneyScopeFilter==='all'||l.money&&moneyScope(l.money)===moneyScopeFilter),date.slice(0,7)).rows),'hazeflow-money-'+date.slice(0,7)+'.csv','text/csv;charset=utf-8');return}
  if(act==='edit-log')await logEditor(id);
+ if(act==='set-primary-activity'){writePrimaryActivityId(localStorage,key,id);await render();notify('대표 활동만 바꿨어요. 기록 시간은 그대로예요.');return}
  if(act==='finish-activity'){if(await commit(d=>{const l=d.logs.find(l=>l.id===id);if(!l)throw Error('활동 기록을 찾지 못했어요. 목록을 다시 확인해주세요.');applyOngoingEnds(d.logs,[id],new Date(todayKey()+'T'+timeNow()+':00'))},{undo:true,message:'활동 종료를 이 기기에 저장했어요.'})){syncRestWithSession();account?.sync();if(data.logs.find(l=>l.id===id)?.kind==='공부')await studyFlow.edit(id)}return}
  if(act==='edit-legacy')await logEditor(id,true);
  if(act==='edit-task')await taskEditor(id);
