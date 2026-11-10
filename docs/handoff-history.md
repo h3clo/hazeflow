@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · 활동 시스템 2.0 PR A (도메인만)
+
+- 사용자: PR A만 승인. B~G·네이티브·Watch 금지. 전역 schema v3 안전성 검토 → **기록별 플래그** 채택.
+- `activity-timing.js` + `domain-time.js`. 레거시 체인은 다음 **레거시**만. 독립은 명시 end만. `sumActivityMinutes` / `mergedElapsedMinutes`.
+- 물질화 불필요(독립이 체인 이웃 제외). 캡처·화면 미변경. 대표 활동 sync는 문서 제안만.
+- 검사: `npm test` 586 · build · `diff --check`. **병합·배포 없음. PR B 대기.**
+
 ### 2026-11-10 Cursor · 홈 화면 노란 구름 아이콘
 
 - 사용자: 첨부 노란 구름으로 PWA 192/512·apple-touch·favicon 교체, 캐시 무효화 파일명, UI/데이터 미변경, Pages 배포.

@@ -14,11 +14,34 @@ import {validAsset} from './assets.js';
 import {validMoney} from './money.js';
 import {expenseForMeal} from './meal-money.js';
 import {validPhotoRefs,photoMarkdown} from './photos.js';
+import {todayKey,isDate,isTime} from './domain-time.js';
+export {todayKey,isDate,isTime} from './domain-time.js';
+import {
+ activityIntervals,
+ ongoingActivities,
+ finishActivityFields,
+ sumActivityMinutes,
+ mergedElapsedMinutes,
+ independentTimingFields,
+ isIndependentTiming,
+ isActivityIntervalLog,
+ validActivityTiming,
+ INDEPENDENT_TIMING
+} from './activity-timing.js';
+export {
+ activityIntervals,
+ ongoingActivities,
+ finishActivityFields,
+ sumActivityMinutes,
+ mergedElapsedMinutes,
+ independentTimingFields,
+ isIndependentTiming,
+ isActivityIntervalLog,
+ validActivityTiming,
+ INDEPENDENT_TIMING
+};
 export const weekdays = ['일','월','화','수','목','금','토'];
-export const todayKey = (d=new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export const uid = () => typeof crypto.randomUUID==='function'?crypto.randomUUID():'record-'+[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
-export const isDate = s => typeof s==='string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s+'T12:00:00')) && todayKey(new Date(s+'T12:00:00'))===s;
-export const isTime = s => typeof s==='string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
 export const emptyState = () => ({schemaVersion:2,events:[],tasks:[],routines:[],checks:{},diary:{},exercises:[],logs:[],life:{},routineTemplates:[],routineRuns:{},favorites:[],weeklyReviews:{},studySubjects:[]});
 const clone = v => structuredClone(v);
 export function migrate(input){
@@ -99,14 +122,6 @@ export function inferKind(text,kind='일상'){if(kind!=='일상')return kind;if(
 export function recordsForDate(d,date){
  return [...d.logs.filter(l=>l.date===date&&!l.healthDaily&&l.kind!=='건강운동'&&!l.asset&&!l.incomeDocument&&!l.taxDocument&&!l.taxPayment),...d.exercises.filter(e=>e.date===date).map(e=>({id:e.id,date:e.date,time:'',kind:'운동',text:`${e.name} · ${e.minutes}분${e.effort?' · '+e.effort:''}${e.note?'\n'+e.note:''}`,legacy:true}))].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
 }
-// Existing manual records also form activity intervals. Source logs and memos never interrupt them.
-export function activityIntervals(d,now=new Date()){
- const records=d.logs.filter(l=>!l.sourceId&&!l.memo&&!l.healthDaily&&l.kind!=='건강운동'&&isDate(l.date)&&isTime(l.time)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)||a.id.localeCompare(b.id));
- const result=new Map();
- records.forEach((l,i)=>{const start=new Date(l.date+'T'+l.time),next=records[i+1],explicit=isDate(l.endDate)&&isTime(l.endTime),end=explicit?new Date(l.endDate+'T'+l.endTime):next?new Date(next.date+'T'+next.time):null,ongoing=!end&&start<=now;
- result.set(l.id,{start,end,ongoing,automatic:!explicit,minutes:Math.max(0,Math.floor(((end||now)-start)/60000)),endDate:end?todayKey(end):'',endTime:end?String(end.getHours()).padStart(2,'0')+':'+String(end.getMinutes()).padStart(2,'0'):''});});
- return result;
-}
 export function activityEndForEdit(current,submitted,opened){
  if(submitted.mode==='memo')return {endDate:'',endTime:''};
  const clean=value=>value||'',changed=clean(submitted.endDate)!==clean(opened.endDate)||clean(submitted.endTime)!==clean(opened.endTime);
@@ -150,6 +165,7 @@ export function validateBackup(v){
    if(key==='tasks'&&((x.dueDate===undefined?!isDate(x.date):x.dueDate!==null&&!isDate(x.dueDate))||(x.dueTime!==undefined&&x.dueTime!==''&&(!isTime(x.dueTime)||!x.dueDate))||(x.completedOn!=null&&!isDate(x.completedOn))))throw Error('할 일 날짜와 시간을 확인해주세요.');
    if(key==='events'&&(!isTime(x.start)||!isTime(x.end)||x.end<=x.start))throw Error('일정 시간이 올바르지 않아요.');
    if(key==='logs'&&x.timeEstimated!==undefined&&(typeof x.timeEstimated!=='boolean'||x.timeEstimated&&!isTime(x.time)))throw Error('추정 시간과 시작 시각을 확인해주세요.');
+   if(key==='logs'&&!validActivityTiming(x.activityTiming))throw Error('활동 시간 규칙 형식을 확인해주세요.');
    if(key==='logs'&&((x.memo!==undefined&&typeof x.memo!=='boolean')||((x.endTime||x.endDate)&&(!isTime(x.time)||!isTime(x.endTime)||!isDate(x.endDate)||new Date(x.endDate+'T'+x.endTime)<new Date(x.date+'T'+x.time)))))throw Error('활동 종료 시간을 확인해주세요.');
    if(key==='logs'&&x.asset!==undefined&&(!validAsset(x.asset)||x.kind!=='자산'||!x.memo||x.money!==undefined))throw Error('자산 잔액 기록을 확인해주세요.');
    if(key==='logs'&&x.money!==undefined&&(!validMoney(x.money)||(!x.memo&&x.kind!=='식사')||(x.kind==='식사'&&x.money.type!=='expense')))throw Error('가계부 거래 형식을 확인해주세요.');
