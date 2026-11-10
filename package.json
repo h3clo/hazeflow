@@ -7,6 +7,8 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test tests/*.test.js",
+    "test:e2e": "playwright test",
+    "test:e2e:pages": "E2E_BASE_URL=https://h3clo.github.io/hazeflow/ playwright test --grep pages",
     "prepare:ocr": "node scripts/prepare-ocr.mjs",
     "predev": "npm run prepare:ocr",
     "prebuild": "npm run prepare:ocr",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "@capacitor/cli": "^8.6.0",
     "@electric-sql/pglite": "^0.5.13",
+    "@playwright/test": "^1.49.1",
     "fake-indexeddb": "^6.2.7"
   }
 }

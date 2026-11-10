@@ -2,6 +2,15 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · 활동 2.0 Playwright e2e + 대표 선호 버그
+
+- 사용자: 활동 2.0 10시나리오 Playwright 자동 검증(데스크톱·375·가능 시 Pages)·sandbox만·실패 시 수정 PR·병합·배포.
+- 추가: `@playwright/test` · `playwright.config.mjs` · `e2e/activity-2.0.spec.js` · `e2e/helpers.js` · `npm run test:e2e` / `test:e2e:pages`.
+- 로컬: desktop+mobile 시나리오 1~10 통과(9 passed · pages 스킵). Pages smoke 통과(`?sandbox` 상대 경로로 `/hazeflow/` 유지).
+- 발견 버그 → PR #31: 대표 id IndexedDB 마커 오염 · 선택창 닫을 때 `pendingCaptureStart` 미해제.
+- 검사: `npm test` **599** · build · e2e. **실계정 sync e2e 없음**(단위/IndexedDB 오프라인만).
+- 다음: #31·e2e PR 병합 후 Pages 재배포 · live에서 시나리오 6(대표 유지) 재확인.
+
 ### 2026-11-10 Cursor · 자율 병합·배포 + 활동 2.0 PR A/B
 
 - 사용자: 일반 기능은 테스트·리뷰·무결성 통과 시 **병합→배포→다음** 자율. F·네이티브·비가역만 중단.
