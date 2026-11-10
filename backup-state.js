@@ -23,4 +23,39 @@ export function importCommitOutcome({saved,mode}){
  return {clearRecovery:mode==='restore',status:'불러오기 완료'};
 }
 
+/** Photo ids retained after a successful record save on a given store (survives sibling import rollbacks). */
+const retainedImportPhotos=new WeakMap();
+function retainImportedPhotos(store,photos){
+ let retained=retainedImportPhotos.get(store);
+ if(!retained){retained=new Set();retainedImportPhotos.set(store,retained)}
+ for(const [id] of photos||[])retained.add(id);
+}
+function rollbackImportedPhotos(store,added){
+ const retained=retainedImportPhotos.get(store);
+ const removable=!retained?.size?added:added.filter(id=>!retained.has(id));
+ return removable.length?store.deleteBatch(removable):Promise.resolve();
+}
+
+/**
+ * Write new backup photos, then run save(keep).
+ * Call keep() only after the record write actually succeeds.
+ * Newly added photo ids roll back only when keep() was never called
+ * (so post-save render/notify failures do not delete referenced photos).
+ * keep() also retains this import's photo ids so a sibling import that
+ * added the same id cannot delete them on its own rollback.
+ */
+export async function withImportedPhotos(store,photos,save){
+ const added=await store.putBatch(photos);
+ let kept=false;
+ const keep=()=>{kept=true;retainImportedPhotos(store,photos)};
+ try{
+  const result=await save(keep);
+  if(!kept&&added.length)try{await rollbackImportedPhotos(store,added)}catch{/* prefer original outcome */}
+  return result;
+ }catch(error){
+  if(!kept&&added.length)try{await rollbackImportedPhotos(store,added)}catch{/* keep original failure */}
+  throw error;
+ }
+}
+
 export function emptyBackupFallback(){return emptyState()}

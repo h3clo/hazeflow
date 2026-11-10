@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · 데이터 안정성 점검·회귀 테스트
+
+- 사용자: PR #6–#20 기준 백업·운동휴식·stale/동기화 안정성 점검 + 누락 회귀. UI/스키마/실데이터 금지. main 병합·배포 금지. 이어서「진행해」→ 남은 사진 고아 위험 최소 수정.
+- 분석: 기존 `backup-state`·`photos`·`workout-rests`·`stale-delete-guard`·`sync` 커버 확인. 공백 — 옛 백업/`workoutRests` 왕복·잘못된 휴식 거부·병합 id 우선·휴식 itemIndex 분리·동기화 필드 합침·충돌 시 로컬 유지·stale 삭제 vs 휴식 추가·초안 보존·app 배선.
+- 추가: `tests/data-stability-regression.test.js` (13). 후속: `withImportedPhotos(keep)` + 동일 id 동시 가져오기 시 keep retain으로 형제 롤백 방어. 복구 모드 계정 전환은 importKey 캡처로 다른 계정 미덮어쓰기(회귀 테스트).
+- 검사: `npm test` · `build` · `diff --check`. PR #21. **실기기·실계정 미검증. 병합·배포 미함.**
+
 ### 2026-11-09 Cursor · 자동화 자율 범위 + 캡처 추가 설정 좁은 폭
 
 - 사용자: 11/15까지(문서상 ~11/16 00:00 KST) Automations가 “승인 미완료 없음”만으로 종료하지 말고, 조건 충족 미완료 1건을 자동 선정·PR(병합/배포 금지).
