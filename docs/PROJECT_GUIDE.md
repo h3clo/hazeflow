@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** Today Life가 Pages에 배포됨(기본 Classic, 설정에서 Life 선택). 사용자 실사용 피드백 대기. **PR #4는 미병합.** 실기기·계정 왕복·Q4-B 2·4~6 미승인.
+**다음 시작점:** 일정·루틴 실행 버튼의 화면 상태 원본 보호를 브랜치·PR로 올림(미병합·미배포). 열린 PR #8·#9(가계부/자산 삭제)와 별개. 다음 약한 경로: 루틴 단계 체크·일기/신체 사진만 변경·`writeWorkoutText` 지연 재그리기. Life 피드백·실기기·계정 왕복·Q4-B 2·4~6 미승인. **병합·Pages 배포 금지.**
 
 **배포 (2026-11-09 · Life 디자인):** PR #5 → `main` merge `794d24f`. 복구 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42591226027) success. URL https://h3clo.github.io/hazeflow/ . Life 활성: 설정 → Today 화면 디자인 → **새 디자인** → 저장(기기 로컬 `*-ui-design`, 스키마·동기화 불변). 사전 QA: Classic/Life 전환·캡처/운동/일정·515 tests·build·반응형·live Life 확인. PR #5에 포함된 UX 위계 1커밋으로 PR #3도 merged 표시. **PR #4 미병합. 실계정 Supabase 왕복은 단위/sandbox만.**
 
@@ -93,7 +93,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 ### P0 · 데이터 보존·실사용 오류
 - [ ] iPhone 신규 사진 저장/재접속/Mac 표시 실기기 확인. (웹 단위 테스트만 통과 · **실기기 미확인**)
 - [ ] iPhone ↔ Mac 활동 시작·종료·편집·충돌 및 오프라인 복귀 검증. (`tests/sync*.js` 통과 · **실기기 미확인**)
-- [ ] 저장·삭제·토글·사진·계정 전환의 오래된 화면 충돌 보호 회귀 확인. 실제 계정 기록으로 시험하지 않는다.
+- [~] 저장·삭제·토글·사진·계정 전환의 오래된 화면 충돌 보호 회귀. **일정·루틴 실행 버튼**에 `data-shown-status` 연결(2026-11-10). 가계부/자산 삭제는 PR #8·#9. 남은 약한 경로: 루틴 단계 체크·일기·신체 사진만 변경·`writeWorkoutText` 지연 재그리기. 실계정 시험 없음.
 - [x] sandbox 375폭·다크모드 전환 확인(Q5). 입력 중 렌더·실기기 좁은 폭은 미확인.
 
 ### P1 · 활동 기록 입력 UX

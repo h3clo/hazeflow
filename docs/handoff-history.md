@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · 일정·루틴 실행 화면 상태 보호
+
+- P0: 일정/루틴 시작·완료·건너뛰기·초기화 버튼이 화면 상태 없이 최신 `data`에 바로 적용되어, 지연 재그리기 중 다른 상태(예: 완료)를 덮을 수 있었음.
+- 수정: `shownStatusAttribute` + `applyShownEventAction`/`applyShownRoutineAction`. 화면 상태와 같을 때만 적용, 이미 목표 상태면 재적용 없음. 계획/아젠다 버튼에 `data-shown-status`.
+- 검사: `tests/screen-guard.test.js` · `npm test` · build · `diff --check`. 브랜치 `cursor/plan-run-shown-status-03b4` PR만. **병합·배포 없음.**
+- 미포함: 루틴 단계 체크박스(`routine-step`).
+
 ### 2026-11-09 Cursor · Today Life Pages 배포
 
 - 검증 후 PR #5만 `main` 병합(`794d24f`). 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions #42591226027 success → https://h3clo.github.io/hazeflow/
