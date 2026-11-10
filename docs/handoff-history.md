@@ -9,6 +9,14 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 Cursor · 열린 PR 일괄 main 병합·Pages 배포
+
+- 사용자 승인: CI(로컬 test/build) 후 배포 가능한 열린 PR 전부 main 배포.
+- 병합: #4 시안 문서, #6 캡처 추가설정 좁은 폭, #7 가계부 도구 접기, #8 가계부 stale 삭제, #9 자산 스냅샷 stale 삭제, #10 일정·루틴·사진·운동 shown-status 가드, #11 백업 export/import 게이트 테스트.
+- 검사: `npm test` **536** · `npm run build` · `git diff --check`. 스키마·실계정·마이그레이션 없음.
+- 문서 충돌은 `PROJECT_GUIDE`/`handoff`를 통합 상태로 정리. 코드 충돌은 `stale-delete-guard` 테스트만 수동 병합(가계부+자산).
+- 복구: Life 태그 `pre-deploy-before-life-2026-11-09` 유지. 이번 tip은 push 후 SHA/Actions로 기록.
+
 ### 2026-11-09 Cursor · Today Life Pages 배포
 
 - 검증 후 PR #5만 `main` 병합(`794d24f`). 태그 `pre-deploy-before-life-2026-11-09`=`bdffffb`. Actions #42591226027 success → https://h3clo.github.io/hazeflow/

@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 열린 개선 PR을 `main`에 묶어 배포 중. Today Life 사용 가능(기본 Classic, 설정에서 Life). 실기기·계정 왕복·Q4-B 2·4~6 미승인. 시안 A/B는 기각·문서만 보존([UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)).
+**다음 시작점:** 사용자 실사용 시작(2026-11-10). PR #4·#6·#7·#8·#9·#10·#11을 `main`에 병합·Pages 배포. Today Life 사용 가능(기본 Classic, 설정에서 Life). **실기기·계정 왕복·Q4-B 2·4~6은 여전히 미승인/미검증.** 시안 A/B는 기각·문서만 보존([UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md)). 다음 자동화: a11y/사용성 소폭(하루 화면 길이 등)·실사용 피드백 반영.
+
+**배포 (2026-11-10 · 미병합 PR 일괄):** 포함 — 시안 문서(#4), 캡처 추가설정 좁은 폭(#6), 가계부 도구 접기(#7), 가계부/자산/일정·루틴·사진·운동 stale 가드(#8–#10), 백업 export/import 게이트 테스트(#11). 로컬 `npm test` **536** · `build` · `diff --check` 후 `main` push. Actions 성공 여부는 배포 직후 확인. URL https://h3clo.github.io/hazeflow/ . 스키마·실계정 데이터 변경 없음.
 
 ### 자동화 자율 범위 (2026-11-09 확정 · ~2026-11-16 00:00 KST)
 
@@ -179,7 +181,9 @@ git diff --check
 
 문서만 바꾼 경우 코드 테스트를 실행했다고 보고하지 않는다. `main` push는 Pages 배포를 유발할 수 있다. 사용자 승인 없는 배포·개인 데이터 수정·무단 재수집 금지. 완료한 작업은 대기열에서 제거하고 다음 시작점을 갱신한다.
 
-**최근 (2026-11-09):** 자동화 자율 범위 문서화 + 좁은 폭 캡처「추가 설정」터치/4열. Today Life Pages 배포됨. UI 시안 A/B·AI 사진 일기 아이디어는 문서만(시안 기각).
+**최근 (2026-11-10):** 열린 PR #4·#6–#11 `main` 일괄 병합·Pages 배포. 로컬 536 tests.
+
+**이전 (2026-11-09):** 자동화 자율 범위 문서화 + 좁은 폭 캡처「추가 설정」터치/4열. Today Life Pages 배포됨. UI 시안 A/B·AI 사진 일기 아이디어는 문서만(시안 기각).
 
 **이전 (2026-11-09):** 제품·UX 공동검토 방향 1(위계) 구현 — `app.js`/`feature-ui.js`/`style.css` + `tests/feature-ui-hierarchy.test.js`.
 
