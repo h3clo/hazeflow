@@ -153,3 +153,20 @@ export function nextIncompleteSetIndex(items,doneMap={},itemIndex=0){
  }
  return null;
 }
+
+/** True when every set row for a strength item is marked done in the UI map. */
+export function strengthItemComplete(item,itemIndex,doneMap={}){
+ return item?.kind==='strength'&&Array.isArray(item.sets)&&item.sets.length>0&&item.sets.every((_,setIndex)=>!!doneMap[`${itemIndex}:${setIndex}`]);
+}
+
+/** After marking a set done, keep inter-set rest only while this item still has unfinished sets. */
+export function shouldContinueRestAfterSet(items,doneMap={},itemIndex=0){
+ return nextIncompleteSetIndex(items,doneMap,itemIndex)!=null;
+}
+
+/** Last finished strength item index, or -1. Used to park append/feeling cues near that card. */
+export function lastCompletedStrengthIndex(items,doneMap={}){
+ let last=-1;
+ (items||[]).forEach((item,index)=>{if(strengthItemComplete(item,index,doneMap))last=index});
+ return last;
+}
