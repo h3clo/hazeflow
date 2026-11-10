@@ -9,6 +9,12 @@
 - 이번 런 선정: 좁은 폭 캡처「추가 설정」터치(summary 44px)·분류 그리드 6열→4열(Classic/Life). `tests/capture-extra-settings.test.js`.
 - 검사: `npm test` · `build` · `diff --check`. **병합·Pages 배포 없음.**
 
+### 2026-11-10 Cursor · 영상 즐겨찾기 구현
+
+- 사용자: 시안 v2 승인 → 구현.
+- `kind:'영상'` · 세션/캡처 접힘 선반(최근 3) · 즐겨찾기 목록·검색 · 외부 열기 + lastOpenedAt.
+- 검사: `tests/favorite-videos.test.js` · `npm test`/`build`. 브랜치 `cursor/video-favorites-03b4`.
+
 ### 2026-11-10 · 휴식 자동저장 구현 + 영상 시안 v2
 
 - 사용자: 영상은 늘 뜨면 안 됨·수십 개 대비·접힘. 휴식 저장해 달라. 시안 다시.

@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** AI 가능 소폭 계속. 영상 즐겨찾기는 시안 v2 채택 후 구현. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.**
+**다음 시작점:** 영상 즐겨찾기 구현(`cursor/video-favorites-03b4`) 병합·배포 후 AI 소폭 계속. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.**
 
 **배포 (2026-11-10 · 휴식 자동저장):** tip `39be17e` · PR #19. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42815359679) success. live `app-CKn_waX2.js`에 `workoutRests`·「세트 사이 휴식」확인. 영상은 시안만. URL https://h3clo.github.io/hazeflow/ .
 
@@ -172,7 +172,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [ ] 알림, 외부 AI, 설치형 앱/건강 연동은 별도 승인과 보안·비용 검토 후 착수.
 - [ ] **AI 사진 일기** (사진+글 → 매거진/포토 에세이 조판): [UI_DESIGN_DIRECTIONS.md](UI_DESIGN_DIRECTIONS.md). 기존 텍스트 AI 초안과 별개. **미승인.**
 - [ ] **AI 운동·루틴 추천** (기록 기반 운동 추천·루틴 추천): 사용자 희망(2026-11-10). 후순위·**미승인·구현 금지.** 외부 AI/비용·개인 기록 보호 검토 후.
-- [ ] **유튜브·홈트 영상 즐겨찾기**(링크형): 시안 v2 접힘·최근 3개 [design-mocks/workout-video-favorites.html](design-mocks/workout-video-favorites.html). **미승인·앱 미적용.**
+- [x] **유튜브·홈트 영상 즐겨찾기**(링크형 · 접힘 · 최근 3 · 외부 열기): 시안 v2 기준 구현(2026-11-10). 인앱 재생·계정 연동 없음. **실기기 확인 미함.**
 - [x] **휴식 경과 자동 저장**(탭 계산 · 수동 입력 없음 · `workoutRests`): 2026-11-10. 통계 화면·실기기 왕복은 미확인.
 - [ ] 전면 비주얼 시스템 교체 · 월↔월/연↔연 구간 비교 UI — 시안 선택·위계 검토 이후. **현재 미승인.**
 

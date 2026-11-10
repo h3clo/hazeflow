@@ -1,6 +1,7 @@
 import {validHealthDaily,validHealthWorkout,healthWorkoutText,healthDailyText} from './health-data.js';
 import {lifeScaleText} from './life-checkin.js';
 import {validFavoriteDays} from './favorite-days.js';
+import {normalizeVideoUrl} from './favorite-videos.js';
 import {validTaxPayment} from './tax-payments.js';
 import {validTaxDocument} from './tax-documents.js';
 import {validIncomeDocument} from './income-documents.js';
@@ -173,7 +174,11 @@ export function validateBackup(v){
  if(v.routineTemplates!==undefined){if(!Array.isArray(v.routineTemplates))throw Error('루틴 형식이 올바르지 않아요.');for(const t of v.routineTemplates)if(!plain(t)||!safeId(t.id)||!Array.isArray(t.versions)||!t.versions.length||!t.versions.every(validVersion))throw Error('루틴 설정이 올바르지 않아요.');}
  if(v.routineRuns!==undefined){if(!plain(v.routineRuns))throw Error('루틴 실행 기록이 올바르지 않아요.');for(const [date,runs]of Object.entries(v.routineRuns)){if(!isDate(date)||!plain(runs))throw Error('루틴 날짜가 올바르지 않아요.');for(const [id,r]of Object.entries(runs))if(!safeId(id)||!plain(r)||!validVersion(r.snapshot)||!Array.isArray(r.checked)||!r.checked.every(x=>r.snapshot.steps.some(s=>s.id===x))||!['pending','doing','done','skipped'].includes(r.status)||![r.startedAt,r.endedAt].every(x=>x==null||x===''||isTime(x)))throw Error('루틴 실행 내용이 올바르지 않아요.');}}
  if(v.favorites?.some?.(t=>t?.nutrition!==undefined&&(t.kind!=='식사'||!validNutrition(t.nutrition))))throw Error('즐겨찾기 영양정보를 확인해주세요.');
- if(v.favorites!==undefined){if(!Array.isArray(v.favorites)||v.favorites.some(t=>!plain(t)||!safeId(t.id)||!validFavoriteDays(t.weekdays)||!['식사','운동'].includes(t.kind)||!str(t.title)||!t.title.trim()||t.title.length>100||!str(t.text)||!t.text.trim()||t.text.length>5000))throw Error('즐겨찾기 형식을 확인해주세요.');}
+ if(v.favorites!==undefined){if(!Array.isArray(v.favorites)||v.favorites.some(t=>{
+  if(!plain(t)||!safeId(t.id)||!validFavoriteDays(t.weekdays)||!str(t.title)||!t.title.trim()||t.title.length>100)return true;
+  if(t.kind==='영상')return !normalizeVideoUrl(t.text)||(t.note!==undefined&&(!str(t.note)||t.note.length>500))||(t.lastOpenedAt!==undefined&&!(Number.isFinite(t.lastOpenedAt)&&t.lastOpenedAt>0))||t.nutrition!==undefined;
+  return !['식사','운동'].includes(t.kind)||!str(t.text)||!t.text.trim()||t.text.length>5000;
+ }))throw Error('즐겨찾기 형식을 확인해주세요.');}
  if(v.weeklyReviews!==undefined){if(!plain(v.weeklyReviews))throw Error('주간 회고 형식을 확인해주세요.');for(const [date,row]of Object.entries(v.weeklyReviews))if(!isDate(date)||new Date(date+'T12:00:00').getDay()!==1||!plain(row)||Object.entries(row).some(([k,x])=>!['remember','adjust','next'].includes(k)||!str(x)||x.length>5000))throw Error('주간 회고 내용을 확인해주세요.');}
  return migrate(v);
 }
@@ -217,4 +222,4 @@ export function taskComplete(d,id,done,day,time){const t=d.tasks.find(t=>t.id===
 export function setTaskFlag(tasks,id,opened){const current=tasks.find(t=>t.id===id);if(!current)throw Error('다른 화면에서 삭제된 기록이에요. 목록을 다시 확인해주세요.');if(!opened||opened.id!==id)throw Error('기록을 다시 확인해주세요.');current.flagged=!opened.flagged;return current}
 export function sortTasks(tasks){return [...tasks].sort((a,b)=>Number(!!a.done)-Number(!!b.done)||(a.dueDate||'9999-12-31').localeCompare(b.dueDate||'9999-12-31')||(a.dueTime||'99:99').localeCompare(b.dueTime||'99:99')||Number(!!b.flagged)-Number(!!a.flagged))}
 
-export function allDocument(d){const dates=recordedDates(d),undated=d.tasks.filter(t=>!t.dueDate);const sections=[];if(d.favorites.length)sections.push('# 식사·운동 즐겨찾기\n\n'+d.favorites.map(t=>`## ${t.kind} · ${t.title}\n\n${t.text}${t.weekdays?.length?'\n\n추천 요일: '+t.weekdays.map(day=>weekdays[day]).join('·'):''}${t.nutrition?'\n\n'+nutritionText(t.nutrition):''}`).join('\n\n'));for(const [week,r]of Object.entries(d.weeklyReviews).sort(([a],[b])=>a.localeCompare(b)))sections.push(`# ${week} 주간 회고\n\n`+[['remember','기억할 것'],['adjust','바꾸고 싶은 것'],['next','다음 주 나에게']].filter(([k])=>r[k]).map(([k,title])=>`## ${title}\n\n${r[k]}`).join('\n\n'));if(undated.length)sections.push('# 기한 없는 할 일\n\n'+undated.map(t=>`- [${t.done?'x':' '}] ${t.title} · ${t.listName}${t.note?'\n  '+t.note:''}`).join('\n'));sections.push(...dates.map(k=>dayDocument(d,k)));return sections.length?sections.join('\n\n---\n\n'):'# Haze Flow\n\n저장된 기록이 없어요.'}
+export function allDocument(d){const dates=recordedDates(d),undated=d.tasks.filter(t=>!t.dueDate);const sections=[];if(d.favorites.length)sections.push('# 식사·운동·영상 즐겨찾기\n\n'+d.favorites.map(t=>`## ${t.kind} · ${t.title}\n\n${t.text}${t.note?'\n\n메모: '+t.note:''}${t.weekdays?.length?'\n\n추천 요일: '+t.weekdays.map(day=>weekdays[day]).join('·'):''}${t.nutrition?'\n\n'+nutritionText(t.nutrition):''}`).join('\n\n'));for(const [week,r]of Object.entries(d.weeklyReviews).sort(([a],[b])=>a.localeCompare(b)))sections.push(`# ${week} 주간 회고\n\n`+[['remember','기억할 것'],['adjust','바꾸고 싶은 것'],['next','다음 주 나에게']].filter(([k])=>r[k]).map(([k,title])=>`## ${title}\n\n${r[k]}`).join('\n\n'));if(undated.length)sections.push('# 기한 없는 할 일\n\n'+undated.map(t=>`- [${t.done?'x':' '}] ${t.title} · ${t.listName}${t.note?'\n  '+t.note:''}`).join('\n'));sections.push(...dates.map(k=>dayDocument(d,k)));return sections.length?sections.join('\n\n---\n\n'):'# Haze Flow\n\n저장된 기록이 없어요.'}
