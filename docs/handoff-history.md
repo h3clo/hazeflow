@@ -13,7 +13,7 @@
 
 - 사용자: 시안 v2 승인 → 구현.
 - `kind:'영상'` · 세션/캡처 접힘 선반(최근 3) · 즐겨찾기 목록·검색 · 외부 열기 + lastOpenedAt.
-- 검사: `tests/favorite-videos.test.js` · `npm test`/`build`. 브랜치 `cursor/video-favorites-03b4`.
+- tip `9e5a52d` · PR #20 · Actions #42816357028 success · live 확인.
 
 ### 2026-11-10 · 휴식 자동저장 구현 + 영상 시안 v2
 

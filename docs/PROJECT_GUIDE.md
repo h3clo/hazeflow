@@ -44,9 +44,11 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 영상 즐겨찾기 구현(`cursor/video-favorites-03b4`) 병합·배포 후 AI 소폭 계속. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.**
+**다음 시작점:** AI 가능 소폭 계속. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.**
 
-**배포 (2026-11-10 · 휴식 자동저장):** tip `39be17e` · PR #19. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42815359679) success. live `app-CKn_waX2.js`에 `workoutRests`·「세트 사이 휴식」확인. 영상은 시안만. URL https://h3clo.github.io/hazeflow/ .
+**배포 (2026-11-10 · 영상 즐겨찾기):** tip `9e5a52d` · PR #20. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42816357028) success. live에 `workout-video-fold`·「영상 즐겨찾기」확인. URL https://h3clo.github.io/hazeflow/ .
+
+**배포 (2026-11-10 · 휴식 자동저장):** tip `39be17e` · PR #19. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42815359679) success. live `app-CKn_waX2.js`에 `workoutRests`·「세트 사이 휴식」확인. URL https://h3clo.github.io/hazeflow/ .
 
 **배포 (2026-11-10 · 세트 완료 UX):** tip `e15de00` · PR #17. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42766391662) success. live `app-BUne-4Ie.js`에 `workout-set-done-mark`·`workout-item-finished` 확인. URL https://h3clo.github.io/hazeflow/ .
 
