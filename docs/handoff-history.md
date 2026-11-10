@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · N1 iOS 시뮬레이터 스모크
+
+- 브랜치 `cursor/native-n1-ios-smoke`. Xcode 27.2는 `DEVELOPER_DIR`로만 사용. `xcode-select`는 Command Line Tools 유지.
+- iPhone 17 / iOS 27.2 시뮬레이터 빌드 성공. `N1SmokeUITests`가 주요 화면, 로그인 폼(제출 없음), `N1simcheck` 로컬 저장·재실행을 통과.
+- `npm test` 613 pass / 7 skip · build · `diff --check`. QA env 없음 → Supabase 로그인·동기화 미검증. 서명 팀 없음 → 실 iPhone 미설치.
+- 로컬 전용 커밋 `e958a41`은 `backup/local-undo-capture-end-20261111`에 보존. `origin/main`과 `app.js`·`style.css`·가이드·인계가 충돌하므로 N1에 넣지 않음.
+- 다음: **N2**. Live Activity·Watch는 시작하지 않음.
+
 ### 2026-11-11 Cursor · PR #40 병합 + N0 iOS 우선 환경 검증
 
 - PR #40 merge `df498dc`. 우선순위 재정렬: iPhone → Watch → Android → DeX.
