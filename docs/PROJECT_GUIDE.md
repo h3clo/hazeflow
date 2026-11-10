@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** UX sim 잔여(헤더 밀도 등) 또는 대기열. **활동 2.0 F·네이티브 금지.** 격리 테스트 계정 시크릿이 생기면 `tests/supabase-live.optional.test.js`로 live 왕복 보강.
+**다음 시작점:** 사용자가 [supabase-live-qa.md](supabase-live-qa.md) 옵션 A/B/C 중 하나로 격리 QA 시크릿(또는 무료 한도 확보)을 주면 `node --test tests/supabase-live.optional.test.js`로 시나리오 1–10 실행. **그 전에는 실서버 동기화 완료로 쓰지 말 것.** 통과 후 네이티브는 [native-readiness.md](native-readiness.md) 순서만 — **구현·Watch 착수 금지.** UX sim 잔여·대기열은 병행 가능.
+
+**차단 (실 Supabase 라이브 QA · 2026-11-11):** 무료 프로젝트 2개 한도로 `hazeflow-sync-qa` 생성 실패. Preview Branch ≈$0.01344/h는 미합의. Cursor/GH에 `HAZEFLOW_SYNC_TEST_*` 없음. 운영 `hazeflow` 실계정·기록 **미사용**. 로컬/PGlite/Playwright·optional 하네스(시크릿 시 1–10)만 준비. 상세 [supabase-live-qa.md](supabase-live-qa.md) · [native-readiness.md](native-readiness.md).
 
 **완료 (대표 활동 계정 동기화 · #34):** tip `02ce098`. Actions [42857203878](https://github.com/h3clo/hazeflow/actions/runs/42857203878) success (build 24s · deploy 15s). live에 `preferences`/`activityUi`/`primaryUpdatedAt` 확인. 스키마 변경 없음. **격리 테스트 계정 live 왕복은 시크릿 부재로 미실행**(optional 테스트 준비됨).
 
@@ -195,7 +197,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 - [2주 개발 계획](DEVELOPMENT_PLAN.md) · [제품 비전·UX](PRODUCT_VISION.md) · [운동 기록 UX](WORKOUT_UX.md) · [활동 UX 인계](UX_HANDOFF.md)
 - [결제 원장 중심 설계](payment-ledger-plan.md)
-- [저장·동기화](sync-reliability.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
+- [저장·동기화](sync-reliability.md) · [실서버 동기화 QA](supabase-live-qa.md) · [네이티브 선행](native-readiness.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
 - [현재 쇼핑몰 파일 가져오기(레거시)](shopping-connection.md) · [기존 영수증 대조(레거시)](receipt-reconciliation.md)
 - [소득](income-records.md) · [세금](annual-tax-records.md) · [앱](mobile-app.md)
 - [이전 인계 이력](handoff-history.md). 과거 날짜의 완료·대기 상태를 현재 지시로 재해석하지 않는다.
