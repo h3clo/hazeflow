@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** 운동 세트 완료 UX(`cursor/workout-set-done-cue-03b4`) 병합·배포 후 AI 소폭 계속. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.** 유튜브 즐겨찾기·휴식 초 스키마는 **미승인.**
+**다음 시작점:** AI 가능 소폭 계속. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.** 유튜브 즐겨찾기·휴식 초 스키마는 **미승인.**
+
+**배포 (2026-11-10 · 세트 완료 UX):** tip `e15de00` · PR #17. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42766391662) success. live `app-BUne-4Ie.js`에 `workout-set-done-mark`·`workout-item-finished` 확인. URL https://h3clo.github.io/hazeflow/ .
 
 **배포 (2026-11-10 · 일정·할 일 stale 삭제):** tip `c72c82c` · PR #15. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42761685428) success. live `app-CPv7B32b.js`에「일정 삭제」·「찾을 수 없는 일정」확인. URL https://h3clo.github.io/hazeflow/ .
 
