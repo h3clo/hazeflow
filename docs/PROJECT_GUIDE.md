@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. 푸시·배포·계정 데이터 변경·파괴적 Git·데이터 마이그레이션은 사전 승인 필요.
 
-**다음 시작점:** AI 가능 소폭 계속. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인.**
+**다음 시작점:** 데이터 안정성 회귀 PR(`cursor/data-stability-regression-03b4`) 리뷰·병합 여부 결정. iCloud 비관여. **실기기 P0·Q4-B 2·4~6 미승인. main 병합·Pages 배포는 승인 전 금지.**
+
+**데이터 안정성 점검 (2026-11-10 · 미병합 PR):** 브랜치 `cursor/data-stability-regression-03b4`. PR #6–#20 경로 기준 회귀 테스트 `tests/data-stability-regression.test.js`(+13). 백업·`workoutRests`·stale 삭제·동기화 필드 병합·초안 보존. 제품 코드 변경 없음(결함 미재현). 검사: `npm test` **567** · `build` · `diff --check`. **실기기·실계정 동기화 미검증.** 남은 위험: 병합 가져오기 동일 id는 현재 우선(백업 쪽 `workoutRests` 미흡수), 사진 `putBatch` 후 커밋 실패 시 고아 사진 가능.
 
 **배포 (2026-11-10 · 영상 즐겨찾기):** tip `9e5a52d` · PR #20. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42816357028) success. live에 `workout-video-fold`·「영상 즐겨찾기」확인. URL https://h3clo.github.io/hazeflow/ .
 
@@ -117,9 +119,10 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 ## 작업 대기열
 
 ### P0 · 데이터 보존·실사용 오류
+- [x] PR #6–#20 데이터 안정성 단위 회귀 보강(2026-11-10): `tests/data-stability-regression.test.js`. 백업/휴식/stale/동기화 필드. **제품 코드 미변경 · 실기기·실계정 미검증 · 배포 없음.**
 - [ ] iPhone 신규 사진 저장/재접속/Mac 표시 실기기 확인. (웹 단위 테스트만 통과 · **실기기 미확인**)
 - [ ] iPhone ↔ Mac 활동 시작·종료·편집·충돌 및 오프라인 복귀 검증. (`tests/sync*.js` 통과 · **실기기 미확인**)
-- [ ] 저장·삭제·토글·사진·계정 전환의 오래된 화면 충돌 보호 회귀 확인. 실제 계정 기록으로 시험하지 않는다.
+- [ ] 저장·삭제·토글·사진·계정 전환의 오래된 화면 충돌 보호 — 단위 회귀 추가됨. **실기기·실계정 왕복은 미확인.**
 - [x] sandbox 375폭·다크모드 전환 확인(Q5). 입력 중 렌더·실기기 좁은 폭은 미확인.
 
 ### P1 · 활동 기록 입력 UX
