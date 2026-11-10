@@ -565,7 +565,7 @@ function captureViewLife(){
     <label class="life-tile life-tile-mint"><input type="radio" name="mode" value="activity" ${mode!=='memo'?'checked':''}><span>▶ 활동 시작</span></label>
     <label class="life-tile life-tile-sky"><input type="radio" name="mode" value="memo" ${mode==='memo'?'checked':''}><span>＋ 짧은 기록</span></label>
     <button type="button" class="life-tile life-tile-leaf" data-act="choose-photo" data-target="capture" data-source="camera"><span>사진</span></button>
-    <button type="submit" class="life-tile life-tile-lemon capture-submit"><span>기록</span></button>
+    <button type="submit" class="life-tile life-tile-lemon capture-submit"><span>${captureSubmitLabel(mode)}</span></button>
    </div>
    <input type="hidden" name="kind" id="capture-kind" value="${kind}">
    <div class="life-capture-meta"><span id="capture-kind-badge" class="life-chip" title="${draft.manualKind?'직접 선택한 분류':'자동 분류 제안'}">${kind}</span><span id="capture-preview" class="hint"></span></div>
