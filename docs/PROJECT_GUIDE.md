@@ -44,11 +44,11 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** Life 모바일 1열 스택 수정 PR 검증·병합. 이후 UX sim 잔여(헤더 밀도 등). **활동 2.0 F·네이티브 금지.**
+**다음 시작점:** UX sim 잔여(헤더 밀도 등) 또는 대기열. **활동 2.0 F·네이티브 금지.**
 
-**재확인 (Life 모바일 · 사용 불가):** 375폭에서 다열 유지 → 입력·버튼 사용 불가. 원인: `html[data-ui-design=life] .life-grid` 특이도가 `@media` 1열 규칙보다 큼. [Reassess Life mobile usability](bc-cd9891f6-65b6-512d-9090-e34a5d05e96c).
+**완료 (Life 모바일 1열 · #29):** tip `1486957` · Pages #42848846217 success. 375폭 sandbox에서 활동/일정이 세로 스택·입력 전폭 확인(usable). live `main-BuseS_EM.css`에 1열 미디어쿼리 포함.
 
-**완료 (활동 2.0 A~E · 2026-11-10):** #23~#28. tip 문서 확인 커밋 포함. `npm test` **596+**. live에 2.0 문자열 확인.
+**완료 (활동 2.0 A~E · 2026-11-10):** #23~#28. `npm test` **597**.
 
 **배포 (2026-11-10 · 홈 아이콘):** tip `f84c474` · PR #22. Actions [Run](https://github.com/h3clo/hazeflow/actions/runs/42833697783) success (build 28s · deploy 51s). live에 `manifest.webmanifest`·`icon-*-haze-cloud-20261110.png`·apple-touch·favicon 확인. 앱 UI/데이터 미변경. URL https://h3clo.github.io/hazeflow/ .
 
