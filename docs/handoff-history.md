@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-10 Cursor · 홈 화면 노란 구름 아이콘
+
+- 사용자: 첨부 노란 구름으로 PWA 192/512·apple-touch·favicon 교체, 캐시 무효화 파일명, UI/데이터 미변경, Pages 배포.
+- `*-haze-cloud-20261110.png` + `manifest.webmanifest`, 구 `favicon.svg` 제거.
+- tip `f84c474` · PR #22 · Actions #42833697783 success · live 아이콘/manifest 200 확인.
+
 ### 2026-11-10 Cursor · 데이터 안정성 점검·회귀 테스트
 
 - 사용자: PR #6–#20 기준 백업·운동휴식·stale/동기화 안정성 점검 + 누락 회귀. 이후 keep/동시 id/복구 전환 검토. 「병합 ㄱ」→ main 병합·Pages 배포.
