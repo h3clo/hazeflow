@@ -42,6 +42,12 @@
 - 로컬 전용 커밋 `e958a41`은 `backup/local-undo-capture-end-20261111`에 보존. `origin/main`과 `app.js`·`style.css`·가이드·인계가 충돌하므로 N1에 넣지 않음.
 - 다음: **N2**. Live Activity·Watch는 시작하지 않음.
 
+### 2026-11-12 Cursor · 생활 루틴 주간 할 일 JSON (실계정 미기록)
+
+- 11/13–11/19 일회성 할 일 7개: `life-routine-week.js` · `public/imports/life-routine-week-2026-11-13.json`.
+- 실계정/`hazeflow-v1` 미수정. 사용자는 ↓내보내기 → 백업 불러오기(병합). 안내 `docs/life-routine-week-2026-11.md`.
+- 반복 루틴·알림 설정 추가 없음. UI 변경 없음.
+
 ### 2026-11-11 Cursor · PR #40 병합 + N0 iOS 우선 환경 검증
 
 - PR #40 merge `df498dc`. 우선순위 재정렬: iPhone → Watch → Android → DeX.
