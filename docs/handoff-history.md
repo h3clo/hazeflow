@@ -42,11 +42,15 @@
 - 로컬 전용 커밋 `e958a41`은 `backup/local-undo-capture-end-20261111`에 보존. `origin/main`과 `app.js`·`style.css`·가이드·인계가 충돌하므로 N1에 넣지 않음.
 - 다음: **N2**. Live Activity·Watch는 시작하지 않음.
 
-### 2026-11-12 Cursor · 생활 루틴 주간 할 일 JSON (실계정 미기록)
+### 2026-11-12 Cursor · 개인 할 일 시드 공개 제거 (긴급)
 
-- 11/13–11/19 일회성 할 일 7개: `life-routine-week.js` · `public/imports/life-routine-week-2026-11-13.json`.
-- 실계정/`hazeflow-v1` 미수정. 사용자는 ↓내보내기 → 백업 불러오기(병합). 안내 `docs/life-routine-week-2026-11.md`.
-- 반복 루틴·알림 설정 추가 없음. UI 변경 없음.
+- PR #50로 Pages에 올라간 개인 생활 목표 JSON·생성기·안내 문서·단위 테스트를 삭제.
+- `AGENTS.md`·`.gitignore`·`docs/privacy-personal-data.md`에 Git/`public/` 금지 규칙 추가.
+- 실계정·기존 IndexedDB/Supabase 기록 미삭제. Git 히스토리 rewrite 없음(과거 커밋·PR에 잔존 가능).
+
+### 2026-11-12 Cursor · (철회) 생활 루틴 주간 할 일 JSON
+
+- 공개 `public/imports` 시드는 개인정보 노출로 후속 PR에서 제거. 내용은 여기에 다시 적지 않음.
 
 ### 2026-11-11 Cursor · PR #40 병합 + N0 iOS 우선 환경 검증
 
