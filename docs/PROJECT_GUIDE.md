@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정 데이터 삭제·비가역 마이그레이션·PR F 물질화·유료 가입·Apple 계정 인증만 사전 승인. 계획된 iOS 작업은 사용자 확인 없이 자동 검증 후 진행한다.
 
-**다음 시작점:** **N3 iOS 로컬 알림.** Live Activity 시뮬레이터 시나리오는 이 브랜치에서 자동 확인. 잠금 화면 픽셀·iPhone 13·앱 강제 종료 후 배너는 미검증이며 사용자에게 확인을 요청하지 않는다. Apple Watch, 원격 푸시, Dynamic Island 전용 UI, Android는 아직 시작하지 않음.
+**다음 시작점:** **N3 iOS 로컬 알림.** Live Activity 시뮬레이터 시나리오는 [PR #48](https://github.com/h3clo/hazeflow/pull/48) · Pages [43044391543](https://github.com/h3clo/hazeflow/actions/runs/43044391543) success. 잠금 화면 픽셀·iPhone 13·앱 강제 종료 후 배너는 미검증이며 사용자에게 확인을 요청하지 않는다. Apple Watch, 원격 푸시, Dynamic Island 전용 UI, Android는 아직 시작하지 않음.
 
 **완료 (N2 Live Activity · 2026-11-11 · [PR #46](https://github.com/h3clo/hazeflow/pull/46) · Pages [42980778420](https://github.com/h3clo/hazeflow/actions/runs/42980778420) success):** 대표 활동 하나만을 잠금 화면 슬롯에 맞춘다. 경과 시간은 `Text(timerInterval:)` 시스템 타이머. `pushType: nil`. 웹은 네이티브 iOS가 아니면 `skipped`, 권한·오류는 `unsupported`라서 저장을 막지 않는다. iPhone 17 / iOS 27.2에서 `N1SmokeUITests` 2건과 `testLiveActivityStatusIsReportedOnLaunch` 통과. 시작·종료·동시·대표 전환·중복 방지는 JS 단위 테스트. XCUI 제스처로 입력칸까지 스크롤하지 못해 그 시나리오는 시뮬레이터 손동작으로 재현하지 않음. Actions `npm test` 통과. 스키마·실계정 미변경. **잠금 화면 픽셀·앱 강제 종료 후 표시·iPhone 13은 미검증.**
 
