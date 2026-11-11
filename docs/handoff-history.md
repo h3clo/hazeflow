@@ -5,7 +5,7 @@
 ### 2026-11-11 Cursor · 실 iPhone 셸 (하단 탭·상태바·확대)
 
 - 하단 탭은 폰 너비에서 스크롤 컨테이너 밖(`body>aside`, `position:relative`). 상태바는 `contentInset: never`, `viewport-fit=cover`, iOS 26 scroll edge effect 숨김. 네이티브 입력은 16px, `ios.zoomEnabled`로 핀치 확대·축소.
-- [PR #44](https://github.com/h3clo/hazeflow/pull/44)만 열림. 병합·Pages 배포 없음. iPhone 13 정지 화면은 확인. 스크롤 제스처는 미확인.
+- [PR #44](https://github.com/h3clo/hazeflow/pull/44). iPhone 17 / iOS 27.2 시뮬레이터 `N1SmokeUITests` 2건 통과. 핀치·잠금 화면·실기기 스크롤 제스처는 미검증. QA env 없음. Live Activities는 계획 문서만.
 - 다음: **N2**. Live Activity·Watch는 시작하지 않음.
 
 ### 2026-11-11 Cursor · N1 iOS 시뮬레이터 스모크
