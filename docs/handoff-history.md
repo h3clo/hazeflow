@@ -9,7 +9,7 @@
 - 겹친 JS 호출은 마지막 페이로드만 브리지로 간다. 네이티브 적용은 actor 직렬화. 미지원·오류는 `unsupported`이고 웹 저장은 그대로다.
 - 키보드가 레이아웃 높이를 줄인 채 남지 않도록 네이티브 viewport에 `interactive-widget=resizes-visual`을 넣고, 키보드가 닫히면 웹뷰 frame·contentInset을 되돌린다.
 - 검사: `npm test` 625 pass / 7 skip · `npm run build` · `verify:native-n2`. iPhone 17 / iOS 27.2 `N1SmokeUITests` 2건, `N2ActivityUITests` 1건 통과. 잠금 화면 픽셀, 앱 강제 종료 후 표시, iPhone 13, iOS Supabase는 미검증.
-- [PR #46](https://github.com/h3clo/hazeflow/pull/46). 병합·Pages는 검사 후 확인.
+- [PR #46](https://github.com/h3clo/hazeflow/pull/46) 병합. Pages [42980778420](https://github.com/h3clo/hazeflow/actions/runs/42980778420) success. 잠금 화면 픽셀과 iPhone 13은 계속 미검증.
 - 다음: Watch·원격 푸시·Dynamic Island 전용 UI·Android는 시작하지 않음.
 
 ### 2026-11-11 Cursor 자동화 · Life 날짜 알약
