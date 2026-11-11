@@ -1,4 +1,4 @@
-# N1 검증 결과 — iOS 시뮬레이터 셸 스모크 (2026-11-11)
+# N1 검증 결과 — iOS 시뮬레이터 셸 스모크 (2026-11-11 · PR #43)
 
 **범위:** 기존 Capacitor 셸을 iOS 시뮬레이터에서 빌드·실행. **Live Activity·Watch·Android 기능·DeX 구현 없음.** 웹앱 코드와 실사용 Supabase 기록은 바꾸지 않았다.
 
