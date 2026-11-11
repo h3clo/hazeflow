@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor 자동화 · Life 날짜 알약
+
+- 선택: Life Today 날짜 알약이 항상 「오늘」이고, 숨긴 날짜 막대의 「오늘」 버튼도 쓸 수 없던 사용성 버그. 스키마·계정·Classic 전환은 그대로.
+- `lifeDayHeader`: 오늘이 아니면 알약에 `M월 D일`, `data-act=today` 「오늘로 이동」. 820px 이하 터치 44px·도구는 제목 아래. 741–820px에서 전체 폭 좌측 사이드바가 본문을 덮던 것을 하단 바로 수정.
+- 검사: 충돌 전 `npm test` 613 pass / 6 skip · sandbox `life-date-pill` 1280·375·768·다크. main 병합 충돌은 가이드·인계만. `style-life.css`의 네이티브 셸과 알약 스타일은 함께 남음.
+- 실계정 왕복 없음.
+
 ### 2026-11-11 Cursor · 실 iPhone 셸 (하단 탭·상태바·확대)
 
 - 하단 탭은 폰 너비에서 스크롤 컨테이너 밖(`body>aside`, `position:relative`). 상태바는 `contentInset: never`, `viewport-fit=cover`, iOS 26 scroll edge effect 숨김. 네이티브 입력은 16px, `ios.zoomEnabled`로 핀치 확대·축소.
