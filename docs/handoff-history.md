@@ -8,6 +8,7 @@
 - 전달은 `HazeWatchRelay`의 `updateApplicationContext` 하나다. 활동이 끝나면 빈 스냅샷이다. Watch `UserDefaults`는 마지막 메시지만 남긴다. 시작·종료, 로그인, Supabase, 알림 재예약은 없다.
 - watchOS 27.2 Series 12 46mm: `HazeWatchTests` 4건, `HazeWatchUITests` 3건. 픽스처는 「연습 활동」. iPhone 17: `N1SmokeUITests` 2건, `N2ActivityUITests` 3건, N3 1건 통과. `npm test` 639 pass / 7 skip. `verify:native-n2` `n3` `n7` 통과.
 - 실제 Watch, 페어링된 시뮬레이터의 WCSession 전달, iPhone 13은 미검증. 다음으로 시작·종료를 만들지 않는다.
+- [PR #55](https://github.com/h3clo/hazeflow/pull/55).
 
 ### 2026-11-12 Cursor · N3 iOS 로컬 알림
 
