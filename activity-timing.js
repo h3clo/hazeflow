@@ -31,10 +31,10 @@ export function activityIntervals(d,now=new Date()){
  const result=new Map();
  records.forEach((l,i)=>{
   const independent=isIndependentTiming(l);
-  const start=new Date(l.date+'T'+l.time);
+  const start=parsedInstant(l.startedAt)||new Date(l.date+'T'+l.time);
   const explicit=isDate(l.endDate)&&isTime(l.endTime);
   let end=null;
-  if(explicit)end=new Date(l.endDate+'T'+l.endTime);
+  if(explicit)end=parsedInstant(l.endedAt)||new Date(l.endDate+'T'+l.endTime);
   else if(!independent){
    const next=records.slice(i+1).find(x=>!isIndependentTiming(x));
    if(next)end=new Date(next.date+'T'+next.time);
@@ -63,7 +63,99 @@ export function ongoingActivities(d,now=new Date()){
 
 /** Explicit end payload for finish-activity style writes. Does not mutate state. */
 export function finishActivityFields(at=new Date()){
- return {endDate:todayKey(at),endTime:padTime(at)};
+ return {endDate:todayKey(at),endTime:padTime(at),endedAt:at.toISOString()};
+}
+
+export function parsedInstant(value){
+ if(typeof value!=='string'||!value)return null;
+ const date=new Date(value);
+ return Number.isNaN(+date)?null:date;
+}
+
+export function validActivityInstant(value){
+ return value===undefined||(typeof value==='string'&&value.length<=40&&parsedInstant(value)!==null);
+}
+
+/** Keep an existing absolute instant when the visible minute did not change. */
+export function preservedInstant(existing,previousDate,previousTime,nextDate,nextTime){
+ if(!isDate(nextDate)||!isTime(nextTime))return '';
+ const next=new Date(nextDate+'T'+nextTime);
+ if(Number.isNaN(+next))return '';
+ const previous=isDate(previousDate)&&isTime(previousTime)?new Date(previousDate+'T'+previousTime):null;
+ const kept=parsedInstant(existing);
+ if(kept&&previous&&!Number.isNaN(+previous)&&+previous===+next)return kept.toISOString();
+ return next.toISOString();
+}
+
+export const LONG_ACTIVITY_MS=8*60*60*1000;
+export const DAY_ELAPSED_CAP_MINUTES=24*60;
+
+export function isLongRunning(interval,now=new Date()){
+ return !!interval?.ongoing&&interval.start instanceof Date&&now-interval.start>=LONG_ACTIVITY_MS;
+}
+
+/** Ask once per ongoing run. An acknowledgement before this start does not count. */
+export function longRunNeedsConfirm(log,interval,now=new Date()){
+ if(!isLongRunning(interval,now))return false;
+ const ack=parsedInstant(log?.longRunAckAt);
+ return !ack||ack<interval.start;
+}
+
+export function longRunAckFields(at=new Date()){
+ return {longRunAckAt:at.toISOString()};
+}
+
+export function localTimeZone(){
+ try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'}catch{return 'UTC'}
+}
+
+export function shiftDateKey(dateKey,days){
+ const [year,month,day]=dateKey.split('-').map(Number);
+ return new Date(Date.UTC(year,month-1,day+days)).toISOString().slice(0,10);
+}
+
+/** Local wall-clock time in a zone, as an absolute instant. */
+export function zonedDateTime(dateKey,time,timeZone=localTimeZone()){
+ if(!isDate(dateKey)||!isTime(time))return null;
+ const [year,month,day]=dateKey.split('-').map(Number);
+ const [hour,minute]=time.split(':').map(Number);
+ let guess=Date.UTC(year,month-1,day,hour,minute,0);
+ const format=new Intl.DateTimeFormat('en-US',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+ for(let i=0;i<4;i++){
+  const parts=Object.fromEntries(format.formatToParts(new Date(guess)).map(part=>[part.type,part.value]));
+  const got=Date.UTC(+parts.year,+parts.month-1,+parts.day,+parts.hour,+parts.minute,+parts.second);
+  const want=Date.UTC(year,month-1,day,hour,minute,0);
+  if(got===want)return new Date(guess);
+  guess+=want-got;
+ }
+ return new Date(guess);
+}
+
+export function zonedDayBounds(dateKey,timeZone=localTimeZone()){
+ return {start:zonedDateTime(dateKey,'00:00',timeZone),end:zonedDateTime(shiftDateKey(dateKey,1),'00:00',timeZone)};
+}
+
+/**
+ * Per-day minutes from one original interval.
+ * sumMinutes counts each activity, including overlap.
+ * elapsedMinutes is the union and never exceeds 24 hours.
+ */
+export function dayActivityStats(intervals,dateKey,now=new Date(),timeZone=localTimeZone()){
+ const bounds=zonedDayBounds(dateKey,timeZone);
+ if(!bounds.start||!bounds.end)return {sumMinutes:0,elapsedMinutes:0};
+ const slices=[];
+ for(const row of intervals.values?intervals.values():intervals){
+  if(!row?.start)continue;
+  const rangeEnd=row.end||(row.ongoing?now:null);
+  if(!rangeEnd)continue;
+  const from=Math.max(+row.start,+bounds.start),to=Math.min(+rangeEnd,+bounds.end);
+  if(!(to>from))continue;
+  slices.push({start:new Date(from),end:new Date(to),minutes:Math.floor((to-from)/60000)});
+ }
+ return {
+  sumMinutes:slices.reduce((total,slice)=>total+slice.minutes,0),
+  elapsedMinutes:Math.min(DAY_ELAPSED_CAP_MINUTES,mergedElapsedMinutes(slices,now))
+ };
 }
 
 /** Sum of each activity's own minutes (overlaps counted more than once). */

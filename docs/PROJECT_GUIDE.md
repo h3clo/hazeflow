@@ -44,6 +44,10 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정 데이터 삭제·비가역 마이그레이션·PR F 물질화·유료 가입·Apple 계정 인증만 사전 승인. 계획된 iOS 작업은 사용자 확인 없이 자동 검증 후 진행한다.
 
+**완료 (활동 2.1 안정화 · 2026-11-12 · [PR #57](https://github.com/h3clo/hazeflow/pull/57)):** 자정이 활동을 끝내지 않는다. 전날부터 진행 중인 활동은 오늘 화면에서 끝내거나 종료 시각을 고칠 수 있다. 8시간 이상은 「장시간 진행 중」으로 표시하고, 계속 진행을 고르면 그 확인을 반복하지 않는다. 날짜별 통계는 원본 기록 하나를 유지한 채 그날의 실제 분만 센다. 활동별 누적과 겹침을 뺀 실제 경과를 따로 보여 주고, 실제 경과는 하루 24시간을 넘기지 않는다. Mac에서 시작한 활동이 iPhone에 동기화되면 Watch 스냅샷도 다시 보낸다. Watch는 열릴 때 최신 상태를 요청한다. `npm test` 645 pass / 7 skip. watchOS 27.2 Series 12 46mm `HazeWatchTests` 4건·`HazeWatchUITests` 3건 통과. **실제 Watch의 WCSession 전달과 iPhone 13 재설치는 미검증.** 네이티브 변경이 있으므로 기기의 Haze Flow를 새 빌드로 다시 설치해야 Watch 수정이 적용된다.
+
+**다음 시작점:** Watch에서 활동을 시작·종료하는 기능은 별도 승인 전 착수하지 않는다. 이어서 진행이면 작업 대기열 P0의 미완료 항목부터 본다. 원격 푸시, Dynamic Island 전용 UI, Android는 시작하지 않음.
+
 **완료 (Watch 1차 표시 · 2026-11-12 · [PR #55](https://github.com/h3clo/hazeflow/pull/55) · Pages [43058132216](https://github.com/h3clo/hazeflow/actions/runs/43058132216) success):** iPhone Live Activity와 같은 대표 활동 스냅샷 하나만 Watch에 보여 준다. 경과 시간은 Watch가 시작 시각으로 계산한다. 연결이 끊기면 마지막 확인 시각과 그때의 경과를 멈추고, 진행 중인 것처럼 계속 세지 않는다. 활동이 없으면 「진행 중인 활동 없음」. Watch 저장소·로그인·알림 재예약·시작/종료는 없다. 가상 제목 「연습 활동」만 테스트에 사용. watchOS 27.2 Series 12 46mm에서 `HazeWatchTests` 4건·`HazeWatchUITests` 3건 통과. iPhone 17에서 `N1SmokeUITests` 2건·`N2ActivityUITests` 3건·N3 1건 통과. `npm test` 639 pass / 7 skip. **실제 Watch, 페어링된 시뮬레이터의 WCSession 전달, iPhone 13은 미검증.** 상세 [native-watch-prep.md](native-watch-prep.md).
 
 **다음 시작점:** Watch에서 활동을 시작·종료하는 기능은 별도 승인 전 착수하지 않는다. 이어서 진행이면 작업 대기열 P0의 미완료 항목부터 본다. 원격 푸시, Dynamic Island 전용 UI, Android는 시작하지 않음. 실제 배너·잠금 화면·실제 Watch는 미검증이며 사용자에게 확인을 요청하지 않는다.

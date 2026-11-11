@@ -62,3 +62,9 @@ const nativeClient=createLiveActivityClient({
 export function syncLiveActivity(state,preferredId,now=new Date()){
  return nativeClient.sync(state,preferredId,now);
 }
+
+/** iPhone asks the web view for a fresh snapshot when the watch opens. */
+export function listenForLiveActivityRefresh(onRefresh){
+ if(!(Capacitor.isNativePlatform()&&Capacitor.getPlatform()==='ios'))return;
+ NativeLiveActivity.addListener('refresh',()=>onRefresh());
+}

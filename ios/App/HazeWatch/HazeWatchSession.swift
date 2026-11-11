@@ -30,8 +30,15 @@ final class HazeWatchModel: NSObject, ObservableObject {
 
     func setReachable(_ reachable: Bool) {
         guard !usesFixture else { return }
+        let becameReachable = reachable && !self.reachable
         self.reachable = reachable
         refresh()
+        if becameReachable { requestSnapshot() }
+    }
+
+    func requestSnapshot() {
+        guard !usesFixture else { return }
+        HazeWatchPhoneSession.shared.requestSnapshot()
     }
 
     private func refresh() {
@@ -98,6 +105,7 @@ final class HazeWatchPhoneSession: NSObject, WCSessionDelegate {
         let context = session.receivedApplicationContext
         DispatchQueue.main.async {
             self.model?.apply(context: context, reachable: session.isReachable)
+            self.model?.requestSnapshot()
         }
     }
 
@@ -111,5 +119,12 @@ final class HazeWatchPhoneSession: NSObject, WCSessionDelegate {
         DispatchQueue.main.async {
             self.model?.setReachable(session.isReachable)
         }
+    }
+
+    func requestSnapshot() {
+        guard WCSession.isSupported() else { return }
+        let session = WCSession.default
+        guard session.activationState == .activated, session.isReachable else { return }
+        session.sendMessage(["request": "snapshot"], replyHandler: nil, errorHandler: { _ in })
     }
 }

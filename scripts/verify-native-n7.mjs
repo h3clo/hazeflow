@@ -28,6 +28,9 @@ if (!view.includes('진행 중인 활동 없음')) fail.push('empty state copy i
 if (!view.includes('timerInterval')) fail.push('connected elapsed time must use the start instant');
 if (!plugin.includes('HazeWatchRelay.shared.publish')) fail.push('watch must reuse the Live Activity payload');
 if (!relay.includes('updateApplicationContext')) fail.push('phone must send one latest snapshot');
+if (!relay.includes('didReceiveMessage') || !snapshot.includes('hazeWatchIsRefreshRequest')) fail.push('watch must be able to ask for a fresh snapshot');
+if (!read('app.js').includes('recordStorage.subscribe') || !read('app.js').match(/subscribe[\s\S]{0,240}publishLiveActivity/)) fail.push('remote activity changes must refresh the watch');
+if (!read('live-activity.js').includes('listenForLiveActivityRefresh')) fail.push('phone must answer a watch refresh');
 if (watchTree.includes('UNUserNotificationCenter') || relay.includes('UNUserNotificationCenter')) fail.push('watch must not schedule notifications');
 if (watchTree.includes('supabase') || relay.includes('supabase')) fail.push('watch must not open its own account');
 if (plugin.includes('WCSession')) fail.push('Live Activity plugin must not own the watch session');

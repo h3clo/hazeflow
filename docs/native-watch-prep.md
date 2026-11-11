@@ -12,7 +12,7 @@ Watch는 iPhone Live Activity와 같은 대표 활동 스냅샷 하나만 보여
 
 ## 전달
 
-iPhone `HazeWatchRelay`가 Live Activity에 넘기는 페이로드 하나를 `updateApplicationContext`로 바꾼다. 활동이 끝나면 빈 스냅샷이다. 실패해도 웹 저장과 Live Activity는 그대로다. Watch의 `UserDefaults`(`haze-watch-last-phone-message`)는 마지막 전화 메시지(이름, 시작 시각, 확인 시각, 진행 여부)만 남겨 재실행 때 마지막 상태를 구분한다. 두 번째 활동 DB가 아니다.
+iPhone `HazeWatchRelay`가 Live Activity에 넘기는 페이로드 하나를 `updateApplicationContext`로 바꾼다. Mac에서 시작한 활동이 iPhone 동기화로 들어오면 같은 스냅샷을 다시 보낸다. Watch가 열리거나 다시 연결되면 `snapshot` 요청을 보내고, iPhone은 그때의 대표 활동으로 답한다. 활동이 끝나면 빈 스냅샷이다. 아직 아무 스냅샷도 없으면 「진행 중인 활동 없음」이라고 하지 않는다. 실패해도 웹 저장과 Live Activity는 그대로다. Watch의 `UserDefaults`(`haze-watch-last-phone-message`)는 마지막 전화 메시지(이름, 시작 시각, 확인 시각, 진행 여부)만 남겨 재실행 때 마지막 상태를 구분한다. 두 번째 활동 DB가 아니다.
 
 ## 하지 않는 일
 

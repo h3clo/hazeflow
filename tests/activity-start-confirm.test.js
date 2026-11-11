@@ -55,5 +55,7 @@ test('finishActivityFields와 applyOngoingEnds가 같은 종료 형태를 쓴다
  const d=emptyState();
  d.logs=[indie('a','12:00')];
  applyOngoingEnds(d.logs,['a'],at);
- assert.deepEqual({endDate:d.logs[0].endDate,endTime:d.logs[0].endTime},finishActivityFields(at));
+ assert.equal(d.logs[0].endDate,finishActivityFields(at).endDate);
+ assert.equal(d.logs[0].endTime,finishActivityFields(at).endTime);
+ assert.equal(d.logs[0].endedAt,at.toISOString());
 });

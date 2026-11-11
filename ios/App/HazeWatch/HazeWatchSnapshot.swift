@@ -10,6 +10,7 @@ struct HazeWatchMessage: Equatable {
 
 enum HazeWatchPresentation: Equatable {
     case waiting
+    case checking
     case empty
     case live(title: String, startedAt: Date)
     case staleActivity(title: String, elapsed: String, sentAt: Date)
@@ -41,8 +42,12 @@ func hazeWatchMessage(from context: [String: Any]) -> HazeWatchMessage? {
     return HazeWatchMessage(active: active, title: title, startedAt: startedAt, sentAt: sentAt)
 }
 
+func hazeWatchIsRefreshRequest(_ message: [String: Any]) -> Bool {
+    (message["request"] as? String) == "snapshot"
+}
+
 func hazeWatchPresentation(message: HazeWatchMessage?, reachable: Bool) -> HazeWatchPresentation {
-    guard let message else { return reachable ? .empty : .waiting }
+    guard let message else { return reachable ? .checking : .waiting }
     let live = message.active && !message.title.isEmpty && message.startedAt != nil
     if reachable {
         guard live, let startedAt = message.startedAt else { return .empty }
@@ -75,6 +80,7 @@ func hazeWatchClock(_ date: Date) -> String {
 func hazeWatchStateLabel(_ presentation: HazeWatchPresentation) -> String {
     switch presentation {
     case .waiting: return "watch-state:waiting"
+    case .checking: return "watch-state:checking"
     case .empty: return "watch-state:empty"
     case .live: return "watch-state:live"
     case .staleActivity: return "watch-state:stale"
