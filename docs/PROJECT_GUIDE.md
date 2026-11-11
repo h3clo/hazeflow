@@ -44,7 +44,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정 데이터 삭제·비가역 마이그레이션·PR F 물질화·유료 가입·Apple 계정 인증만 사전 승인. 계획된 iOS 작업은 사용자 확인 없이 자동 검증 후 진행한다.
 
-**완료 (N3 iOS 로컬 알림 · 2026-11-12):** 기존 알림 설정이 켜진 일정·할 일·루틴·복습만 예약한다. 기본값은 꺼짐. iPhone 17 / iOS 27.2에서 `local-reminder:cleared:0`, 권한 창 없음. `N1SmokeUITests` 2건·`N2ActivityUITests` 3건·N3 1건 통과. `npm test` 634 pass / 7 skip. **실제 배너·소리·잠금 화면 탭·시간대 변경·iPhone 13은 미검증.**
+**완료 (N3 iOS 로컬 알림 · 2026-11-12 · [PR #52](https://github.com/h3clo/hazeflow/pull/52) · Pages [43052476784](https://github.com/h3clo/hazeflow/actions/runs/43052476784) success):** 기존 알림 설정이 켜진 일정·할 일·루틴·복습만 예약한다. 기본값은 꺼짐. iPhone 17 / iOS 27.2에서 `local-reminder:cleared:0`, 권한 창 없음. `N1SmokeUITests` 2건·`N2ActivityUITests` 3건·N3 1건 통과. `npm test` 634 pass / 7 skip. **실제 배너·소리·잠금 화면 탭·시간대 변경·iPhone 13은 미검증.**
 
 **다음 시작점:** **Apple Watch 구현은 별도 단계.** 의존성과 경계는 [native-watch-prep.md](native-watch-prep.md). Watch 타깃·`WCSession`은 만들지 않는다. N3 로컬 알림은 기존 `{owner}-notification-settings`와 `reminderPlan`만 예약한다. 실제 배너·소리·잠금 화면 탭·시간대 변경·iPhone 13은 미검증이며 사용자에게 확인을 요청하지 않는다. 원격 푸시, Dynamic Island 전용 UI, Android는 시작하지 않음.
 
