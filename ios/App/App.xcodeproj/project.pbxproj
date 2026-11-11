@@ -25,6 +25,17 @@
 		E2A1000C2FE993A70072D401 /* HazeLiveActivity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E2A100062FE993A70072D401 /* HazeLiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E2A1000E2FE993A70072D401 /* N2ActivityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1000D2FE993A70072D401 /* N2ActivityUITests.swift */; };
 		E2A1001B2FE993A70072D402 /* N3NotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1001A2FE993A70072D402 /* N3NotificationUITests.swift */; };
+		E2B1000C2FE993A70072D501 /* HazeWatchSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B100012FE993A70072D501 /* HazeWatchSnapshot.swift */; };
+		E2B1000D2FE993A70072D501 /* HazeWatchRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B100072FE993A70072D501 /* HazeWatchRelay.swift */; };
+		E2B1000E2FE993A70072D501 /* HazeWatchSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B100012FE993A70072D501 /* HazeWatchSnapshot.swift */; };
+		E2B1000F2FE993A70072D501 /* HazeWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B100022FE993A70072D501 /* HazeWatchApp.swift */; };
+		E2B100102FE993A70072D501 /* HazeWatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B100032FE993A70072D501 /* HazeWatchView.swift */; };
+		E2B100112FE993A70072D501 /* HazeWatchSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B100042FE993A70072D501 /* HazeWatchSession.swift */; };
+		E2B100122FE993A70072D501 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E2B100052FE993A70072D501 /* Assets.xcassets */; };
+		E2B100132FE993A70072D501 /* HazeWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E2B100062FE993A70072D501 /* HazeWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E2B100142FE993A70072D501 /* HazeWatchSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B100012FE993A70072D501 /* HazeWatchSnapshot.swift */; };
+		E2B100152FE993A70072D501 /* HazeWatchSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B100082FE993A70072D501 /* HazeWatchSnapshotTests.swift */; };
+		E2B100162FE993A70072D501 /* HazeWatchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B1000A2FE993A70072D501 /* HazeWatchUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +53,27 @@
 			remoteGlobalIDString = E2A1000F2FE993A70072D401;
 			remoteInfo = HazeLiveActivity;
 		};
+		E2B100502FE993A70072D501 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E2B100202FE993A70072D501;
+			remoteInfo = HazeWatch;
+		};
+		E2B100522FE993A70072D501 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E2B100202FE993A70072D501;
+			remoteInfo = HazeWatch;
+		};
+		E2B100542FE993A70072D501 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E2B100202FE993A70072D501;
+			remoteInfo = HazeWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -57,6 +89,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
+		E2B100392FE993A70072D501 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				E2B100132FE993A70072D501 /* HazeWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -82,6 +125,17 @@
 		E2A100062FE993A70072D401 /* HazeLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HazeLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2A1000D2FE993A70072D401 /* N2ActivityUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = N2ActivityUITests.swift; sourceTree = "<group>"; };
 		E2A1001A2FE993A70072D402 /* N3NotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = N3NotificationUITests.swift; sourceTree = "<group>"; };
+		E2B100012FE993A70072D501 /* HazeWatchSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeWatchSnapshot.swift; sourceTree = "<group>"; };
+		E2B100022FE993A70072D501 /* HazeWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeWatchApp.swift; sourceTree = "<group>"; };
+		E2B100032FE993A70072D501 /* HazeWatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeWatchView.swift; sourceTree = "<group>"; };
+		E2B100042FE993A70072D501 /* HazeWatchSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeWatchSession.swift; sourceTree = "<group>"; };
+		E2B100052FE993A70072D501 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E2B100062FE993A70072D501 /* HazeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HazeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2B100072FE993A70072D501 /* HazeWatchRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeWatchRelay.swift; sourceTree = "<group>"; };
+		E2B100082FE993A70072D501 /* HazeWatchSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeWatchSnapshotTests.swift; sourceTree = "<group>"; };
+		E2B100092FE993A70072D501 /* HazeWatchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HazeWatchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2B1000A2FE993A70072D501 /* HazeWatchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeWatchUITests.swift; sourceTree = "<group>"; };
+		E2B1000B2FE993A70072D501 /* HazeWatchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HazeWatchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +162,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
+		E2B100312FE993A70072D501 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B100342FE993A70072D501 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B100372FE993A70072D501 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 
 /* Begin PBXGroup section */
 		504EC2FB1FED79650016851F = {
@@ -118,6 +193,9 @@
 				A11A5A0CE000000000000008 /* N1SmokeUITests */,
 				E2A100162FE993A70072D401 /* HazeLiveActivity */,
 				504EC3051FED79650016851F /* Products */,
+				E2B100402FE993A70072D501 /* HazeWatch */,
+				E2B100412FE993A70072D501 /* HazeWatchTests */,
+				E2B100422FE993A70072D501 /* HazeWatchUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -127,6 +205,9 @@
 				504EC3041FED79650016851F /* App.app */,
 				A11A5A0CE000000000000002 /* N1SmokeUITests.xctest */,
 				E2A100062FE993A70072D401 /* HazeLiveActivity.appex */,
+				E2B100062FE993A70072D501 /* HazeWatch.app */,
+				E2B100092FE993A70072D501 /* HazeWatchTests.xctest */,
+				E2B1000B2FE993A70072D501 /* HazeWatchUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -137,6 +218,7 @@
 				9582B6822FE993A50072D4E8 /* SceneDelegate.swift */,
 				E2A100032FE993A70072D401 /* HazeLiveActivityPlugin.swift */,
 				E2A1001C2FE993A70072D403 /* HazeLocalReminderPlugin.swift */,
+				E2B100072FE993A70072D501 /* HazeWatchRelay.swift */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -170,6 +252,34 @@
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
+		E2B100402FE993A70072D501 /* HazeWatch */ = {
+			isa = PBXGroup;
+			children = (
+				E2B100012FE993A70072D501 /* HazeWatchSnapshot.swift */,
+				E2B100022FE993A70072D501 /* HazeWatchApp.swift */,
+				E2B100032FE993A70072D501 /* HazeWatchView.swift */,
+				E2B100042FE993A70072D501 /* HazeWatchSession.swift */,
+				E2B100052FE993A70072D501 /* Assets.xcassets */,
+			);
+			path = HazeWatch;
+			sourceTree = "<group>";
+		};
+		E2B100412FE993A70072D501 /* HazeWatchTests */ = {
+			isa = PBXGroup;
+			children = (
+				E2B100082FE993A70072D501 /* HazeWatchSnapshotTests.swift */,
+			);
+			path = HazeWatchTests;
+			sourceTree = "<group>";
+		};
+		E2B100422FE993A70072D501 /* HazeWatchUITests */ = {
+			isa = PBXGroup;
+			children = (
+				E2B1000A2FE993A70072D501 /* HazeWatchUITests.swift */,
+			);
+			path = HazeWatchUITests;
+			sourceTree = "<group>";
+		};
 
 /* Begin PBXNativeTarget section */
 		504EC3031FED79650016851F /* App */ = {
@@ -180,11 +290,13 @@
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
 				E2A100102FE993A70072D401 /* Embed Foundation Extensions */,
+				E2B100392FE993A70072D501 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				E2A100142FE993A70072D401 /* PBXTargetDependency */,
+				E2B100512FE993A70072D501 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -210,6 +322,59 @@
 			name = N1SmokeUITests;
 			productName = N1SmokeUITests;
 			productReference = A11A5A0CE000000000000002 /* N1SmokeUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		E2B100202FE993A70072D501 /* HazeWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2B100622FE993A70072D501 /* Build configuration list for PBXNativeTarget "HazeWatch" */;
+			buildPhases = (
+				E2B100302FE993A70072D501 /* Sources */,
+				E2B100312FE993A70072D501 /* Frameworks */,
+				E2B100322FE993A70072D501 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HazeWatch;
+			productName = HazeWatch;
+			productReference = E2B100062FE993A70072D501 /* HazeWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E2B100212FE993A70072D501 /* HazeWatchTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2B100652FE993A70072D501 /* Build configuration list for PBXNativeTarget "HazeWatchTests" */;
+			buildPhases = (
+				E2B100332FE993A70072D501 /* Sources */,
+				E2B100342FE993A70072D501 /* Frameworks */,
+				E2B100352FE993A70072D501 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E2B100532FE993A70072D501 /* PBXTargetDependency */,
+			);
+			name = HazeWatchTests;
+			productName = HazeWatchTests;
+			productReference = E2B100092FE993A70072D501 /* HazeWatchTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E2B100222FE993A70072D501 /* HazeWatchUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2B100682FE993A70072D501 /* Build configuration list for PBXNativeTarget "HazeWatchUITests" */;
+			buildPhases = (
+				E2B100362FE993A70072D501 /* Sources */,
+				E2B100372FE993A70072D501 /* Frameworks */,
+				E2B100382FE993A70072D501 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E2B100552FE993A70072D501 /* PBXTargetDependency */,
+			);
+			name = HazeWatchUITests;
+			productName = HazeWatchUITests;
+			productReference = E2B1000B2FE993A70072D501 /* HazeWatchUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		E2A1000F2FE993A70072D401 /* HazeLiveActivity */ = {
@@ -253,6 +418,20 @@
 						CreatedOnToolsVersion = 27.2;
 						ProvisioningStyle = Automatic;
 					};
+					E2B100202FE993A70072D501 = {
+						CreatedOnToolsVersion = 27.2;
+						ProvisioningStyle = Automatic;
+					};
+					E2B100212FE993A70072D501 = {
+						CreatedOnToolsVersion = 27.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = E2B100202FE993A70072D501;
+					};
+					E2B100222FE993A70072D501 = {
+						CreatedOnToolsVersion = 27.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = E2B100202FE993A70072D501;
+					};
 				};
 			};
 			buildConfigurationList = 504EC2FF1FED79650016851F /* Build configuration list for PBXProject "App" */;
@@ -275,6 +454,9 @@
 				504EC3031FED79650016851F /* App */,
 				E2A1000F2FE993A70072D401 /* HazeLiveActivity */,
 				A11A5A0CE000000000000007 /* N1SmokeUITests */,
+				E2B100202FE993A70072D501 /* HazeWatch */,
+				E2B100212FE993A70072D501 /* HazeWatchTests */,
+				E2B100222FE993A70072D501 /* HazeWatchUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -308,6 +490,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+		E2B100322FE993A70072D501 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2B100122FE993A70072D501 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B100352FE993A70072D501 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B100382FE993A70072D501 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 
 /* Begin PBXSourcesBuildPhase section */
 		504EC3001FED79650016851F /* Sources */ = {
@@ -319,6 +523,8 @@
 				E2A1000A2FE993A70072D401 /* HazeLiveActivityPlugin.swift in Sources */,
 				E2A1001D2FE993A70072D403 /* HazeLocalReminderPlugin.swift in Sources */,
 				E2A100072FE993A70072D401 /* HazeActivityAttributes.swift in Sources */,
+				E2B1000C2FE993A70072D501 /* HazeWatchSnapshot.swift in Sources */,
+				E2B1000D2FE993A70072D501 /* HazeWatchRelay.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,6 +535,34 @@
 				A11A5A0CE000000000000003 /* N1SmokeUITests.swift in Sources */,
 				E2A1000E2FE993A70072D401 /* N2ActivityUITests.swift in Sources */,
 				E2A1001B2FE993A70072D402 /* N3NotificationUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B100302FE993A70072D501 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2B1000E2FE993A70072D501 /* HazeWatchSnapshot.swift in Sources */,
+				E2B1000F2FE993A70072D501 /* HazeWatchApp.swift in Sources */,
+				E2B100102FE993A70072D501 /* HazeWatchView.swift in Sources */,
+				E2B100112FE993A70072D501 /* HazeWatchSession.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B100332FE993A70072D501 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2B100142FE993A70072D501 /* HazeWatchSnapshot.swift in Sources */,
+				E2B100152FE993A70072D501 /* HazeWatchSnapshotTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2B100362FE993A70072D501 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2B100162FE993A70072D501 /* HazeWatchUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -353,6 +587,21 @@
 			isa = PBXTargetDependency;
 			target = E2A1000F2FE993A70072D401 /* HazeLiveActivity */;
 			targetProxy = E2A100152FE993A70072D401 /* PBXContainerItemProxy */;
+		};
+		E2B100512FE993A70072D501 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E2B100202FE993A70072D501 /* HazeWatch */;
+			targetProxy = E2B100502FE993A70072D501 /* PBXContainerItemProxy */;
+		};
+		E2B100532FE993A70072D501 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E2B100202FE993A70072D501 /* HazeWatch */;
+			targetProxy = E2B100522FE993A70072D501 /* PBXContainerItemProxy */;
+		};
+		E2B100552FE993A70072D501 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E2B100202FE993A70072D501 /* HazeWatch */;
+			targetProxy = E2B100542FE993A70072D501 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -623,6 +872,109 @@
 			};
 			name = Release;
 		};
+		E2B100602FE993A70072D501 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YK6625WL97;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Haze Flow";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.h3clo.hazeflow;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.h3clo.hazeflow.watch;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+			};
+			name = Debug;
+		};
+		E2B100612FE993A70072D501 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YK6625WL97;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Haze Flow";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.h3clo.hazeflow;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.h3clo.hazeflow.watch;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		E2B100632FE993A70072D501 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.h3clo.hazeflow.watch.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HazeWatch.app/HazeWatch";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		E2B100642FE993A70072D501 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.h3clo.hazeflow.watch.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HazeWatch.app/HazeWatch";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		E2B100662FE993A70072D501 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.h3clo.hazeflow.watch.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = HazeWatch;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		E2B100672FE993A70072D501 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.h3clo.hazeflow.watch.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = HazeWatch;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -662,7 +1014,35 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		E2B100622FE993A70072D501 /* Build configuration list for PBXNativeTarget "HazeWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2B100602FE993A70072D501 /* Debug */,
+				E2B100612FE993A70072D501 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E2B100652FE993A70072D501 /* Build configuration list for PBXNativeTarget "HazeWatchTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2B100632FE993A70072D501 /* Debug */,
+				E2B100642FE993A70072D501 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E2B100682FE993A70072D501 /* Build configuration list for PBXNativeTarget "HazeWatchUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2B100662FE993A70072D501 /* Debug */,
+				E2B100672FE993A70072D501 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
 
 /* Begin XCLocalSwiftPackageReference section */
 		D4C12C0A2AAA248700AAC8A2 /* XCLocalSwiftPackageReference "CapApp-SPM" */ = {

@@ -17,7 +17,7 @@
 | **Samsung DeX?** | **웹(PWA/브라우저) 우선.** DeX 전용 앱·플랫폼 분기 **금지.** Android 네이티브는 DeX에서도 실행 가능하나, DeX 데스크 사용의 기본 경로는 웹. |
 | 웹 재사용? | **도메인·동기화·UI 대부분 재사용.** Live Activity / 지속 알림 / Watch UI만 네이티브. |
 | N0 환경 검증? | **부분 완료** — Linux에서 `build:app`+`cap sync`+구조 검증 통과. **iOS 시뮬/실기기 컴파일은 사용자 Mac 대기.** 상세 [native-n0-verification.md](native-n0-verification.md). |
-| 지금 기능 구현? | N1 시뮬레이터 스모크는 2026-11-11 통과. Live Activity 첫 구현은 [PR #46](https://github.com/h3clo/hazeflow/pull/46). Watch·원격 푸시·Android는 아직. |
+| 지금 기능 구현? | N1–N3와 Live Activity는 구현됨. Watch 1차는 대표 활동 표시만(2026-11-12). 시작·종료·원격 푸시·Android는 아직. |
 | 유료 필수? | **개인 기기 디버그 설치는 무료 Personal Team으로 가능(7일 재설치).** Push·TestFlight·스토어·일부 entitlement는 **유료 Apple Developer Program(~$/년)** 필요. Google Play 게시는 별도. |
 
 ---
@@ -185,7 +185,7 @@
 | **N2** | iOS 셸 활동 QA | QA로 시작/종료/동시/대표·딥링크 스모크 | L | N1 | unit/e2e/live | iPhone 권장 |
 | **N3** | iOS 로컬 알림 | `@capacitor/local-notifications` | M | N2 | unit mock | iPhone 알림 |
 | **N5** | iOS Live Activities | ActivityKit + JS 브리지(**앱 내 갱신만**, Push 없음) | H | N2 | 시뮬 16.1+ | 잠금화면 실기기 |
-| **N7** | Watch 컴패니언 | SwiftUI + WCSession ↔ iPhone | H | N2 | Watch 시뮬 | **Watch+iPhone** |
+| **N7** | Watch 컴패니언 | 1차 표시는 구현됨. 시작·종료 인텐트는 별도 승인 | H | N2 | Watch 시뮬 통과 | **실 Watch+iPhone 미검증** |
 | **N4** | Android 지속 알림 | FGS (후순위) | H | N2 | unit 브리지 | Android 실기기 |
 | **N6** | 알람 정확도(Android 중심) | Exact alarm 등 | M | N3/N4 | unit | 실기기 |
 | **D1** | DeX/데스크톱 웹 e2e | Playwright 리사이즈 (최후순위) | L | N0 | CI Playwright | 없음 |
@@ -332,4 +332,4 @@ Cursor/CI가 대신 할 수 없음 → 구현 후 **사용자 UX 확인**으로�
 3. **재사용:** 웹 UI·도메인·sync. Live Activity/Watch만 네이티브 추가.
 4. **PR:** §5 (N0→**N1 iOS**→N2→N3/N5→N7→N4→D1…).
 5. **준비물:** §7 · 사용자 Mac Xcode 약관.
-6. **다음:** N3 로컬 알림은 구현됨. Watch 구현은 별도 단계이며 의존성은 [native-watch-prep.md](native-watch-prep.md). 잠금 화면 픽셀·iPhone 13·실제 알림 배너는 미검증. 원격 푸시·Android는 시작하지 않음.
+6. **다음:** Watch 1차 표시는 구현됨. 시작·종료는 별도 승인 전 착수하지 않는다. 경계는 [native-watch-prep.md](native-watch-prep.md). 잠금 화면·실제 Watch·iPhone 13·실제 알림 배너는 미검증. 원격 푸시·Android는 시작하지 않음.

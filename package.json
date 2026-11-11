@@ -22,6 +22,7 @@
     "verify:native-n1": "node scripts/verify-native-n1.mjs",
     "verify:native-n2": "node scripts/verify-native-n2.mjs",
     "verify:native-n3": "node scripts/verify-native-n3.mjs",
+    "verify:native-n7": "node scripts/verify-native-n7.mjs",
     "toss:local": "node server/toss-server.mjs",
     "toss:publish": "node server/toss-publisher.mjs --once",
     "toss:background": "node scripts/install-toss-agent.mjs"

@@ -9,6 +9,7 @@ class HazeBridgeViewController: CAPBridgeViewController {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(HazeLiveActivityPlugin())
         bridge?.registerPluginInstance(HazeLocalReminderPlugin())
+        HazeWatchRelay.shared.start()
         hideScrollEdgeLine()
     }
 
