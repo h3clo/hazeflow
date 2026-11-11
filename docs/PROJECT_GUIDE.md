@@ -48,7 +48,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **다음 시작점:** **Apple Watch 구현은 별도 단계.** 의존성과 경계는 [native-watch-prep.md](native-watch-prep.md). Watch 타깃·`WCSession`은 만들지 않는다. N3 로컬 알림은 기존 `{owner}-notification-settings`와 `reminderPlan`만 예약한다. 실제 배너·소리·잠금 화면 탭·시간대 변경·iPhone 13은 미검증이며 사용자에게 확인을 요청하지 않는다. 원격 푸시, Dynamic Island 전용 UI, Android는 시작하지 않음.
 
-**긴급 수정 (개인 시드 공개 제거 · 2026-11-12):** PR #50의 `public/imports` 개인 할 일 시드·관련 생성기/문서/테스트를 트리에서 삭제. Pages 재배포 후 공개 URL 미제공 확인. 규칙 [privacy-personal-data.md](privacy-personal-data.md). **실계정 기록 미삭제.** 과거 Git/PR 히스토리에는 잔존 가능(rewrite 미실시).
+**완료 (할 일 여러 줄 붙여넣기 · 2026-11-12):** 할 일 화면에서 `YYYY-MM-DD 제목` 일괄 등록·미리보기·중복 건너뛰기. 로그인 계정 IndexedDB/Supabase만 사용. 개인 문구는 테스트·Git·`public/`에 넣지 않음(가상 예시만).
+
+**긴급 수정 (개인 시드 공개 제거 · 2026-11-12):** PR #50의 `public/imports` 개인 할 일 시드 삭제 · Pages 404 확인. 규칙 [privacy-personal-data.md](privacy-personal-data.md). **실계정 기록 미삭제.** Git 히스토리 rewrite 미실시.
 
 **완료 (N2 Live Activity · 2026-11-11 · [PR #46](https://github.com/h3clo/hazeflow/pull/46) · Pages [42980778420](https://github.com/h3clo/hazeflow/actions/runs/42980778420) success):** 대표 활동 하나만을 잠금 화면 슬롯에 맞춘다. 경과 시간은 `Text(timerInterval:)` 시스템 타이머. `pushType: nil`. 웹은 네이티브 iOS가 아니면 `skipped`, 권한·오류는 `unsupported`라서 저장을 막지 않는다. iPhone 17 / iOS 27.2에서 `N1SmokeUITests` 2건과 `testLiveActivityStatusIsReportedOnLaunch` 통과. 시작·종료·동시·대표 전환·중복 방지는 JS 단위 테스트. XCUI 제스처로 입력칸까지 스크롤하지 못해 그 시나리오는 시뮬레이터 손동작으로 재현하지 않음. Actions `npm test` 통과. 스키마·실계정 미변경. **잠금 화면 픽셀·앱 강제 종료 후 표시·iPhone 13은 미검증.**
 
