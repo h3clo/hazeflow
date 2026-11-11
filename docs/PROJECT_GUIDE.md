@@ -46,7 +46,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **완료 (활동 2.1 안정화 · 2026-11-12 · [PR #57](https://github.com/h3clo/hazeflow/pull/57) · Pages [43072412184](https://github.com/h3clo/hazeflow/actions/runs/43072412184) success):** 자정이 활동을 끝내지 않는다. 전날부터 진행 중인 활동은 오늘 화면에서 끝내거나 종료 시각을 고칠 수 있다. 8시간 이상은 「장시간 진행 중」으로 표시하고, 계속 진행을 고르면 그 확인을 반복하지 않는다. 날짜별 통계는 원본 기록 하나를 유지한 채 그날의 실제 분만 센다. 활동별 누적과 겹침을 뺀 실제 경과를 따로 보여 주고, 실제 경과는 하루 24시간을 넘기지 않는다. Mac에서 시작한 활동이 iPhone에 동기화되면 Watch 스냅샷도 다시 보낸다. Watch는 열릴 때 최신 상태를 요청한다. `npm test` 645 pass / 7 skip. watchOS 27.2 Series 12 46mm `HazeWatchTests` 4건·`HazeWatchUITests` 3건 통과. **실제 Watch의 WCSession 전달과 iPhone 13 재설치는 미검증.** 네이티브 변경이 있으므로 기기의 Haze Flow를 새 빌드로 다시 설치해야 Watch 수정이 적용된다.
 
-**완료 (Watch 스냅샷 계정 경계 · 2026-11-12):** 계정 확인 전에는 `phase: pending`만 보내 이전 활동을 지운다. 로드·동기화·대표 활동 변경 뒤에 현재 계정의 스냅샷을 다시 보낸다. Watch는 「동기화 대기」, 「진행 중인 활동 없음」, 「iPhone과 연결되지 않음」을 구분한다. `npm test` 652 pass / 7 skip. iPhone 시뮬레이터 앱 번들 `app-DFu1dgLW.js`에 `watch-snapshot:` 확인. watchOS 27.2 Series 12 46mm `HazeWatchTests` 4건·`HazeWatchUITests` 5건 통과. **실제 iPhone·Watch의 WCSession 전달은 미검증.** 기기 시계 보정·Watch Supabase·기존 기록 수정은 하지 않음.
+**완료 (Watch 스냅샷 계정 경계 · 2026-11-12 · [PR #59](https://github.com/h3clo/hazeflow/pull/59)):** 계정 확인 전에는 `phase: pending`만 보내 이전 활동을 지운다. 로드·동기화·대표 활동 변경 뒤에 현재 계정의 스냅샷을 다시 보낸다. Watch는 「동기화 대기」, 「진행 중인 활동 없음」, 「iPhone과 연결되지 않음」을 구분한다. `npm test` 652 pass / 7 skip. iPhone 시뮬레이터 앱 번들 `app-DFu1dgLW.js`에 `watch-snapshot:` 확인. watchOS 27.2 Series 12 46mm `HazeWatchTests` 4건·`HazeWatchUITests` 5건 통과. **실제 iPhone·Watch의 WCSession 전달은 미검증.** 기기 시계 보정·Watch Supabase·기존 기록 수정은 하지 않음.
 
 **다음 시작점:** 실기기에는 이 웹 자산이 포함된 App 스킴 빌드를 iPhone에 설치해야 Watch에 반영된다. Watch 시작·종료, Watch Supabase, 원격 푸시, Dynamic Island 전용 UI, Android는 시작하지 않음.
 

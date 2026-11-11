@@ -6,7 +6,7 @@
 
 - 앱은 계정 확인 전에 대표 활동을 보내지 않고 `pending`만 보낸다. 계정 전환·로그아웃도 먼저 `pending`으로 이전 활동을 지운 뒤, 새 기록이 로드되면 그 계정의 스냅샷을 보낸다. 시작·종료·대표 변경과 동기화 저장은 준비가 끝난 뒤에 다시 보낸다.
 - Watch는 연결 중 대기를 「동기화 대기」, 활동이 없음을 「진행 중인 활동 없음」, 끊김을 「iPhone과 연결되지 않음」으로 구분한다. 대기 중에는 경과를 세지 않는다.
-- `npm test` 652 pass / 7 skip. iPhone 17 시뮬레이터 빌드 `App.app/public/assets/app-DFu1dgLW.js`에 `watch-snapshot:` 포함. 같은 시뮬레이터 UI 6건 통과. watchOS 27.2 Series 12 46mm 단위 4건·UI 5건 통과. 실제 iPhone·Watch WCSession은 미검증. 기록·Supabase·시계 보정은 변경하지 않음.
+- [PR #59](https://github.com/h3clo/hazeflow/pull/59). `npm test` 652 pass / 7 skip. iPhone 17 시뮬레이터 빌드 `App.app/public/assets/app-DFu1dgLW.js`에 `watch-snapshot:` 포함. 같은 시뮬레이터 UI 6건 통과. watchOS 27.2 Series 12 46mm 단위 4건·UI 5건 통과. 실제 iPhone·Watch WCSession은 미검증. 기록·Supabase·시계 보정은 변경하지 않음.
 
 ### 2026-11-12 Cursor · 활동 기록 무결성 감사
 
