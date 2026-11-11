@@ -332,4 +332,4 @@ Cursor/CI가 대신 할 수 없음 → 구현 후 **사용자 UX 확인**으로�
 3. **재사용:** 웹 UI·도메인·sync. Live Activity/Watch만 네이티브 추가.
 4. **PR:** §5 (N0→**N1 iOS**→N2→N3/N5→N7→N4→D1…).
 5. **준비물:** §7 · 사용자 Mac Xcode 약관.
-6. **다음:** Live Activity 첫 구현은 [native-live-activity-plan.md](native-live-activity-plan.md). 잠금 화면 실기기와 앱 종료 후 표시는 미검증. Watch·원격 푸시·Android는 시작하지 않음.
+6. **다음:** N3 iOS 로컬 알림. Live Activity 시뮬레이터 시나리오는 자동 확인. 잠금 화면 픽셀·iPhone 13은 미검증. Watch·원격 푸시·Android는 시작하지 않음.

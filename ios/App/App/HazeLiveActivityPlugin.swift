@@ -101,8 +101,14 @@ public class HazeLiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
         Task {
             let task = await gate.enqueue(payload)
             let status = await task.value
-            call.resolve(["status": status, "recordId": payload?.recordId ?? "none"])
+            let count = currentActivityCount()
+            call.resolve(["status": status, "recordId": payload?.recordId ?? "none", "count": String(count)])
         }
+    }
+
+    private func currentActivityCount() -> Int {
+        guard #available(iOS 16.2, *) else { return 0 }
+        return Activity<HazeActivityAttributes>.activities.count
     }
 
     private func payload(from call: CAPPluginCall) -> HazeLivePayload? {

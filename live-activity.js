@@ -42,7 +42,7 @@ export function createLiveActivityClient({isNative,bridge}){
     if(!isNative())return {status:'skipped',recordId:payload?.recordId||null};
     try{
      const result=await bridge.sync(payload||{end:true});
-     return {status:result?.status||'unsupported',recordId:payload?.recordId||result?.recordId||null};
+     return {status:result?.status||'unsupported',recordId:payload?.recordId||result?.recordId||null,count:result?.count??null};
     }catch{
      return {status:'unsupported',recordId:payload?.recordId||null};
     }
