@@ -7,6 +7,7 @@
 - 디버그 빌드에서만 `HAZE_N2_FIXTURE`가 실제 활동 저장·대표 변경·종료를 호출한다. 상태는 `live-activity:{status}:{recordId}:{count}`.
 - iPhone 17 / iOS 27.2: 재실행 후 슬롯 1개 유지, 대표 전환 후 종료하면 슬롯 0. `N1SmokeUITests` 2건도 통과. `npm test` 626 pass / 7 skip.
 - 웹뷰 스크롤은 끄고 페이지 `main`이 스크롤한다. 잠금 화면 픽셀과 iPhone 13은 미검증.
+- [PR #48](https://github.com/h3clo/hazeflow/pull/48) 병합. Pages [43044391543](https://github.com/h3clo/hazeflow/actions/runs/43044391543) success.
 - 다음: **N3 iOS 로컬 알림.** Watch·원격 푸시·Android는 시작하지 않음.
 
 ### 2026-11-11 Cursor · iPhone Live Activity 첫 구현
