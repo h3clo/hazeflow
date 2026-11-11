@@ -8,7 +8,8 @@
 - 8시간 이상은 「장시간 진행 중」이다. `longRunAckAt`이 있으면 확인을 반복하지 않고, 자동 종료나 시간 수정은 하지 않는다.
 - 날짜별 통계는 현지 자정으로 잘라 활동별 누적과 합집합 실제 경과를 따로 낸다. 실제 경과는 1440분을 넘기지 않는다. 일광절약시간 25시간 하루와 봄철 1시간 공백을 테스트로 확인했다.
 - Watch가 빈 화면으로 남던 이유는 원격 동기화가 iPhone 화면만 갱신하고 스냅샷을 다시 보내지 않았기 때문이다. 저장소 변경과 Watch의 `snapshot` 요청이 대표 활동 하나를 다시 보낸다. 스냅샷이 없으면 연결 중에도 「진행 중인 활동 없음」이라고 하지 않는다.
-- `npm test` 645 pass / 7 skip. watchOS 시뮬레이터 테스트 7건 통과. 실제 Watch 전달과 기기 재설치는 미검증.
+- `npm test` 645 pass / 7 skip. watchOS 시뮬레이터 테스트 7건 통과. iPhone 17 시뮬레이터 `N1SmokeUITests` 2건, `N2ActivityUITests` 3건, N3 1건 통과. 실제 Watch 전달과 기기 재설치는 미검증.
+- [PR #57](https://github.com/h3clo/hazeflow/pull/57).
 
 ### 2026-11-12 Cursor · Watch 1차 표시
 
