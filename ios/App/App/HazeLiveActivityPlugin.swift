@@ -100,16 +100,24 @@ public class HazeLiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func sync(_ call: CAPPluginCall) {
-        let payload = payload(from: call)
-        if call.getString("recordId") != nil && payload == nil && call.getBool("end") != true {
+        let pending = call.getString("phase") == "pending"
+        let payload = pending ? nil : payload(from: call)
+        if !pending && call.getString("recordId") != nil && payload == nil && call.getBool("end") != true {
             call.resolve(["status": "unsupported", "recordId": "none"])
+            return
+        }
+        if pending {
+            Task {
+                HazeWatchRelay.shared.publish(nil, phase: "pending")
+                call.resolve(["status": "pending", "recordId": "none", "count": String(currentActivityCount())])
+            }
             return
         }
         Task {
             let task = await gate.enqueue(payload)
             let status = await task.value
             let count = currentActivityCount()
-            HazeWatchRelay.shared.publish(payload)
+            HazeWatchRelay.shared.publish(payload, phase: "ready")
             call.resolve(["status": status, "recordId": payload?.recordId ?? "none", "count": String(count)])
         }
     }

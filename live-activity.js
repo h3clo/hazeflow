@@ -30,21 +30,29 @@ export function liveActivityPayload(state,preferredId,now=new Date()){
  };
 }
 
+export function liveActivityCommand(state,preferredId,now=new Date()){
+ const payload=liveActivityPayload(state,preferredId,now);
+ return payload?{phase:'ready',...payload}:{phase:'ready',end:true};
+}
+
 export function createLiveActivityClient({isNative,bridge}){
  let chain=Promise.resolve();
  let generation=0;
  return {
   sync(state,preferredId,now=new Date()){
-   const payload=liveActivityPayload(state,preferredId,now);
+   return this.syncCommand(liveActivityCommand(state,preferredId,now));
+  },
+  syncCommand(command){
    const ticket=++generation;
+   const recordId=command?.recordId||null;
    const run=async()=>{
-    if(ticket!==generation)return {status:'stale',recordId:payload?.recordId||null};
-    if(!isNative())return {status:'skipped',recordId:payload?.recordId||null};
+    if(ticket!==generation)return {status:'stale',recordId};
+    if(!isNative())return {status:'skipped',recordId};
     try{
-     const result=await bridge.sync(payload||{end:true});
-     return {status:result?.status||'unsupported',recordId:payload?.recordId||result?.recordId||null,count:result?.count??null};
+     const result=await bridge.sync(command?.phase==='pending'?{phase:'pending'}:command);
+     return {status:result?.status||'unsupported',recordId:recordId||result?.recordId||null,count:result?.count??null};
     }catch{
-     return {status:'unsupported',recordId:payload?.recordId||null};
+     return {status:'unsupported',recordId};
     }
    };
    const pending=chain.then(run,run);
@@ -61,6 +69,10 @@ const nativeClient=createLiveActivityClient({
 
 export function syncLiveActivity(state,preferredId,now=new Date()){
  return nativeClient.sync(state,preferredId,now);
+}
+
+export function syncLiveActivityCommand(command){
+ return nativeClient.syncCommand(command);
 }
 
 /** iPhone asks the web view for a fresh snapshot when the watch opens. */

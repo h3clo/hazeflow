@@ -67,7 +67,8 @@ import {workoutItems,serializeWorkoutItems,updateStrengthSet,addStrengthSet,remo
 import {activityIntervals,activityTimeLabel,recordKindLabel,activityEndForEdit,captureActivityEnd,ongoingActivities,dayActivityStats,isLongRunning,longRunNeedsConfirm,longRunAckFields} from './domain.js';
 import {shouldConfirmOngoingStart,resolveOngoingEndChoices,applyOngoingEnds,captureTimingFields} from './activity-start-confirm.js';
 import {readPrimaryActivityId,resolvePrimaryActivity,readDeviceId,setPrimaryPreference,mirrorPrimaryPreference,primaryIdFromState} from './activity-primary.js';
-import {syncLiveActivity,listenForLiveActivityRefresh} from './live-activity.js';
+import {syncLiveActivityCommand,listenForLiveActivityRefresh} from './live-activity.js';
+import {createWatchSnapshotGate} from './watch-snapshot.js';
 import {captureModeForShortcut,captureSubmitLabel} from './capture-shortcuts.js';
 import {buildDayAgenda} from './agenda.js';
 import {createToast} from './toast.js';
@@ -100,15 +101,20 @@ let photoStore=makePhotoStore(key+'-photos');let editorPhotos=[],editorPhotoToke
 let recovery=null;
 function load(){const raw=recordStorage.getItem(key);if(!raw)return emptyState();try{const state=validateBackup(JSON.parse(raw));mirrorPrimaryPreference(localStorage,key,state);return state}catch{recovery=raw;return emptyState()}}
 function preferredPrimaryId(){return primaryIdFromState(data)||readPrimaryActivityId(localStorage,key)}
-function publishLiveActivity(){
- const node=document.getElementById('live-activity-status');
- syncLiveActivity(data,preferredPrimaryId()).then(result=>{
-  if(!node||!result)return;
-  if(!['started','updated','ended','unchanged','unsupported'].includes(result.status))return;
+const watchGate=createWatchSnapshotGate({send(command){
+ const node=document.getElementById('watch-snapshot-status');
+ if(node)node.textContent='watch-snapshot:'+command.phase+':'+(command.recordId||'none');
+ const pending=syncLiveActivityCommand(command);
+ pending.then(result=>{
+  const live=document.getElementById('live-activity-status');
+  if(!live||!result)return;
+  if(!['started','updated','ended','unchanged','unsupported','pending'].includes(result.status))return;
   const count=result.count==null||result.count===''?'':':'+result.count;
-  node.textContent='live-activity:'+result.status+':'+(result.recordId||'none')+count;
+  live.textContent='live-activity:'+result.status+':'+(result.recordId||command.recordId||'none')+count;
  }).catch(()=>{});
-}
+ return pending;
+}});
+function publishLiveActivity(){return watchGate.publish(data,preferredPrimaryId())}
 listenForLiveActivityRefresh(()=>publishLiveActivity());
 const boardHashes=['#dashboard','#dashboard-all','#whiteboard','#whiteboard-all'];
 let data=load(),date=isDate(params.get('notification-date'))?params.get('notification-date'):todayKey(),view=['day','tasks','study'].includes(params.get('notification-view'))?params.get('notification-view'):boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',historyRecordLimit=100,historyDateLimit=60,diarySearchLimit=30,undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='',favoriteQuery='',studyHistory={subjectId:'',query:'',limit:60};
@@ -1115,19 +1121,22 @@ async function repaintWhenIdle(){if([...document.querySelectorAll('#diary-form,#
 document.addEventListener('focusout',()=>{if(needsPaint)setTimeout(repaintWhenIdle,0)});
 document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('close',async ()=>{if(needsPaint)await repaintWhenIdle()}));
 async function switchAccount(userId){
- if(key!==(userId?guestKey+'-user-'+userId:guestKey)){
+ const nextKey=userId?guestKey+'-user-'+userId:guestKey;
+ if(key!==nextKey){
+  await watchGate.hold();
   persistDrafts();draftWarning=false;
   photoPicker?.cancel();
   for(const dialog of document.querySelectorAll('dialog[open]'))dialog.close();
   for(const k of Object.keys(drafts))delete drafts[k];editorPhotos=[];editorPhotoToken++;photoBusy.clear();
-  tossPortfolio=null;tossError='';tossCheckedKey='';tossCacheAt=0;tossEligible=false;tossHistory=[];quoteRows=[];quoteError='';quoteLast=0;key=userId?guestKey+'-user-'+userId:guestKey;photoStore.dispose();photoStore=makePhotoStore(key+'-photos');recovery=null;undoState=null;data=load();Object.assign(drafts,readDrafts());loadLiveWorkoutDone();
+  tossPortfolio=null;tossError='';tossCheckedKey='';tossCacheAt=0;tossEligible=false;tossHistory=[];quoteRows=[];quoteError='';quoteLast=0;key=nextKey;photoStore.dispose();photoStore=makePhotoStore(key+'-photos');recovery=null;undoState=null;data=load();Object.assign(drafts,readDrafts());loadLiveWorkoutDone();
   theme=recordStorage.getItem(key+'-theme')==='dark'?'dark':'light';applyTheme();uiDesign=readUiDesign(recordStorage.getItem(key+'-ui-design'));applyUiDesign();toast.dismiss();await render();
+  await watchGate.release(data,preferredPrimaryId());
  }
 }
 async function cloudContext(){const accountKey=key,store=photoStore,journal=await openSyncJournal({key:accountKey+'-sync',legacy:recordStorage});return {photoStore:store,storage:journal,refresh:()=>recordStorage.read(accountKey),read(){const raw=recordStorage.getItem(accountKey);return raw?validateBackup(JSON.parse(raw)):emptyState()},async write(state,before){const raw=await recordStorage.update(accountKey,existing=>{const current=existing?validateBackup(JSON.parse(existing)):emptyState();return JSON.stringify(before?mergeDuringSave(current,before,state):state)});if(key===accountKey){data=validateBackup(JSON.parse(raw));undoState=null;repaintWhenIdle()}}}}
 function hasGuest(){try{const raw=recordStorage.getItem(guestKey);if(!raw)return false;const d=validateBackup(JSON.parse(raw));return !!(recordedDates(d).length||d.tasks.length||d.routineTemplates.length||d.favorites.length||Object.keys(d.weeklyReviews).length)}catch{return false}}
 async function importGuest(){if(!account?.userId())return;const targetKey=key,targetStore=photoStore,source=validateBackup(JSON.parse(recordStorage.getItem(guestKey)||'null')),sourceStore=makePhotoStore(guestKey+'-photos'),photos=[];for(const ref of collectPhotoRefs(source)){const blob=await sourceStore.get(ref.id);if(!blob)throw Error('기기 기록에 없는 사진이 있어요. 사진이 포함된 JSON 백업을 불러와주세요.');photos.push([ref.id,blob])}if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');await withImportedPhotos(targetStore,photos,async keep=>{if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');if(!await commit(d=>Object.assign(d,mergeBackup(d,source)),{undo:true,message:'기기 기록을 내 계정에 복사했어요.'}))throw Error('기기 기록을 가져오지 못했어요.');keep()})}
-async function bootAccount(){if(accountLoading)return;accountLoading=true;const button=$('#account-button');button.disabled=true;button.textContent='로그인 확인 중';button.onclick=null;try{const {createAccount}=await import('./account.js');account=createAccount({config:cloudConfig(import.meta.env),sandbox,esc,switchAccount,getContext:cloudContext,importGuest,hasGuest,notify});await account.start()}catch{notify('계정 연결을 확인하지 못했어요. 기기 기록은 그대로 남아 있어요.');if(!account){button.textContent='로그인 다시 확인';button.onclick=bootAccount}}finally{button.disabled=false;accountLoading=false}}
+async function bootAccount(){if(accountLoading)return;await watchGate.hold();accountLoading=true;const button=$('#account-button');button.disabled=true;button.textContent='로그인 확인 중';button.onclick=null;try{const {createAccount}=await import('./account.js');account=createAccount({config:cloudConfig(import.meta.env),sandbox,esc,switchAccount,getContext:cloudContext,importGuest,hasGuest,notify});await account.start()}catch{notify('계정 연결을 확인하지 못했어요. 기기 기록은 그대로 남아 있어요.');if(!account){button.textContent='로그인 다시 확인';button.onclick=bootAccount}}finally{button.disabled=false;accountLoading=false;if(!watchGate.isReady())await watchGate.release(data,preferredPrimaryId())}}
 const accountReady=bootAccount();
 accountReady.then(()=>reminders.tick());setInterval(()=>reminders.tick(),15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){reminders.tick();publishLiveActivity();publishLocalReminders()}});
 const localImportSeen=new Set();window.addEventListener('message',async event=>{const payload=localImportPayload(event,{opener:window.opener,enabled:params.get('import')==='local'});if(!payload||localImportSeen.has(payload.token))return;localImportSeen.add(payload.token);try{await accountReady;if(!account?.userId())throw Error('가져올 계정에 먼저 로그인해주세요. 로그인 후 전달 페이지에서 다시 보내주세요.');if(document.querySelector('dialog[open]'))throw Error('열린 창을 닫고 전달 페이지에서 다시 보내주세요.');if(payload.kind==='tax-payment'){view='income';await render();await taxPaymentFlow.openImport(payload.csv)}else if(payload.kind==='tax'){view='income';await render();await taxFlow.openImport(payload.csv)}else if(payload.kind==='income'){view='income';await render();await incomeFlow.openImport(payload.csv)}else{parseMoneyCSV(payload.csv,todayKey());view='money';await render();await moneyImportEditor();$('#money-csv').value=payload.csv;moneyImportPreview()}event.source.postMessage({type:'hazeflow-local-csv-received',token:payload.token},event.origin);notify('로컬 파일을 읽었어요. 계정과 중복 제외 건수를 확인한 뒤 가져오세요.')}catch(error){localImportSeen.delete(payload.token);notify(error.message)}});
@@ -1158,7 +1167,6 @@ window.addEventListener('popstate',async ()=>{whiteboardMode=boardHashes.include
 setInterval(async ()=>{if(view==='assets'&&!document.hidden)await refreshQuotes()},30000);
 
 setupNative({onUrl:async url=>{await accountReady;await account?.handleAuthUrl(url)},onResume:()=>{account?.resume();publishLiveActivity();publishLocalReminders()},onPause:()=>account?.pause(),getBackState:()=>({dialogOpen:!!document.querySelector('dialog[open]'),whiteboard:view==='tasks'&&whiteboardMode,view}),async onBack(action){if(action==='close-dialog')document.querySelector('dialog[open]')?.close();else if(action==='leave-board'){whiteboardMode=false;await render()}else{view='day';await render()}},onError:()=>notify('앱 상태 연결을 확인하지 못했어요. 기록은 기기에 저장돼요.')});
-publishLiveActivity();
 publishLocalReminders();
 
 installSelectUI();

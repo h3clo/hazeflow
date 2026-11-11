@@ -14,12 +14,13 @@ final class HazeWatchRelay: NSObject, WCSessionDelegate {
         session.activate()
     }
 
-    func publish(_ payload: HazeLivePayload?) {
+    func publish(_ payload: HazeLivePayload?, phase: String = "ready") {
         var context: [String: Any] = [
             "sentAt": HazeWatchDates.string(Date()),
-            "active": false
+            "active": false,
+            "phase": phase == "pending" ? "pending" : "ready"
         ]
-        if let payload {
+        if phase != "pending", let payload {
             context["active"] = true
             context["recordId"] = payload.recordId
             context["title"] = payload.title

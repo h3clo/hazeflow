@@ -1,6 +1,6 @@
 # Apple Watch 1차 (표시만)
 
-Watch는 iPhone Live Activity와 같은 대표 활동 스냅샷 하나만 보여 준다. 기록 원본, 로그인, Supabase 동기화는 iPhone에 남긴다.
+Watch는 iPhone Live Activity와 같은 대표 활동 스냅샷 하나만 보여 준다. 기록 원본, 로그인, Supabase 동기화는 iPhone에 남긴다. Mac은 WatchConnectivity로 Watch에 직접 보내지 못한다. Mac 웹의 활동이 Watch에 나타나려면 Mac → Supabase → iPhone 앱 → Watch 스냅샷 순서다. Watch가 Supabase에 직접 붙는 구조는 아직 승인되지 않았다.
 
 ## 화면
 
@@ -12,7 +12,7 @@ Watch는 iPhone Live Activity와 같은 대표 활동 스냅샷 하나만 보여
 
 ## 전달
 
-iPhone `HazeWatchRelay`가 Live Activity에 넘기는 페이로드 하나를 `updateApplicationContext`로 바꾼다. Mac에서 시작한 활동이 iPhone 동기화로 들어오면 같은 스냅샷을 다시 보낸다. Watch가 열리거나 다시 연결되면 `snapshot` 요청을 보내고, iPhone은 그때의 대표 활동으로 답한다. 활동이 끝나면 빈 스냅샷이다. 아직 아무 스냅샷도 없으면 「진행 중인 활동 없음」이라고 하지 않는다. 실패해도 웹 저장과 Live Activity는 그대로다. Watch의 `UserDefaults`(`haze-watch-last-phone-message`)는 마지막 전화 메시지(이름, 시작 시각, 확인 시각, 진행 여부)만 남겨 재실행 때 마지막 상태를 구분한다. 두 번째 활동 DB가 아니다.
+iPhone `HazeWatchRelay`가 Live Activity에 넘기는 페이로드 하나를 `updateApplicationContext`로 바꾼다. 계정 확인이 끝나기 전에는 `phase: pending`만 보내 이전 계정 활동을 지우고, Watch는 「동기화 대기」로 보여 준다. 연결이 없으면 그 대기를 「iPhone과 연결되지 않음」으로 보여 주며 경과를 세지 않는다. 계정 기록이 로드되거나 동기화되면 대표 활동을 다시 보낸다. 대표 활동이 없으면 「진행 중인 활동 없음」이다. Mac에서 시작한 활동이 iPhone 동기화로 들어오면 같은 스냅샷을 다시 보낸다. Watch가 열리거나 다시 연결되면 `snapshot` 요청을 보내고, iPhone은 준비된 계정의 대표 활동으로만 답한다. 실패해도 웹 저장과 Live Activity는 그대로다. Watch의 `UserDefaults`(`haze-watch-last-phone-message`)는 마지막 전화 메시지(이름, 시작 시각, 확인 시각, 진행 여부)만 남겨 재실행 때 마지막 상태를 구분한다. 두 번째 활동 DB가 아니다.
 
 ## 하지 않는 일
 
