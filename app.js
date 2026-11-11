@@ -101,7 +101,8 @@ function publishLiveActivity(){
  syncLiveActivity(data,preferredPrimaryId()).then(result=>{
   if(!node||!result)return;
   if(!['started','updated','ended','unchanged','unsupported'].includes(result.status))return;
-  node.textContent='live-activity:'+result.status+':'+(result.recordId||'none');
+  const count=result.count==null||result.count===''?'':':'+result.count;
+  node.textContent='live-activity:'+result.status+':'+(result.recordId||'none')+count;
  }).catch(()=>{});
 }
 const boardHashes=['#dashboard','#dashboard-all','#whiteboard','#whiteboard-all'];

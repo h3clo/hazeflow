@@ -73,6 +73,18 @@ test('겹친 동기화는 마지막 상태만 브리지에 보낸다',async()=>{
  assert.deepEqual(calls,[{end:true}]);
 });
 
+test('브리지가 알려 준 활동 개수를 상태까지 전한다',async()=>{
+ const client=createLiveActivityClient({
+  isNative:()=>true,
+  bridge:{async sync(){return {status:'started',recordId:'only',count:'1'}}}
+ });
+ const state=emptyState();
+ state.logs.push(log('only','09:00','solo'));
+ const result=await client.sync(state,'only',now);
+ assert.equal(result.status,'started');
+ assert.equal(result.count,'1');
+});
+
 test('브리지 실패는 기록 저장과 분리된 unsupported다',async()=>{
  const client=createLiveActivityClient({
   isNative:()=>true,
