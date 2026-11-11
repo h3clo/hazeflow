@@ -17,6 +17,12 @@
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		A11A5A0CE000000000000003 /* N1SmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A5A0CE000000000000001 /* N1SmokeUITests.swift */; };
+		E2A100072FE993A70072D401 /* HazeActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A100012FE993A70072D401 /* HazeActivityAttributes.swift */; };
+		E2A100082FE993A70072D402 /* HazeActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A100012FE993A70072D401 /* HazeActivityAttributes.swift */; };
+		E2A100092FE993A70072D401 /* HazeLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A100022FE993A70072D401 /* HazeLiveActivityWidget.swift */; };
+		E2A1000A2FE993A70072D401 /* HazeLiveActivityPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A100032FE993A70072D401 /* HazeLiveActivityPlugin.swift */; };
+		E2A1000C2FE993A70072D401 /* HazeLiveActivity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E2A100062FE993A70072D401 /* HazeLiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E2A1000E2FE993A70072D401 /* N2ActivityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1000D2FE993A70072D401 /* N2ActivityUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,7 +33,28 @@
 			remoteGlobalIDString = 504EC3031FED79650016851F;
 			remoteInfo = App;
 		};
+		E2A100152FE993A70072D401 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E2A1000F2FE993A70072D401;
+			remoteInfo = HazeLiveActivity;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E2A100102FE993A70072D401 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E2A1000C2FE993A70072D401 /* HazeLiveActivity.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -45,6 +72,12 @@
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		A11A5A0CE000000000000001 /* N1SmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = N1SmokeUITests.swift; sourceTree = "<group>"; };
 		A11A5A0CE000000000000002 /* N1SmokeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = N1SmokeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2A100012FE993A70072D401 /* HazeActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeActivityAttributes.swift; sourceTree = "<group>"; };
+		E2A100022FE993A70072D401 /* HazeLiveActivityWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeLiveActivityWidget.swift; sourceTree = "<group>"; };
+		E2A100032FE993A70072D401 /* HazeLiveActivityPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeLiveActivityPlugin.swift; sourceTree = "<group>"; };
+		E2A100052FE993A70072D401 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2A100062FE993A70072D401 /* HazeLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HazeLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2A1000D2FE993A70072D401 /* N2ActivityUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = N2ActivityUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +96,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E2A100122FE993A70072D401 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -72,6 +112,7 @@
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
 				A11A5A0CE000000000000008 /* N1SmokeUITests */,
+				E2A100162FE993A70072D401 /* HazeLiveActivity */,
 				504EC3051FED79650016851F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -81,6 +122,7 @@
 			children = (
 				504EC3041FED79650016851F /* App.app */,
 				A11A5A0CE000000000000002 /* N1SmokeUITests.xctest */,
+				E2A100062FE993A70072D401 /* HazeLiveActivity.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -89,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				9582B6822FE993A50072D4E8 /* SceneDelegate.swift */,
+				E2A100032FE993A70072D401 /* HazeLiveActivityPlugin.swift */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -105,8 +148,19 @@
 			isa = PBXGroup;
 			children = (
 				A11A5A0CE000000000000001 /* N1SmokeUITests.swift */,
+				E2A1000D2FE993A70072D401 /* N2ActivityUITests.swift */,
 			);
 			path = N1SmokeUITests;
+			sourceTree = "<group>";
+		};
+		E2A100162FE993A70072D401 /* HazeLiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				E2A100012FE993A70072D401 /* HazeActivityAttributes.swift */,
+				E2A100022FE993A70072D401 /* HazeLiveActivityWidget.swift */,
+				E2A100052FE993A70072D401 /* Info.plist */,
+			);
+			path = HazeLiveActivity;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,10 +173,12 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				E2A100102FE993A70072D401 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E2A100142FE993A70072D401 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -150,6 +206,23 @@
 			productReference = A11A5A0CE000000000000002 /* N1SmokeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		E2A1000F2FE993A70072D401 /* HazeLiveActivity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2A100192FE993A70072D401 /* Build configuration list for PBXNativeTarget "HazeLiveActivity" */;
+			buildPhases = (
+				E2A100112FE993A70072D401 /* Sources */,
+				E2A100122FE993A70072D401 /* Frameworks */,
+				E2A100132FE993A70072D401 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HazeLiveActivity;
+			productName = HazeLiveActivity;
+			productReference = E2A100062FE993A70072D401 /* HazeLiveActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -169,6 +242,10 @@
 						CreatedOnToolsVersion = 27.2;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 504EC3031FED79650016851F;
+					};
+					E2A1000F2FE993A70072D401 = {
+						CreatedOnToolsVersion = 27.2;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -190,6 +267,7 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				E2A1000F2FE993A70072D401 /* HazeLiveActivity */,
 				A11A5A0CE000000000000007 /* N1SmokeUITests */,
 			);
 		};
@@ -216,6 +294,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E2A100132FE993A70072D401 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -225,6 +310,8 @@
 			files = (
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
+				E2A1000A2FE993A70072D401 /* HazeLiveActivityPlugin.swift in Sources */,
+				E2A100072FE993A70072D401 /* HazeActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +320,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				A11A5A0CE000000000000003 /* N1SmokeUITests.swift in Sources */,
+				E2A1000E2FE993A70072D401 /* N2ActivityUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2A100112FE993A70072D401 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2A100092FE993A70072D401 /* HazeLiveActivityWidget.swift in Sources */,
+				E2A100082FE993A70072D402 /* HazeActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +340,11 @@
 			isa = PBXTargetDependency;
 			target = 504EC3031FED79650016851F /* App */;
 			targetProxy = A11A5A0CE00000000000000D /* PBXContainerItemProxy */;
+		};
+		E2A100142FE993A70072D401 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E2A1000F2FE993A70072D401 /* HazeLiveActivity */;
+			targetProxy = E2A100152FE993A70072D401 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -465,6 +567,54 @@
 			};
 			name = Release;
 		};
+		E2A100172FE993A70072D401 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YK6625WL97;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HazeLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.h3clo.hazeflow.liveactivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E2A100182FE993A70072D401 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YK6625WL97;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HazeLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.h3clo.hazeflow.liveactivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -491,6 +641,15 @@
 			buildConfigurations = (
 				A11A5A0CE000000000000009 /* Debug */,
 				A11A5A0CE00000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E2A100192FE993A70072D401 /* Build configuration list for PBXNativeTarget "HazeLiveActivity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2A100172FE993A70072D401 /* Debug */,
+				E2A100182FE993A70072D401 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

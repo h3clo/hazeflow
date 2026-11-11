@@ -1,6 +1,6 @@
 # Live Activities 첫 구현 PR 범위
 
-기준: 2026-11-11. **이 문서는 계획만 둔다. ActivityKit·Widget 확장은 아직 만들지 않는다.** Apple Watch도 시작하지 않는다.
+기준: 2026-11-11. **첫 구현은 [PR #46](https://github.com/h3clo/hazeflow/pull/46).** 잠금 화면의 실제 배치와 iPhone 13 확인은 아직이다. Apple Watch, 원격 푸시, Dynamic Island 전용 레이아웃은 시작하지 않는다. ActivityKit이 요구하는 `dynamicIsland` 클로저는 같은 제목과 시스템 타이머만 반복한다.
 
 기존 활동 2.0과 Supabase 동기화를 다시 만들지 않는다. 진행 중 기록은 종료 시각이 비어 있는 활동이고, 대표 활동은 `preferences.activityUi`다. 네이티브는 그 값을 받아 잠금 화면에 보여줄 뿐이다.
 
@@ -28,6 +28,7 @@
 
 ## 하지 않을 것
 
-- 이 계획 단계의 코드 구현
+- 원격 푸시 갱신, Watch, 전용 Dynamic Island UI
 - 실사용 계정 데이터로 시험
 - 웹 활동 화면을 네이티브로 다시 작성
+- 활동 기록·Supabase 스키마 변경

@@ -2,6 +2,16 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · iPhone Live Activity 첫 구현
+
+- 대표 활동 하나만 `HazeLiveActivity` 슬롯에 둔다. 페이로드는 `ongoingActivities`와 `resolvePrimaryActivity`. 제목은 첫 줄 42자. 진행 중이 없으면 `end: true`.
+- 네이티브는 있으면 첫 활동을 갱신하고 나머지를 끝내며, 없으면 `Activity.request(..., pushType: nil)`. 경과 시간은 `Text(timerInterval:)`. 상태 문구는 `live-activity:{status}:{recordId}`이고 활동 본문은 넣지 않는다.
+- 겹친 JS 호출은 마지막 페이로드만 브리지로 간다. 네이티브 적용은 actor 직렬화. 미지원·오류는 `unsupported`이고 웹 저장은 그대로다.
+- 키보드가 레이아웃 높이를 줄인 채 남지 않도록 네이티브 viewport에 `interactive-widget=resizes-visual`을 넣고, 키보드가 닫히면 웹뷰 frame·contentInset을 되돌린다.
+- 검사: `npm test` 625 pass / 7 skip · `npm run build` · `verify:native-n2`. iPhone 17 / iOS 27.2 `N1SmokeUITests` 2건, `N2ActivityUITests` 1건 통과. 잠금 화면 픽셀, 앱 강제 종료 후 표시, iPhone 13, iOS Supabase는 미검증.
+- [PR #46](https://github.com/h3clo/hazeflow/pull/46). 병합·Pages는 검사 후 확인.
+- 다음: Watch·원격 푸시·Dynamic Island 전용 UI·Android는 시작하지 않음.
+
 ### 2026-11-11 Cursor 자동화 · Life 날짜 알약
 
 - 선택: Life Today 날짜 알약이 항상 「오늘」이고, 숨긴 날짜 막대의 「오늘」 버튼도 쓸 수 없던 사용성 버그. 스키마·계정·Classic 전환은 그대로.
