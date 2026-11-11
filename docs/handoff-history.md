@@ -9,6 +9,7 @@
 - 공식 플러그인 조회가 시뮬레이터에서 돌아오지 않아 `HazeLocalReminderPlugin`이 `UNUserNotificationCenter`를 직접 호출한다. 앱이 열려 있을 때는 시스템 배너를 띄우지 않는다.
 - iPhone 17 / iOS 27.2: `N1SmokeUITests` 2건, `N2ActivityUITests` 3건, `testLocalRemindersStayOffWithoutAPermissionPrompt` 통과. 기본 상태는 `local-reminder:cleared:0`이고 권한 창은 없었다. `npm test` 634 pass / 7 skip.
 - 실제 배너·소리·잠금 화면 탭·시간대 변경·iPhone 13은 미검증. Watch 구현은 하지 않았고 준비만 [native-watch-prep.md](native-watch-prep.md).
+- [PR #52](https://github.com/h3clo/hazeflow/pull/52) 병합. Pages [43052476784](https://github.com/h3clo/hazeflow/actions/runs/43052476784) success.
 
 ### 2026-11-11 Cursor · Live Activity 시뮬레이터 시나리오
 
