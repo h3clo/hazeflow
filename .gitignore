@@ -28,6 +28,11 @@ qa-auth.html
 # Local-only personal data locations and handoff details
 /.private/
 
+# Never publish personal task/diary/routine seed JSON via Pages
+/public/imports/
+**/life-routine-week*.json
+haze-flow-personal-*.json
+
 # Playwright
 /test-results/
 /playwright-report/

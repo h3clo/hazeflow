@@ -46,7 +46,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **다음 시작점:** **N3 iOS 로컬 알림.** Live Activity 시뮬레이터 시나리오는 [PR #48](https://github.com/h3clo/hazeflow/pull/48) · Pages [43044391543](https://github.com/h3clo/hazeflow/actions/runs/43044391543) success. 잠금 화면 픽셀·iPhone 13·앱 강제 종료 후 배너는 미검증이며 사용자에게 확인을 요청하지 않는다. Apple Watch, 원격 푸시, Dynamic Island 전용 UI, Android는 아직 시작하지 않음.
 
-**완료 (생활 루틴 주간 할 일 JSON · 2026-11-12):** 11/13–11/19 일회성 할 일 7개 병합용 백업만 추가. 실계정·`hazeflow-v1` 미기록. 안내 [life-routine-week-2026-11.md](life-routine-week-2026-11.md) · 파일 `public/imports/life-routine-week-2026-11-13.json`. UI/루틴/알림 설정 변경 없음.
+**긴급 수정 (개인 시드 공개 제거 · 2026-11-12):** PR #50의 `public/imports` 개인 할 일 시드·관련 생성기/문서/테스트를 트리에서 삭제. Pages 재배포 후 공개 URL 미제공 확인. 규칙 [privacy-personal-data.md](privacy-personal-data.md). **실계정 기록 미삭제.** 과거 Git/PR 히스토리에는 잔존 가능(rewrite 미실시).
 
 **완료 (N2 Live Activity · 2026-11-11 · [PR #46](https://github.com/h3clo/hazeflow/pull/46) · Pages [42980778420](https://github.com/h3clo/hazeflow/actions/runs/42980778420) success):** 대표 활동 하나만을 잠금 화면 슬롯에 맞춘다. 경과 시간은 `Text(timerInterval:)` 시스템 타이머. `pushType: nil`. 웹은 네이티브 iOS가 아니면 `skipped`, 권한·오류는 `unsupported`라서 저장을 막지 않는다. iPhone 17 / iOS 27.2에서 `N1SmokeUITests` 2건과 `testLiveActivityStatusIsReportedOnLaunch` 통과. 시작·종료·동시·대표 전환·중복 방지는 JS 단위 테스트. XCUI 제스처로 입력칸까지 스크롤하지 못해 그 시나리오는 시뮬레이터 손동작으로 재현하지 않음. Actions `npm test` 통과. 스키마·실계정 미변경. **잠금 화면 픽셀·앱 강제 종료 후 표시·iPhone 13은 미검증.**
 
@@ -215,7 +215,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 - [결제 원장 중심 설계](payment-ledger-plan.md)
 - [저장·동기화](sync-reliability.md) · [실서버 동기화 QA](supabase-live-qa.md) · [네이티브 선행](native-readiness.md) · [네이티브 실행 계획](native-execution-plan.md) · [N0 검증](native-n0-verification.md) · [N1 검증](native-n1-verification.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
 - [현재 쇼핑몰 파일 가져오기(레거시)](shopping-connection.md) · [기존 영수증 대조(레거시)](receipt-reconciliation.md)
-- [소득](income-records.md) · [세금](annual-tax-records.md) · [앱](mobile-app.md) · [생활 루틴 주간 할 일](life-routine-week-2026-11.md)
+- [소득](income-records.md) · [세금](annual-tax-records.md) · [앱](mobile-app.md) · [개인 데이터 Git/배포 경계](privacy-personal-data.md)
 - [이전 인계 이력](handoff-history.md). 과거 날짜의 완료·대기 상태를 현재 지시로 재해석하지 않는다.
 
 ## 검증·배포·인계
