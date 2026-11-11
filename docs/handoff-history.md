@@ -42,6 +42,12 @@
 - 로컬 전용 커밋 `e958a41`은 `backup/local-undo-capture-end-20261111`에 보존. `origin/main`과 `app.js`·`style.css`·가이드·인계가 충돌하므로 N1에 넣지 않음.
 - 다음: **N2**. Live Activity·Watch는 시작하지 않음.
 
+### 2026-11-12 Cursor · 할 일 여러 줄 붙여넣기 (개인정보 보호)
+
+- `task-bulk-paste.js` + 할 일 화면「여러 줄 붙여넣기」: 미리보기 후 로그인 계정에만 저장, 날짜+제목 중복 건너뜀.
+- 테스트는 가상 예시·IndexedDB 네임스페이스·RLS만. 실제 개인 목표 문구·공개 JSON 없음.
+- PR #50 공개 시드 제거(PR #51) 상태 유지 · Pages 404.
+
 ### 2026-11-12 Cursor · 개인 할 일 시드 공개 제거 (긴급)
 
 - PR #50로 Pages에 올라간 개인 생활 목표 JSON·생성기·안내 문서·단위 테스트를 삭제.
