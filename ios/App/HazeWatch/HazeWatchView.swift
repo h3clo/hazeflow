@@ -13,6 +13,12 @@ struct HazeWatchView: View {
             case .checking:
                 Text("iPhone에서 활동을 확인하고 있어요")
                     .font(.footnote)
+            case .syncing:
+                Text("동기화 대기")
+            case .disconnected:
+                Text("iPhone과 연결되지 않음")
+                Text("연결되면 계정 활동을 다시 맞춥니다")
+                    .font(.footnote)
             case .empty:
                 Text("진행 중인 활동 없음")
             case .live(let title, let startedAt):

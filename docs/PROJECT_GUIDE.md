@@ -46,7 +46,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **완료 (활동 2.1 안정화 · 2026-11-12 · [PR #57](https://github.com/h3clo/hazeflow/pull/57) · Pages [43072412184](https://github.com/h3clo/hazeflow/actions/runs/43072412184) success):** 자정이 활동을 끝내지 않는다. 전날부터 진행 중인 활동은 오늘 화면에서 끝내거나 종료 시각을 고칠 수 있다. 8시간 이상은 「장시간 진행 중」으로 표시하고, 계속 진행을 고르면 그 확인을 반복하지 않는다. 날짜별 통계는 원본 기록 하나를 유지한 채 그날의 실제 분만 센다. 활동별 누적과 겹침을 뺀 실제 경과를 따로 보여 주고, 실제 경과는 하루 24시간을 넘기지 않는다. Mac에서 시작한 활동이 iPhone에 동기화되면 Watch 스냅샷도 다시 보낸다. Watch는 열릴 때 최신 상태를 요청한다. `npm test` 645 pass / 7 skip. watchOS 27.2 Series 12 46mm `HazeWatchTests` 4건·`HazeWatchUITests` 3건 통과. **실제 Watch의 WCSession 전달과 iPhone 13 재설치는 미검증.** 네이티브 변경이 있으므로 기기의 Haze Flow를 새 빌드로 다시 설치해야 Watch 수정이 적용된다.
 
-**다음 시작점:** Watch에서 활동을 시작·종료하는 기능은 별도 승인 전 착수하지 않는다. 이어서 진행이면 작업 대기열 P0의 미완료 항목부터 본다. 원격 푸시, Dynamic Island 전용 UI, Android는 시작하지 않음.
+**완료 (Watch 스냅샷 계정 경계 · 2026-11-12 · [PR #59](https://github.com/h3clo/hazeflow/pull/59)):** 계정 확인 전에는 `phase: pending`만 보내 이전 활동을 지운다. 로드·동기화·대표 활동 변경 뒤에 현재 계정의 스냅샷을 다시 보낸다. Watch는 「동기화 대기」, 「진행 중인 활동 없음」, 「iPhone과 연결되지 않음」을 구분한다. `npm test` 652 pass / 7 skip. iPhone 시뮬레이터 앱 번들 `app-DFu1dgLW.js`에 `watch-snapshot:` 확인. watchOS 27.2 Series 12 46mm `HazeWatchTests` 4건·`HazeWatchUITests` 5건 통과. **실제 iPhone·Watch의 WCSession 전달은 미검증.** 기기 시계 보정·Watch Supabase·기존 기록 수정은 하지 않음.
+
+**다음 시작점:** 실기기에는 이 웹 자산이 포함된 App 스킴 빌드를 iPhone에 설치해야 Watch에 반영된다. Watch 시작·종료, Watch Supabase, 원격 푸시, Dynamic Island 전용 UI, Android는 시작하지 않음.
 
 **완료 (Watch 1차 표시 · 2026-11-12 · [PR #55](https://github.com/h3clo/hazeflow/pull/55) · Pages [43058132216](https://github.com/h3clo/hazeflow/actions/runs/43058132216) success):** iPhone Live Activity와 같은 대표 활동 스냅샷 하나만 Watch에 보여 준다. 경과 시간은 Watch가 시작 시각으로 계산한다. 연결이 끊기면 마지막 확인 시각과 그때의 경과를 멈추고, 진행 중인 것처럼 계속 세지 않는다. 활동이 없으면 「진행 중인 활동 없음」. Watch 저장소·로그인·알림 재예약·시작/종료는 없다. 가상 제목 「연습 활동」만 테스트에 사용. watchOS 27.2 Series 12 46mm에서 `HazeWatchTests` 4건·`HazeWatchUITests` 3건 통과. iPhone 17에서 `N1SmokeUITests` 2건·`N2ActivityUITests` 3건·N3 1건 통과. `npm test` 639 pass / 7 skip. **실제 Watch, 페어링된 시뮬레이터의 WCSession 전달, iPhone 13은 미검증.** 상세 [native-watch-prep.md](native-watch-prep.md).
 
@@ -157,6 +159,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 ## 작업 대기열
 
 ### P0 · 데이터 보존·실사용 오류
+- [x] 활동 2.1 후속: 계정 로드 후 Watch 스냅샷 재전송·계정 전환 시 초기화. 시뮬레이터 빌드 번들에 웹 자산 포함 확인. **실기기 WCSession은 미검증.** Watch Supabase·시각 보정은 하지 않음.
 - [x] PR #6–#20 데이터 안정성 회귀 + 가져오기 사진 롤백(2026-11-10): PR #21 → `main` `4dcbcf7` · Pages 배포. **실기기·실계정 왕복 미검증.**
 - [ ] iPhone 신규 사진 저장/재접속/Mac 표시 실기기 확인. (웹 단위 테스트만 통과 · **실기기 미확인**)
 - [ ] iPhone ↔ Mac 활동 시작·종료·편집·충돌 및 오프라인 복귀 검증. (`tests/sync*.js` 통과 · **실기기 미확인**)

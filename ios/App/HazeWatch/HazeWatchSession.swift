@@ -51,16 +51,22 @@ final class HazeWatchModel: NSObject, ObservableObject {
         let sent = Date(timeIntervalSince1970: 1_762_905_600)
         switch mode {
         case "live":
-            message = HazeWatchMessage(active: true, title: "연습 활동", startedAt: sent.addingTimeInterval(-120), sentAt: sent)
+            message = HazeWatchMessage(active: true, title: "연습 활동", startedAt: sent.addingTimeInterval(-120), sentAt: sent, phase: "ready")
             reachable = true
         case "empty":
-            message = HazeWatchMessage(active: false, title: "", startedAt: nil, sentAt: sent)
+            message = HazeWatchMessage(active: false, title: "", startedAt: nil, sentAt: sent, phase: "ready")
             reachable = true
+        case "pending":
+            message = HazeWatchMessage(active: false, title: "", startedAt: nil, sentAt: sent, phase: "pending")
+            reachable = true
+        case "pending-offline":
+            message = HazeWatchMessage(active: false, title: "", startedAt: nil, sentAt: sent, phase: "pending")
+            reachable = false
         case "stale":
-            message = HazeWatchMessage(active: true, title: "연습 활동", startedAt: sent.addingTimeInterval(-600), sentAt: sent)
+            message = HazeWatchMessage(active: true, title: "연습 활동", startedAt: sent.addingTimeInterval(-600), sentAt: sent, phase: "ready")
             reachable = false
         case "stale-empty":
-            message = HazeWatchMessage(active: false, title: "", startedAt: nil, sentAt: sent)
+            message = HazeWatchMessage(active: false, title: "", startedAt: nil, sentAt: sent, phase: "ready")
             reachable = false
         default:
             return false
@@ -82,7 +88,7 @@ enum HazeWatchStore {
 
     static func save(_ context: [String: Any]) {
         var stored: [String: Any] = [:]
-        for key in ["active", "title", "startedAt", "sentAt"] {
+        for key in ["active", "title", "startedAt", "sentAt", "phase"] {
             if let value = context[key] { stored[key] = value }
         }
         UserDefaults.standard.set(stored, forKey: key)

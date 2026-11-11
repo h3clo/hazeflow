@@ -18,6 +18,22 @@ final class HazeWatchUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["watch-state:empty"].exists)
     }
 
+    func testSyncPendingIsNotAnEmptyActivity() {
+        let app = launch("pending")
+        XCTAssertTrue(app.staticTexts["동기화 대기"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(app.descendants(matching: .any)["watch-state:syncing"].exists)
+        XCTAssertFalse(app.staticTexts["진행 중인 활동 없음"].exists)
+        XCTAssertFalse(app.staticTexts["연습 활동"].exists)
+    }
+
+    func testDisconnectedPendingDoesNotKeepTheOldActivity() {
+        let app = launch("pending-offline")
+        XCTAssertTrue(app.staticTexts["iPhone과 연결되지 않음"].waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(app.descendants(matching: .any)["watch-state:disconnected"].exists)
+        XCTAssertFalse(app.staticTexts["진행 중인 활동 없음"].exists)
+        XCTAssertFalse(app.staticTexts["연습 활동"].exists)
+    }
+
     func testDisconnectedStateStaysLabeledAsLastSync() {
         let app = launch("stale")
         XCTAssertTrue(app.staticTexts["iPhone과 연결되지 않음"].waitForExistence(timeout: 15), app.debugDescription)

@@ -6,11 +6,14 @@ struct HazeWatchMessage: Equatable {
     var title: String
     var startedAt: Date?
     var sentAt: Date
+    var phase: String
 }
 
 enum HazeWatchPresentation: Equatable {
     case waiting
     case checking
+    case syncing
+    case disconnected
     case empty
     case live(title: String, startedAt: Date)
     case staleActivity(title: String, elapsed: String, sentAt: Date)
@@ -39,7 +42,8 @@ func hazeWatchMessage(from context: [String: Any]) -> HazeWatchMessage? {
     let active = (context["active"] as? Bool) ?? (context["active"] as? NSNumber)?.boolValue ?? false
     let title = (context["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     let startedAt = (context["startedAt"] as? String).flatMap(HazeWatchDates.parse)
-    return HazeWatchMessage(active: active, title: title, startedAt: startedAt, sentAt: sentAt)
+    let phase = (context["phase"] as? String) == "pending" ? "pending" : "ready"
+    return HazeWatchMessage(active: active, title: title, startedAt: startedAt, sentAt: sentAt, phase: phase)
 }
 
 func hazeWatchIsRefreshRequest(_ message: [String: Any]) -> Bool {
@@ -48,6 +52,7 @@ func hazeWatchIsRefreshRequest(_ message: [String: Any]) -> Bool {
 
 func hazeWatchPresentation(message: HazeWatchMessage?, reachable: Bool) -> HazeWatchPresentation {
     guard let message else { return reachable ? .checking : .waiting }
+    if message.phase == "pending" { return reachable ? .syncing : .disconnected }
     let live = message.active && !message.title.isEmpty && message.startedAt != nil
     if reachable {
         guard live, let startedAt = message.startedAt else { return .empty }
@@ -81,6 +86,8 @@ func hazeWatchStateLabel(_ presentation: HazeWatchPresentation) -> String {
     switch presentation {
     case .waiting: return "watch-state:waiting"
     case .checking: return "watch-state:checking"
+    case .syncing: return "watch-state:syncing"
+    case .disconnected: return "watch-state:disconnected"
     case .empty: return "watch-state:empty"
     case .live: return "watch-state:live"
     case .staleActivity: return "watch-state:stale"

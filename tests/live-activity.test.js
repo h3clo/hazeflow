@@ -70,7 +70,7 @@ test('겹친 동기화는 마지막 상태만 브리지에 보낸다',async()=>{
  const [earlier,later]=await Promise.all([first,second]);
  assert.equal(earlier.status,'stale');
  assert.equal(later.status,'ended');
- assert.deepEqual(calls,[{end:true}]);
+ assert.deepEqual(calls,[{phase:'ready',end:true}]);
 });
 
 test('브리지가 알려 준 활동 개수를 상태까지 전한다',async()=>{
