@@ -3,6 +3,8 @@ import {lifeCheckin,waterProgress,lifeScaleText} from './life-checkin.js';
 import {createFieldAutosave} from './autosave-fields.js';
 import {readBackupState,assertBackupIdle,assertBackupOwner,assertBackupFileSize,resolveImportMode,importCommitOutcome,withImportedPhotos} from './backup-state.js';
 import {createReminders} from './reminders-ui.js';
+import {readReminderSettings} from './foreground-reminders.js';
+import {createNativeLocalReminders} from './native-local-reminders.js';
 import {mergeDuringSave} from './record-merge.js';
 import {openSyncJournal} from './sync-journal-store.js';
 import {recordStorage} from './storage-runtime.js';
@@ -161,7 +163,10 @@ function workoutRestsSummary(l){
  const count=l.workoutRests.length;
  return `<small class="workout-rests-summary">세트 사이 휴식 ${count}회 · 평균 ${esc(formatRestClock(avg))}</small>`;
 }
-const reminders=createReminders({storage:recordStorage,getOwner:()=>key,getData:()=>data,openEditor,esc,notify,baseURL:import.meta.env.BASE_URL,navigate(nextView,nextDate){if(isDate(nextDate)){date=nextDate;view=nextView;render()}}});
+function reminderSettings(){return readReminderSettings(recordStorage.getItem(key+'-notification-settings'))}
+const nativeReminders=createNativeLocalReminders({getSettings:reminderSettings,getData:()=>data,navigate(nextView,nextDate){if(isDate(nextDate)&&['day','tasks','study'].includes(nextView)){date=nextDate;view=nextView;render()}}});
+function publishLocalReminders(){const node=document.getElementById('local-reminder-status');if(node)node.textContent='local-reminder:checking:0';nativeReminders.sync().then(result=>{if(!node||!result)return;if(!['scheduled','cleared','denied','prompt','unsupported','skipped'].includes(result.status))return;node.textContent='local-reminder:'+result.status+':'+(result.count??0)+(result.reason?':'+result.reason:'')}).catch(()=>{})}
+const reminders=createReminders({storage:recordStorage,getOwner:()=>key,getData:()=>data,openEditor,esc,notify,baseURL:import.meta.env.BASE_URL,nativeLocal:nativeReminders,navigate(nextView,nextDate){if(isDate(nextDate)){date=nextDate;view=nextView;render()}}});
 let exercisePickerRows=[];
 let exercisePickerTarget={source:'capture',logId:''};
 let workoutAppendBusy=false;
@@ -374,7 +379,7 @@ async function commit(fn,{paint=true,undo=false,message=''}={}){
  if(accountLoading){notify('로그인과 기록을 확인하고 있어요. 잠시 후 다시 저장해주세요.');return false}
  if(recovery){notify('저장된 기록을 읽지 못해요. 원본을 내보낸 뒤 복원해주세요.');return false}
  const owner=key;let before,serialized;
- try{await recordStorage.update(owner,raw=>{const latest=raw?validateBackup(JSON.parse(raw)):emptyState();before=structuredClone(latest);fn(latest);validateBackup(latest);serialized=JSON.stringify(latest);return serialized});if(owner!==key)return true;data=validateBackup(JSON.parse(serialized));account?.changed();if(undo)undoState={before,after:serialized};if(paint)await render();if(message)notify(message,undo);publishLiveActivity();return true}catch(e){const message=e.message||'저장하지 못했어요. 기록은 그대로 유지했어요.',inline=document.querySelector('dialog[open] #form-error');if(inline)inline.textContent=message;else notify(message);return false}
+ try{await recordStorage.update(owner,raw=>{const latest=raw?validateBackup(JSON.parse(raw)):emptyState();before=structuredClone(latest);fn(latest);validateBackup(latest);serialized=JSON.stringify(latest);return serialized});if(owner!==key)return true;data=validateBackup(JSON.parse(serialized));account?.changed();if(undo)undoState={before,after:serialized};if(paint)await render();if(message)notify(message,undo);publishLiveActivity();publishLocalReminders();return true}catch(e){const message=e.message||'저장하지 못했어요. 기록은 그대로 유지했어요.',inline=document.querySelector('dialog[open] #form-error');if(inline)inline.textContent=message;else notify(message);return false}
 }
 const fieldAutosaves=new WeakMap();
 async function render(){
@@ -1071,7 +1076,7 @@ function hasGuest(){try{const raw=recordStorage.getItem(guestKey);if(!raw)return
 async function importGuest(){if(!account?.userId())return;const targetKey=key,targetStore=photoStore,source=validateBackup(JSON.parse(recordStorage.getItem(guestKey)||'null')),sourceStore=makePhotoStore(guestKey+'-photos'),photos=[];for(const ref of collectPhotoRefs(source)){const blob=await sourceStore.get(ref.id);if(!blob)throw Error('기기 기록에 없는 사진이 있어요. 사진이 포함된 JSON 백업을 불러와주세요.');photos.push([ref.id,blob])}if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');await withImportedPhotos(targetStore,photos,async keep=>{if(key!==targetKey)throw Error('계정이 바뀌어 가져오기를 중단했어요.');if(!await commit(d=>Object.assign(d,mergeBackup(d,source)),{undo:true,message:'기기 기록을 내 계정에 복사했어요.'}))throw Error('기기 기록을 가져오지 못했어요.');keep()})}
 async function bootAccount(){if(accountLoading)return;accountLoading=true;const button=$('#account-button');button.disabled=true;button.textContent='로그인 확인 중';button.onclick=null;try{const {createAccount}=await import('./account.js');account=createAccount({config:cloudConfig(import.meta.env),sandbox,esc,switchAccount,getContext:cloudContext,importGuest,hasGuest,notify});await account.start()}catch{notify('계정 연결을 확인하지 못했어요. 기기 기록은 그대로 남아 있어요.');if(!account){button.textContent='로그인 다시 확인';button.onclick=bootAccount}}finally{button.disabled=false;accountLoading=false}}
 const accountReady=bootAccount();
-accountReady.then(()=>reminders.tick());setInterval(()=>reminders.tick(),15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)reminders.tick()});
+accountReady.then(()=>reminders.tick());setInterval(()=>reminders.tick(),15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){reminders.tick();publishLocalReminders()}});
 const localImportSeen=new Set();window.addEventListener('message',async event=>{const payload=localImportPayload(event,{opener:window.opener,enabled:params.get('import')==='local'});if(!payload||localImportSeen.has(payload.token))return;localImportSeen.add(payload.token);try{await accountReady;if(!account?.userId())throw Error('가져올 계정에 먼저 로그인해주세요. 로그인 후 전달 페이지에서 다시 보내주세요.');if(document.querySelector('dialog[open]'))throw Error('열린 창을 닫고 전달 페이지에서 다시 보내주세요.');if(payload.kind==='tax-payment'){view='income';await render();await taxPaymentFlow.openImport(payload.csv)}else if(payload.kind==='tax'){view='income';await render();await taxFlow.openImport(payload.csv)}else if(payload.kind==='income'){view='income';await render();await incomeFlow.openImport(payload.csv)}else{parseMoneyCSV(payload.csv,todayKey());view='money';await render();await moneyImportEditor();$('#money-csv').value=payload.csv;moneyImportPreview()}event.source.postMessage({type:'hazeflow-local-csv-received',token:payload.token},event.origin);notify('로컬 파일을 읽었어요. 계정과 중복 제외 건수를 확인한 뒤 가져오세요.')}catch(error){localImportSeen.delete(payload.token);notify(error.message)}});
 
 
@@ -1099,8 +1104,9 @@ window.addEventListener('popstate',async ()=>{whiteboardMode=boardHashes.include
 
 setInterval(async ()=>{if(view==='assets'&&!document.hidden)await refreshQuotes()},30000);
 
-setupNative({onUrl:async url=>{await accountReady;await account?.handleAuthUrl(url)},onResume:()=>{account?.resume();publishLiveActivity()},onPause:()=>account?.pause(),getBackState:()=>({dialogOpen:!!document.querySelector('dialog[open]'),whiteboard:view==='tasks'&&whiteboardMode,view}),async onBack(action){if(action==='close-dialog')document.querySelector('dialog[open]')?.close();else if(action==='leave-board'){whiteboardMode=false;await render()}else{view='day';await render()}},onError:()=>notify('앱 상태 연결을 확인하지 못했어요. 기록은 기기에 저장돼요.')});
+setupNative({onUrl:async url=>{await accountReady;await account?.handleAuthUrl(url)},onResume:()=>{account?.resume();publishLiveActivity();publishLocalReminders()},onPause:()=>account?.pause(),getBackState:()=>({dialogOpen:!!document.querySelector('dialog[open]'),whiteboard:view==='tasks'&&whiteboardMode,view}),async onBack(action){if(action==='close-dialog')document.querySelector('dialog[open]')?.close();else if(action==='leave-board'){whiteboardMode=false;await render()}else{view='day';await render()}},onError:()=>notify('앱 상태 연결을 확인하지 못했어요. 기록은 기기에 저장돼요.')});
 publishLiveActivity();
+publishLocalReminders();
 
 installSelectUI();
 

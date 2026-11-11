@@ -8,6 +8,7 @@ class HazeBridgeViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(HazeLiveActivityPlugin())
+        bridge?.registerPluginInstance(HazeLocalReminderPlugin())
         hideScrollEdgeLine()
     }
 

@@ -2,6 +2,14 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-12 Cursor · N3 iOS 로컬 알림
+
+- 기존 알림 설정이 꺼져 있으면 예약하지 않는다. 켠 일정·할 일·루틴·복습만 앞으로 7일, 최대 60건을 한 번만 예약한다. 활동 시작은 대상이 아니다.
+- 권한은 알림 화면의 기기 알림 허용에서만 요청한다. 저장·재실행·화면 복귀 때 예약을 다시 맞추고, 끄면 우리 예약만 취소한다. 탭하면 기존 `day`/`tasks`/`study` 날짜로 이동한다.
+- 공식 플러그인 조회가 시뮬레이터에서 돌아오지 않아 `HazeLocalReminderPlugin`이 `UNUserNotificationCenter`를 직접 호출한다. 앱이 열려 있을 때는 시스템 배너를 띄우지 않는다.
+- iPhone 17 / iOS 27.2: `N1SmokeUITests` 2건, `N2ActivityUITests` 3건, `testLocalRemindersStayOffWithoutAPermissionPrompt` 통과. 기본 상태는 `local-reminder:cleared:0`이고 권한 창은 없었다. `npm test` 634 pass / 7 skip.
+- 실제 배너·소리·잠금 화면 탭·시간대 변경·iPhone 13은 미검증. Watch 구현은 하지 않았고 준비만 [native-watch-prep.md](native-watch-prep.md).
+
 ### 2026-11-11 Cursor · Live Activity 시뮬레이터 시나리오
 
 - 디버그 빌드에서만 `HAZE_N2_FIXTURE`가 실제 활동 저장·대표 변경·종료를 호출한다. 상태는 `live-activity:{status}:{recordId}:{count}`.
