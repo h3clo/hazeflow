@@ -21,8 +21,10 @@
 		E2A100082FE993A70072D402 /* HazeActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A100012FE993A70072D401 /* HazeActivityAttributes.swift */; };
 		E2A100092FE993A70072D401 /* HazeLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A100022FE993A70072D401 /* HazeLiveActivityWidget.swift */; };
 		E2A1000A2FE993A70072D401 /* HazeLiveActivityPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A100032FE993A70072D401 /* HazeLiveActivityPlugin.swift */; };
+		E2A1001D2FE993A70072D403 /* HazeLocalReminderPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1001C2FE993A70072D403 /* HazeLocalReminderPlugin.swift */; };
 		E2A1000C2FE993A70072D401 /* HazeLiveActivity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E2A100062FE993A70072D401 /* HazeLiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E2A1000E2FE993A70072D401 /* N2ActivityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1000D2FE993A70072D401 /* N2ActivityUITests.swift */; };
+		E2A1001B2FE993A70072D402 /* N3NotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1001A2FE993A70072D402 /* N3NotificationUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,9 +77,11 @@
 		E2A100012FE993A70072D401 /* HazeActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeActivityAttributes.swift; sourceTree = "<group>"; };
 		E2A100022FE993A70072D401 /* HazeLiveActivityWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeLiveActivityWidget.swift; sourceTree = "<group>"; };
 		E2A100032FE993A70072D401 /* HazeLiveActivityPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeLiveActivityPlugin.swift; sourceTree = "<group>"; };
+		E2A1001C2FE993A70072D403 /* HazeLocalReminderPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HazeLocalReminderPlugin.swift; sourceTree = "<group>"; };
 		E2A100052FE993A70072D401 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E2A100062FE993A70072D401 /* HazeLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HazeLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2A1000D2FE993A70072D401 /* N2ActivityUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = N2ActivityUITests.swift; sourceTree = "<group>"; };
+		E2A1001A2FE993A70072D402 /* N3NotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = N3NotificationUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +136,7 @@
 			children = (
 				9582B6822FE993A50072D4E8 /* SceneDelegate.swift */,
 				E2A100032FE993A70072D401 /* HazeLiveActivityPlugin.swift */,
+				E2A1001C2FE993A70072D403 /* HazeLocalReminderPlugin.swift */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -149,6 +154,7 @@
 			children = (
 				A11A5A0CE000000000000001 /* N1SmokeUITests.swift */,
 				E2A1000D2FE993A70072D401 /* N2ActivityUITests.swift */,
+				E2A1001A2FE993A70072D402 /* N3NotificationUITests.swift */,
 			);
 			path = N1SmokeUITests;
 			sourceTree = "<group>";
@@ -311,6 +317,7 @@
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 				E2A1000A2FE993A70072D401 /* HazeLiveActivityPlugin.swift in Sources */,
+				E2A1001D2FE993A70072D403 /* HazeLocalReminderPlugin.swift in Sources */,
 				E2A100072FE993A70072D401 /* HazeActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -321,6 +328,7 @@
 			files = (
 				A11A5A0CE000000000000003 /* N1SmokeUITests.swift in Sources */,
 				E2A1000E2FE993A70072D401 /* N2ActivityUITests.swift in Sources */,
+				E2A1001B2FE993A70072D402 /* N3NotificationUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
