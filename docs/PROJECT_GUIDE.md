@@ -46,9 +46,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **다음 시작점:** **N2 iOS 활동 QA.** N1 시뮬레이터 스모크는 통과. **Live Activity·Watch UI·Android 기능·DeX 구현은 아직 시작하지 않음.** QA 로그인·동기화는 자격 증명 파일이 없어 미검증. 상세 [native-n1-verification.md](native-n1-verification.md).
 
-**진행 중 (실 iPhone 셸 · 2026-11-11 · [PR #44](https://github.com/h3clo/hazeflow/pull/44) 병합):** iPhone 17 시뮬레이터 iOS 27.2에서 `N1SmokeUITests` 2건 통과. **핀치 확대·축소, 화면 잠금, 실기기 스크롤 손동작은 미검증.** QA 자격 증명 파일 없음 → iOS 로그인·동기화 미실행. Live Activities는 [계획만](native-live-activity-plan.md).
+**완료 (실 iPhone 셸 · 2026-11-11 · [PR #44](https://github.com/h3clo/hazeflow/pull/44) · Pages [42973323039](https://github.com/h3clo/hazeflow/actions/runs/42973323039) success):** iPhone 17 시뮬레이터 iOS 27.2에서 `N1SmokeUITests` 2건 통과. **핀치 확대·축소, 화면 잠금, 실기기 스크롤 손동작은 미검증.** QA 자격 증명 파일 없음 → iOS 로그인·동기화 미실행. Live Activities는 [계획만](native-live-activity-plan.md).
 
-**진행 (Life 날짜 알약 · 2026-11-11 · PR #42, main 충돌 해소):** 오늘이 아니면 알약에 그 날짜와 `오늘로 이동`. 820px 이하에서 하단 바. Classic 날짜 막대 유지. 이전 sandbox `life-date-pill` 1280·768·375·다크는 충돌 전 결과이고, 충돌 해소 후 단위 테스트만 다시 실행한다.
+**완료 (Life 날짜 알약 · 2026-11-11 · [PR #42](https://github.com/h3clo/hazeflow/pull/42) · Pages [42973499894](https://github.com/h3clo/hazeflow/actions/runs/42973499894) success):** 오늘이 아니면 알약에 그 날짜와 `오늘로 이동`. 820px 이하에서 하단 바. main 충돌은 문서뿐이고 해소 후 `npm test` 616 pass / 7 skip. 화면 확인은 충돌 전 sandbox `life-date-pill`. Classic 날짜 막대 유지.
 
 **완료 (N1 iOS 시뮬레이터 스모크 · 2026-11-11 · PR #43):** Xcode 27.2 · iPhone 17 · iOS 27.2. `xcodebuild` **BUILD SUCCEEDED** · `N1SmokeUITests` **passed** (오늘/계획/기록/돈 관리/돌아보기, 로그인 폼만, `N1simcheck` 저장 후 재실행 유지). `npm test` **613 pass / 7 skip** · `npm run build` · `diff --check`. 서명 신원 0 · `DEVELOPMENT_TEAM` 없음 · 시뮬레이터는 `CODE_SIGNING_ALLOWED=NO`. **실 iPhone 미설치. QA 계정 로그인·동기화 미실행.** 웹앱·실사용 Supabase 미변경. Live Activity·Watch 미착수.
 
