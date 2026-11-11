@@ -469,3 +469,12 @@ html[data-ui-design=life] .life-grid,
  .life-feature{min-height:100px;margin-inline:8px}
  .life-tile,.life-capture-submit{min-height:44px}
 }
+
+/* Phone app: the page itself does not scroll, so the tabs stay put and the status bar does not steal taps. */
+@media(max-width:760px){
+ html.native-app{position:fixed;inset:0;overflow:hidden;background:var(--life-bg,var(--page))}
+ html.native-app body.native-app{display:flex;flex-direction:column;height:100%;overflow:hidden;padding:0;background:var(--life-bg,var(--page))}
+ html.native-app body.native-app>main{flex:1 1 auto;min-height:0;margin:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + var(--ongoing-bar-h,0px))}
+ html.native-app body.native-app>aside{position:relative;inset:auto;order:2;flex:0 0 auto;width:100%;z-index:6;padding-bottom:max(6px,env(safe-area-inset-bottom,0px))}
+ html.native-app body.native-app.whiteboard-mode>main{min-height:0}
+}

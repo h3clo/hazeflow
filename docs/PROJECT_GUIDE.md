@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** **N2 iOS 활동 QA.** N1 시뮬레이터 스모크는 통과. **Live Activity·Watch UI·Android 기능·DeX 구현은 아직 시작하지 않음.** 실 iPhone 설치는 Xcode에 Apple ID(Personal Team)가 필요. QA 로그인·동기화는 자격 증명 파일이 없어 미검증. 상세 [native-n1-verification.md](native-n1-verification.md).
+**다음 시작점:** **N2 iOS 활동 QA.** N1 시뮬레이터 스모크는 통과. **Live Activity·Watch UI·Android 기능·DeX 구현은 아직 시작하지 않음.** QA 로그인·동기화는 자격 증명 파일이 없어 미검증. 상세 [native-n1-verification.md](native-n1-verification.md).
+
+**진행 중 (실 iPhone 셸 · 2026-11-11 · PR만, 미병합):** 흔들리던 `100dvh` 중첩 스크롤을 제거. 내용은 한 칸만 스크롤하고 하단 탭은 그 밖에 둠. 상단 버튼은 상태바 아래 `safe-area-inset-top`. 상태바 구분선은 iOS 26 scroll edge effect를 숨김. 입력 16px·핀치 확대 유지. iPhone 13에 설치해 정지 화면을 확인. 스크롤 제스처는 폰에서 직접 재확인하지 않음. Pages 배포 없음.
 
 **완료 (N1 iOS 시뮬레이터 스모크 · 2026-11-11 · PR #43):** Xcode 27.2 · iPhone 17 · iOS 27.2. `xcodebuild` **BUILD SUCCEEDED** · `N1SmokeUITests` **passed** (오늘/계획/기록/돈 관리/돌아보기, 로그인 폼만, `N1simcheck` 저장 후 재실행 유지). `npm test` **613 pass / 7 skip** · `npm run build` · `diff --check`. 서명 신원 0 · `DEVELOPMENT_TEAM` 없음 · 시뮬레이터는 `CODE_SIGNING_ALLOWED=NO`. **실 iPhone 미설치. QA 계정 로그인·동기화 미실행.** 웹앱·실사용 Supabase 미변경. Live Activity·Watch 미착수.
 

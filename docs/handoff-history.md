@@ -2,6 +2,12 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-11 Cursor · 실 iPhone 셸 (하단 탭·상태바·확대)
+
+- 하단 탭은 폰 너비에서 스크롤 컨테이너 밖(`body>aside`, `position:relative`). 상태바는 `contentInset: never`, `viewport-fit=cover`, iOS 26 scroll edge effect 숨김. 네이티브 입력은 16px, `ios.zoomEnabled`로 핀치 확대·축소.
+- PR만 열고 병합하지 않음. 웹 Pages 배포·실계정 데이터 변경 없음. iPhone 13 정지 화면은 확인. 스크롤 제스처는 미확인.
+- 다음: **N2**. Live Activity·Watch는 시작하지 않음.
+
 ### 2026-11-11 Cursor · N1 iOS 시뮬레이터 스모크
 
 - 브랜치 `cursor/native-n1-ios-smoke` · PR #43. Xcode 27.2는 `DEVELOPER_DIR`로만 사용. `xcode-select`는 Command Line Tools 유지.
