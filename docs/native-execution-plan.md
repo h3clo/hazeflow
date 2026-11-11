@@ -17,7 +17,7 @@
 | **Samsung DeX?** | **웹(PWA/브라우저) 우선.** DeX 전용 앱·플랫폼 분기 **금지.** Android 네이티브는 DeX에서도 실행 가능하나, DeX 데스크 사용의 기본 경로는 웹. |
 | 웹 재사용? | **도메인·동기화·UI 대부분 재사용.** Live Activity / 지속 알림 / Watch UI만 네이티브. |
 | N0 환경 검증? | **부분 완료** — Linux에서 `build:app`+`cap sync`+구조 검증 통과. **iOS 시뮬/실기기 컴파일은 사용자 Mac 대기.** 상세 [native-n0-verification.md](native-n0-verification.md). |
-| 지금 기능 구현? | N1 시뮬레이터 스모크는 2026-11-11 통과. Live Activity 첫 구현은 `cursor/ios-live-activity`. Watch·원격 푸시·Android는 아직. |
+| 지금 기능 구현? | N1 시뮬레이터 스모크는 2026-11-11 통과. Live Activity 첫 구현은 [PR #46](https://github.com/h3clo/hazeflow/pull/46). Watch·원격 푸시·Android는 아직. |
 | 유료 필수? | **개인 기기 디버그 설치는 무료 Personal Team으로 가능(7일 재설치).** Push·TestFlight·스토어·일부 entitlement는 **유료 Apple Developer Program(~$/년)** 필요. Google Play 게시는 별도. |
 
 ---
