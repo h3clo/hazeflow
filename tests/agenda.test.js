@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {emptyState,setRoutineVersion,routineAction,eventAction} from '../domain.js';
-import {buildDayAgenda} from '../agenda.js';
+import {buildDayAgenda,visibleDayRecords} from '../agenda.js';
 const date='2026-10-31';
 const event=(id,start)=>({id,date,start,end:start.slice(0,3)+'59',title:id,status:'planned'});
 const log=(id,time,extra={})=>({id,date,time,kind:'식사',text:id,...extra});
@@ -20,3 +20,36 @@ test('화목 18시 루틴을 미리 시작해도 계획 시각을 유지하고 �
  routineAction(d,day,'early','done',null,'17:00');assert.equal(d.routineRuns[day].early.endedAt,'17:00');assert.equal(d.logs[0].time,'17:00');
 });
 test('일정도 예정 시간 전에 시작하면 실제 시간만 따로 남긴다',()=>{const d=emptyState();d.events=[event('early','18:00')];eventAction(d,'early','doing','16:30');assert.equal(d.events[0].start,'18:00');assert.equal(d.events[0].actualStart,'16:30');assert.equal(d.logs[0].time,'16:30')});
+
+test('오늘 시간표는 어제 시작한 진행 중 활동을 위에 두고 원본은 바꾸지 않는다',()=>{
+ const today='2026-11-12',now=new Date('2026-11-12T09:30:00');
+ const d=emptyState();
+ d.logs=[
+  {id:'night',date:'2026-11-11',time:'23:10',kind:'일상',text:'밤 작업',activityTiming:'independent'},
+  {id:'done',date:'2026-11-11',time:'21:00',endDate:'2026-11-11',endTime:'22:00',kind:'일상',text:'끝난 일',activityTiming:'independent'},
+  {id:'memo',date:'2026-11-11',time:'23:40',kind:'일상',text:'짧은 메모',memo:true,activityTiming:'independent'},
+  {id:'morning',date:today,time:'08:05',kind:'식사',text:'아침',activityTiming:'independent'}
+ ];
+ d.events=[{id:'plan',date:today,start:'09:00',end:'09:30',title:'일정',status:'planned'}];
+ const before=structuredClone(d);
+ const agenda=buildDayAgenda(d,today,now);
+ assert.deepEqual(agenda.carried.map(item=>item.id),['night']);
+ assert.equal(agenda.carried[0].record.date,'2026-11-11');
+ assert.equal(agenda.timed.some(item=>item.id==='night'),false);
+ assert.deepEqual(agenda.timed.map(item=>item.id),['morning','plan']);
+ assert.deepEqual(visibleDayRecords(d,today,now).map(l=>l.id),['night','morning']);
+ assert.deepEqual(buildDayAgenda(d,'2026-11-11',now).carried,[]);
+ assert.deepEqual(d,before);
+});
+
+test('다음 기록이 끝낸 예전 방식 활동은 오늘로 끌어오지 않는다',()=>{
+ const today='2026-11-12',now=new Date('2026-11-12T09:30:00');
+ const d=emptyState();
+ d.logs=[
+  {id:'legacy',date:'2026-11-11',time:'23:10',kind:'일상',text:'예전 기록'},
+  {id:'next',date:today,time:'08:00',kind:'일상',text:'다음 기록'}
+ ];
+ const agenda=buildDayAgenda(d,today,now);
+ assert.deepEqual(agenda.carried,[]);
+ assert.deepEqual(visibleDayRecords(d,today,now).map(l=>l.id),['next']);
+});

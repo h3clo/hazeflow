@@ -69,7 +69,7 @@ import {shouldConfirmOngoingStart,resolveOngoingEndChoices,applyOngoingEnds,capt
 import {readPrimaryActivityId,resolvePrimaryActivity,readDeviceId,setPrimaryPreference,mirrorPrimaryPreference,primaryIdFromState} from './activity-primary.js';
 import {syncLiveActivity,listenForLiveActivityRefresh} from './live-activity.js';
 import {captureModeForShortcut,captureSubmitLabel} from './capture-shortcuts.js';
-import {buildDayAgenda} from './agenda.js';
+import {buildDayAgenda,visibleDayRecords as dayVisibleRecords} from './agenda.js';
 import {createToast} from './toast.js';
 import {cloudConfig} from './cloud-config.js';
 import {monthBefore,shiftDate,weekStart,templateEntry,saveWeeklyReview} from './insights.js';
@@ -475,7 +475,7 @@ function liveWorkoutSessionCard(l){
 }
 function durationLabel(minutes){const n=Math.max(0,minutes|0),h=Math.floor(n/60),m=n%60;if(h&&m)return h+'시간 '+m+'분';if(h)return h+'시간';return m+'분'}
 function dayTimeSummary(now=new Date()){const stats=dayActivityStats(activityIntervals(data,now),date,now);if(!stats.sumMinutes)return '';return `<span>활동별 누적 <b>${durationLabel(stats.sumMinutes)}</b></span><span>실제 경과 <b>${durationLabel(stats.elapsedMinutes)}</b></span>`}
-function visibleDayRecords(now=new Date()){const own=recordsForDate(data,date);if(date!==todayKey(now))return own;const ids=new Set(own.map(l=>l.id));const carried=ongoingActivityLogs(now).filter(l=>!ids.has(l.id)&&!l.sourceId);return [...carried,...own].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')||a.id.localeCompare(b.id))}
+function visibleDayRecords(now=new Date()){return dayVisibleRecords(data,date,now)}
 function longRunNote(l,interval){if(!isLongRunning(interval))return '';const ask=longRunNeedsConfirm(l,interval);return `<div class="long-run-note"><span class="ongoing-badge"><i></i>장시간 진행 중</span>${ask?`<span class="row-actions">${btn('계속 진행','ack-long-run',l.id,'small-button')}${btn('종료 시각 수정','edit-log',l.id,'small-button')}</span><small>8시간을 넘겼어요. 기록은 그대로 두고, 원하면 종료 시각만 고쳐요.</small>`:''}</div>`}
 function ongoingFinishBar(){
  if(view!=='day'||date!==todayKey())return '';
@@ -518,11 +518,12 @@ function agendaItem(item,intervals,liveWorkoutId=''){
  return `<div class="agenda-entry ${item.type==='activity'?'actual-entry':'planned-entry'}" ${isTime(item.time)?`data-agenda-time="${item.time}"`:''} data-agenda-type="${item.type}" data-agenda-id="${esc(item.id)}"><time>${isTime(item.time)?(item.record?.timeEstimated?'약 ':'')+item.time:'—'}</time><div>${html}</div></div>`;
 }
 function dayAgenda(){
- const intervals=activityIntervals(data),{timed,unscheduledPlans,untimedRecords}=buildDayAgenda(data,date),hasItems=timed.length||unscheduledPlans.length||untimedRecords.length;
+ const intervals=activityIntervals(data),{timed,unscheduledPlans,untimedRecords,carried}=buildDayAgenda(data,date),hasItems=timed.length||unscheduledPlans.length||untimedRecords.length||carried.length;
  const liveWorkoutId=date===todayKey()?ongoingWorkoutSession()?.id||'':'';
  const now=date===todayKey()?`<div class="agenda-now"><time>${timeNow()}</time><span></span></div>`:'';let inserted=false;
  const rows=timed.map(item=>{const line=now&&!inserted&&item.time>timeNow()?(inserted=true,now):'';return line+agendaItem(item,intervals,liveWorkoutId)}).join('');
- return `<div class="day-agenda"><div class="agenda-legend"><span>계획</span><span class="actual-legend">실제 활동</span></div>${!hasItems?empty('계획한 일정과 실제 활동을 시간순으로 함께 볼 수 있어요.'):''}<div class="agenda-timed">${rows}${now&&!inserted?now:''}</div>${unscheduledPlans.length?`<section class="agenda-untimed"><h3>시간 미정 계획</h3>${unscheduledPlans.map(item=>agendaItem(item,intervals,liveWorkoutId)).join('')}</section>`:''}${untimedRecords.length?`<section class="agenda-untimed"><h3>시간 미기록</h3><p>시간을 적지 않은 실제 활동이에요.</p>${untimedRecords.map(item=>agendaItem(item,intervals,liveWorkoutId)).join('')}</section>`:''}</div>`;
+ const carriedSection=carried.length?`<section class="agenda-untimed agenda-carried" aria-label="이어지는 활동"><h3>이어지는 활동</h3><p class="hint">이전 날짜에 시작해 아직 끝나지 않았어요. 기록은 시작 날짜에 그대로 있어요.</p>${carried.map(item=>agendaItem(item,intervals,liveWorkoutId)).join('')}</section>`:'';
+ return `<div class="day-agenda"><div class="agenda-legend"><span>계획</span><span class="actual-legend">실제 활동</span></div>${!hasItems?empty('계획한 일정과 실제 활동을 시간순으로 함께 볼 수 있어요.'):''}${carriedSection}<div class="agenda-timed">${rows}${now&&!inserted?now:''}</div>${unscheduledPlans.length?`<section class="agenda-untimed"><h3>시간 미정 계획</h3>${unscheduledPlans.map(item=>agendaItem(item,intervals,liveWorkoutId)).join('')}</section>`:''}${untimedRecords.length?`<section class="agenda-untimed"><h3>시간 미기록</h3><p>시간을 적지 않은 실제 활동이에요.</p>${untimedRecords.map(item=>agendaItem(item,intervals,liveWorkoutId)).join('')}</section>`:''}</div>`;
 }
 function activityRecordList(records){return `<details class="card activity-record-list" data-count="${records.length}" ${activityListOpen?'open':''}><summary><span>활동 기록</span><small>${records.length}건 · ${activityListOpen?'접기':'펼치기'}</small></summary><div class="card-body"><p class="activity-records-hint">시간표에 표시한 실제 활동의 원본 기록이에요.${records.length>8?' 최근 8개를 표시해요.':''}</p>${recordRows(records.slice(-8).reverse())}<div class="row-actions">${btn('전체 기록 보기','view-history','','text-link')}</div></div></details>`}
 function weekActivityStrip(){const days=weekTimeline(data,date,todayKey());const marked=days.filter(d=>!d.future&&(d.activity||d.diary||d.photos)).length;return `<div class="dashboard-week"><div class="row dashboard-week-head"><details class="dashboard-week-fold"><summary>이번 주 돌아보기 · ${marked}일 기록</summary><div class="week-memory-days">${days.map((d,i)=>{const labels=[d.activity?'활동':'',d.diary?'일기':'',d.photos?'사진':''].filter(Boolean);return `<button type="button" data-act="open-day" data-id="${d.date}" class="${d.date===date?'selected-day':''}" aria-label="${d.date} ${d.future?'예정':labels.join('·')||'기록 없음'}"><small>${['월','화','수','목','금','토','일'][i]}</small><strong>${Number(d.date.slice(8))}</strong><span class="memory-marks">${d.future?'<small>예정</small>':labels.map(label=>`<i class="memory-${label}" title="${label}">${label}</i>`).join('')||'<small>—</small>'}</span></button>`}).join('')}</div><p class="hint">활동·일기·사진이 있는 날을 표시해요. 날짜를 눌러 다시 볼 수 있어요.</p></details>${btn('주간 회고 →','view-review','','text-link')}</div></div>`}
@@ -568,14 +569,16 @@ function lifeFeatureCard(liveWorkout,records){
  }
  if(latest){
   const line=(latest.text||'').split('\n')[0].slice(0,42)||recordKindLabel(latest.kind);
-  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>${esc(recordKindLabel(latest.kind))}${latest.time?' · '+esc(latest.time):''}</small><strong>${esc(line)}</strong><p>${latest.photos?.length?`사진 ${latest.photos.length}장 · `:''}오늘 남긴 기록이에요.</p></div></article>`;
+  const earlier=latest.date&&latest.date!==date;
+  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>${esc(recordKindLabel(latest.kind))}${earlier?' · '+esc(latest.date):''}${latest.time?' · '+esc(latest.time):''}</small><strong>${esc(line)}</strong><p>${latest.photos?.length?`사진 ${latest.photos.length}장 · `:''}${earlier?esc(latest.date)+'부터 이어지는 기록이에요.':'오늘 남긴 기록이에요.'}</p></div></article>`;
  }
  return `<article class="life-feature" style="${lifeBgStyle('activity-hero.jpg')}"><div class="life-feature-copy"><small>활동 기록</small><strong>지금 하고 있는 일을 남겨보세요</strong><p>한 줄로 시작하고, 자세한 설정은 아래에서 열어요.</p></div></article>`;
 }
 function lifeTimeline(records){
  const rows=records.slice(-5).reverse();
  if(!rows.length)return `<p class="life-empty">아직 실제 활동 기록이 없어요.</p>`;
- return `<div class="life-timeline">${rows.map(l=>{const line=(l.text||'').split('\n')[0].slice(0,72)||'내용 없는 기록';return `<article class="life-timeline-item"><time>${esc(l.time||'—')}</time><div><span class="life-chip">${esc(recordKindLabel(l.kind))}${l.photos?.length?' · 사진':''}</span><p>${esc(line)}</p></div></article>`}).join('')}</div><div class="life-inline-links">${btn('전체 기록 보기','view-history','','text-link')}</div>`;
+ const intervals=activityIntervals(data);
+ return `<div class="life-timeline">${rows.map(l=>{const line=(l.text||'').split('\n')[0].slice(0,72)||'내용 없는 기록';const ongoing=!!intervals.get(l.id)?.ongoing;const started=l.date&&l.date!==date?` · ${esc(l.date.slice(5))} 시작`:'';return `<article class="life-timeline-item"><time>${esc(l.time||'—')}</time><div><span class="life-chip">${esc(recordKindLabel(l.kind))}${started}${ongoing?' · 진행 중':''}${l.photos?.length?' · 사진':''}</span><p>${esc(line)}</p></div></article>`}).join('')}</div><div class="life-inline-links">${btn('전체 기록 보기','view-history','','text-link')}</div>`;
 }
 function lifeRoutinePanel(routines){
  if(!routines.length)return `<p class="life-empty">반복할 생활을 한 번 설정해두세요.</p>${btn('루틴 설정','view-routines','','life-soft-btn')}`;

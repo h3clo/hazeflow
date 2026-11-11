@@ -308,3 +308,6 @@ form[data-form="search"].inline-form input{width:100%;min-width:0;margin:0}
 
 .task-bulk-preview-list{margin:.75rem 0 0;padding-left:1.2rem;display:grid;gap:.35rem}
 .task-bulk-preview-list time{font-variant-numeric:tabular-nums;margin-right:.35rem}
+.day-agenda>.agenda-carried{margin-top:0;border-top:0;padding-top:0}
+.agenda-activity-header{flex-wrap:wrap;align-items:flex-start}
+.agenda-activity-header>small{flex:1 1 auto;min-width:min(100%,14em)}
