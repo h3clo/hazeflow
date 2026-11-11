@@ -20,6 +20,7 @@
     "app:android": "cap open android",
     "verify:native-n0": "node scripts/verify-native-n0.mjs",
     "verify:native-n1": "node scripts/verify-native-n1.mjs",
+    "verify:native-n2": "node scripts/verify-native-n2.mjs",
     "toss:local": "node server/toss-server.mjs",
     "toss:publish": "node server/toss-publisher.mjs --once",
     "toss:background": "node scripts/install-toss-agent.mjs"

@@ -39,10 +39,12 @@ final class N1SmokeUITests: XCTestCase {
         field.typeText(marker)
         let done = app.buttons["Done"]
         if done.waitForExistence(timeout: 2) { done.tap() }
+        dismissKeyboard(in: app)
         tapFirst(["짧은 기록 저장", "활동 시작"], in: app)
+        let keep = app.buttons["선택대로 새 활동 시작"]
+        if keep.waitForExistence(timeout: 3), keep.isHittable { keep.tap() }
 
-        let saved = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", marker)).firstMatch
-        XCTAssertTrue(saved.waitForExistence(timeout: 15), app.debugDescription)
+        XCTAssertTrue(waitUntilRecorded(in: app), "입력칸이 비워지고 화면에 기록이 남아야 해요. field=\(app.textViews["지금 뭐 하고 있어?"].value ?? "")")
 
         app.terminate()
         app.launch()
@@ -79,12 +81,12 @@ final class N1SmokeUITests: XCTestCase {
             app.swipeUp()
             attempts += 1
         }
-        if field.waitForExistence(timeout: 4) {
+        if field.waitForExistence(timeout: 4), field.isHittable {
             field.tap()
             let keyboard = app.keyboards.firstMatch
-            let done = app.buttons["Done"]
-            XCTAssertTrue(keyboard.waitForExistence(timeout: 5) || done.waitForExistence(timeout: 2), "키보드가 나타나지 않았어요")
-            if done.exists { done.tap() }
+            XCTAssertTrue(keyboard.waitForExistence(timeout: 5), "키보드가 나타나지 않았어요")
+            dismissKeyboard(in: app)
+            XCTAssertTrue(keyboard.waitForNonExistence(timeout: 4), "키보드가 닫히지 않았어요")
         }
         for _ in 0..<4 where !headerButton("설정", in: app).isHittable { app.swipeDown() }
         XCTAssertTrue(headerButton("설정", in: app).isHittable, "키보드를 닫고 맨 위로 돌아와도 상단 버튼을 누를 수 없어요")
@@ -123,6 +125,31 @@ final class N1SmokeUITests: XCTestCase {
         XCTAssertTrue(matches.firstMatch.waitForExistence(timeout: 8), "탭 \(label)이 없어요")
         matches.element(boundBy: matches.count - 1).tap()
         XCTAssertTrue(app.staticTexts[heading].waitForExistence(timeout: 12), "\(label) 화면에서 \(heading)을 찾지 못했어요\n\(app.debugDescription)")
+    }
+
+    private func dismissKeyboard(in app: XCUIApplication) {
+        let keyboard = app.keyboards.firstMatch
+        guard keyboard.exists else { return }
+        for label in ["Done", "완료"] {
+            let button = app.buttons[label].firstMatch
+            if button.exists && button.isHittable {
+                button.tap()
+                return
+            }
+        }
+        app.staticTexts["나의 하루"].firstMatch.tap()
+    }
+
+    private func waitUntilRecorded(in app: XCUIApplication) -> Bool {
+        let field = app.textViews["지금 뭐 하고 있어?"]
+        let deadline = Date().addingTimeInterval(15)
+        while Date() < deadline {
+            let value = field.value as? String ?? ""
+            let visible = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", marker)).firstMatch
+            if !value.contains(marker), visible.exists { return true }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+        return false
     }
 
     private func tapFirst(_ labels: [String], in app: XCUIApplication) {

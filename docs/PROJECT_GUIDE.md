@@ -44,7 +44,9 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** **N2 iOS 활동 QA.** N1 시뮬레이터 스모크는 통과. **Live Activity·Watch UI·Android 기능·DeX 구현은 아직 시작하지 않음.** QA 로그인·동기화는 자격 증명 파일이 없어 미검증. 상세 [native-n1-verification.md](native-n1-verification.md).
+**다음 시작점:** **iPhone Live Activity 첫 구현은 브랜치에 반영.** 잠금 화면 문구·앱을 완전히 종료한 뒤의 표시·iPhone 13 실기기는 미검증. Apple Watch, 원격 푸시 갱신, Dynamic Island 전용 UI, Android는 시작하지 않음. QA 로그인·동기화는 자격 증명 파일이 없어 미검증. 상세 [native-live-activity-plan.md](native-live-activity-plan.md).
+
+**진행 (N2 Live Activity · 2026-11-11 · `cursor/ios-live-activity`):** 대표 활동 하나만을 잠금 화면 슬롯에 맞춘다. 경과 시간은 `Text(timerInterval:)` 시스템 타이머. `pushType: nil`. 웹은 네이티브 iOS가 아니면 `skipped`, 권한·오류는 `unsupported`라서 저장을 막지 않는다. iPhone 17 / iOS 27.2에서 `N1SmokeUITests` 2건과 `testLiveActivityStatusIsReportedOnLaunch` 통과. 시작·종료·동시·대표 전환·중복 방지는 JS 단위 테스트. XCUI 제스처로 입력칸까지 스크롤하지 못해 그 시나리오는 시뮬레이터 손동작으로 재현하지 않음. `npm test` 625 pass / 7 skip · `npm run build`. 스키마·실계정 미변경.
 
 **완료 (실 iPhone 셸 · 2026-11-11 · [PR #44](https://github.com/h3clo/hazeflow/pull/44) · Pages [42973323039](https://github.com/h3clo/hazeflow/actions/runs/42973323039) success):** iPhone 17 시뮬레이터 iOS 27.2에서 `N1SmokeUITests` 2건 통과. **핀치 확대·축소, 화면 잠금, 실기기 스크롤 손동작은 미검증.** QA 자격 증명 파일 없음 → iOS 로그인·동기화 미실행. Live Activities는 [계획만](native-live-activity-plan.md).
 

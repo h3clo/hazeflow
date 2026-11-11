@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * N1 contract check. Does not boot a simulator unless HAZEFLOW_N1_RUN_SIM=1.
- * Live Activities and Watch targets stay out of this step.
+ * The N1 UI test file stays a shell smoke test. Live Activities live in N2.
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -22,10 +22,6 @@ else {
   }
 }
 
-const plist = existsSync(join(root, 'ios/App/App/Info.plist'))
-  ? readFileSync(join(root, 'ios/App/App/Info.plist'), 'utf8')
-  : '';
-if (plist.includes('NSSupportsLiveActivities')) fail.push('Info.plist must not enable Live Activities in N1');
 if (existsSync(join(root, 'ios/App/Watch')) || existsSync(join(root, 'ios/Watch'))) {
   fail.push('Watch target appeared during N1');
 }

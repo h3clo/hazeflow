@@ -65,6 +65,7 @@ import {workoutItems,serializeWorkoutItems,updateStrengthSet,addStrengthSet,remo
 import {activityIntervals,activityTimeLabel,recordKindLabel,activityEndForEdit,captureActivityEnd,ongoingActivities} from './domain.js';
 import {shouldConfirmOngoingStart,resolveOngoingEndChoices,applyOngoingEnds,captureTimingFields} from './activity-start-confirm.js';
 import {readPrimaryActivityId,resolvePrimaryActivity,readDeviceId,setPrimaryPreference,mirrorPrimaryPreference,primaryIdFromState} from './activity-primary.js';
+import {syncLiveActivity} from './live-activity.js';
 import {captureModeForShortcut,captureSubmitLabel} from './capture-shortcuts.js';
 import {buildDayAgenda} from './agenda.js';
 import {createToast} from './toast.js';
@@ -95,6 +96,14 @@ let photoStore=makePhotoStore(key+'-photos');let editorPhotos=[],editorPhotoToke
 let recovery=null;
 function load(){const raw=recordStorage.getItem(key);if(!raw)return emptyState();try{const state=validateBackup(JSON.parse(raw));mirrorPrimaryPreference(localStorage,key,state);return state}catch{recovery=raw;return emptyState()}}
 function preferredPrimaryId(){return primaryIdFromState(data)||readPrimaryActivityId(localStorage,key)}
+function publishLiveActivity(){
+ const node=document.getElementById('live-activity-status');
+ syncLiveActivity(data,preferredPrimaryId()).then(result=>{
+  if(!node||!result)return;
+  if(!['started','updated','ended','unchanged','unsupported'].includes(result.status))return;
+  node.textContent='live-activity:'+result.status+':'+(result.recordId||'none');
+ }).catch(()=>{});
+}
 const boardHashes=['#dashboard','#dashboard-all','#whiteboard','#whiteboard-all'];
 let data=load(),date=isDate(params.get('notification-date'))?params.get('notification-date'):todayKey(),view=['day','tasks','study'].includes(params.get('notification-view'))?params.get('notification-view'):boardHashes.includes(location.hash)?'tasks':'day',filter='전체',query='',historyRecordLimit=100,historyDateLimit=60,diarySearchLimit=30,undoState=null,aiReady=false,taskScope='all',taskListFilter='전체',captureKind='일상',purchaseChartFamily='',favoriteQuery='',studyHistory={subjectId:'',query:'',limit:60};
 let tossPortfolio=null,tossBusy=false,tossError='',tossCheckedKey='',tossCacheAt=0,tossEligible=false,tossHistory=[];
@@ -364,7 +373,7 @@ async function commit(fn,{paint=true,undo=false,message=''}={}){
  if(accountLoading){notify('로그인과 기록을 확인하고 있어요. 잠시 후 다시 저장해주세요.');return false}
  if(recovery){notify('저장된 기록을 읽지 못해요. 원본을 내보낸 뒤 복원해주세요.');return false}
  const owner=key;let before,serialized;
- try{await recordStorage.update(owner,raw=>{const latest=raw?validateBackup(JSON.parse(raw)):emptyState();before=structuredClone(latest);fn(latest);validateBackup(latest);serialized=JSON.stringify(latest);return serialized});if(owner!==key)return true;data=validateBackup(JSON.parse(serialized));account?.changed();if(undo)undoState={before,after:serialized};if(paint)await render();if(message)notify(message,undo);return true}catch(e){const message=e.message||'저장하지 못했어요. 기록은 그대로 유지했어요.',inline=document.querySelector('dialog[open] #form-error');if(inline)inline.textContent=message;else notify(message);return false}
+ try{await recordStorage.update(owner,raw=>{const latest=raw?validateBackup(JSON.parse(raw)):emptyState();before=structuredClone(latest);fn(latest);validateBackup(latest);serialized=JSON.stringify(latest);return serialized});if(owner!==key)return true;data=validateBackup(JSON.parse(serialized));account?.changed();if(undo)undoState={before,after:serialized};if(paint)await render();if(message)notify(message,undo);publishLiveActivity();return true}catch(e){const message=e.message||'저장하지 못했어요. 기록은 그대로 유지했어요.',inline=document.querySelector('dialog[open] #form-error');if(inline)inline.textContent=message;else notify(message);return false}
 }
 const fieldAutosaves=new WeakMap();
 async function render(){
@@ -1089,7 +1098,8 @@ window.addEventListener('popstate',async ()=>{whiteboardMode=boardHashes.include
 
 setInterval(async ()=>{if(view==='assets'&&!document.hidden)await refreshQuotes()},30000);
 
-setupNative({onUrl:async url=>{await accountReady;await account?.handleAuthUrl(url)},onResume:()=>account?.resume(),onPause:()=>account?.pause(),getBackState:()=>({dialogOpen:!!document.querySelector('dialog[open]'),whiteboard:view==='tasks'&&whiteboardMode,view}),async onBack(action){if(action==='close-dialog')document.querySelector('dialog[open]')?.close();else if(action==='leave-board'){whiteboardMode=false;await render()}else{view='day';await render()}},onError:()=>notify('앱 상태 연결을 확인하지 못했어요. 기록은 기기에 저장돼요.')});
+setupNative({onUrl:async url=>{await accountReady;await account?.handleAuthUrl(url)},onResume:()=>{account?.resume();publishLiveActivity()},onPause:()=>account?.pause(),getBackState:()=>({dialogOpen:!!document.querySelector('dialog[open]'),whiteboard:view==='tasks'&&whiteboardMode,view}),async onBack(action){if(action==='close-dialog')document.querySelector('dialog[open]')?.close();else if(action==='leave-board'){whiteboardMode=false;await render()}else{view='day';await render()}},onError:()=>notify('앱 상태 연결을 확인하지 못했어요. 기록은 기기에 저장돼요.')});
+publishLiveActivity();
 
 installSelectUI();
 
