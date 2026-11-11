@@ -72,7 +72,7 @@
 - [x] 웹 실 Supabase 라이브 QA 1–10 (옵션 D)
 - [x] DeX/네이티브 **설계 문서** (`native-execution-plan.md`)
 - [x] **N0** Linux: `build:app` · `cap sync` · `verify:native-n0` · unit
-- [ ] 사용자 Mac에서 Xcode 약관·**N1** iOS Simulator
+- [x] 사용자 Mac에서 Xcode 약관·**N1** iOS Simulator (2026-11-11, iPhone 17 / iOS 27.2). 실기기·QA 로그인은 미완.
 - [ ] QA 계정으로만 앱 로그인 시험
 - [ ] Watch/푸시/HealthKit/DeX 전용·Live Activity 코드 **N1 전 미착수**
 - [ ] Android SDK는 후순위(현황만)
