@@ -37,7 +37,7 @@ function cmdAvailable(bin) {
 }
 
 // --- Capacitor / package contract ---
-mustInclude('capacitor.config.json', ['"appId": "io.h3clo.hazeflow"', '"webDir": "dist"']);
+mustInclude('capacitor.config.json', ['"appId": "io.h3clo.hazeflow"', '"webDir": "dist"', '"contentInset": "never"', '"zoomEnabled": true']);
 const cap = read('capacitor.config.json');
 if (cap?.includes('"server"') && /"url"\s*:/.test(cap)) {
   fail.push('capacitor.config.json must not pin server.url to Pages');

@@ -2,6 +2,6 @@
   "appId": "io.h3clo.hazeflow",
   "appName": "Haze Flow",
   "webDir": "dist",
-  "ios": {"contentInset": "automatic"},
+  "ios": {"contentInset": "never", "zoomEnabled": true},
   "android": {"allowMixedContent": false}
 }

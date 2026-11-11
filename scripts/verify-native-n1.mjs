@@ -14,7 +14,7 @@ const fail = [];
 if (!existsSync(swiftPath)) fail.push('missing ios/App/N1SmokeUITests/N1SmokeUITests.swift');
 else {
   const swift = readFileSync(swiftPath, 'utf8');
-  for (const needle of ['나의 하루', 'N1simcheck', '로그인']) {
+  for (const needle of ['나의 하루', 'N1simcheck', '로그인', 'testTopButtonsStayTappableAndTabsStayDuringScroll', 'Pinch zoom stays a device check']) {
     if (!swift.includes(needle)) fail.push(`N1 UI test missing ${needle}`);
   }
   for (const banned of ['ActivityKit', 'WidgetKit', 'WCSession', 'Live Activity']) {
