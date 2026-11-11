@@ -7,6 +7,7 @@ struct HazeWatchApp: App {
     var body: some Scene {
         WindowGroup {
             HazeWatchView(model: model)
+                .onAppear { model.requestSnapshot() }
         }
     }
 }

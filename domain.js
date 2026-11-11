@@ -26,6 +26,12 @@ import {
  isIndependentTiming,
  isActivityIntervalLog,
  validActivityTiming,
+ validActivityInstant,
+ preservedInstant,
+ dayActivityStats,
+ isLongRunning,
+ longRunNeedsConfirm,
+ longRunAckFields,
  INDEPENDENT_TIMING
 } from './activity-timing.js';
 import {ACTIVITY_UI_ID,validActivityUiPreference,mergePrimaryPreference} from './activity-primary.js';
@@ -39,6 +45,12 @@ export {
  isIndependentTiming,
  isActivityIntervalLog,
  validActivityTiming,
+ validActivityInstant,
+ preservedInstant,
+ dayActivityStats,
+ isLongRunning,
+ longRunNeedsConfirm,
+ longRunAckFields,
  INDEPENDENT_TIMING
 };
 export const weekdays = ['일','월','화','수','목','금','토'];
@@ -129,7 +141,9 @@ export function activityEndForEdit(current,submitted,opened){
  const clean=value=>value||'',changed=clean(submitted.endDate)!==clean(opened.endDate)||clean(submitted.endTime)!==clean(opened.endTime);
  const chosen=changed?submitted:current,endDate=clean(chosen.endDate),endTime=clean(chosen.endTime);
  if((endDate||endTime)&&(!isDate(endDate)||!isTime(endTime)||!isTime(submitted.time)||new Date(endDate+'T'+endTime)<new Date(submitted.date+'T'+submitted.time)))throw Error('다른 화면에서 저장한 종료 시간과 시작 시간이 맞지 않아요. 시작·종료 시간을 함께 확인해주세요.');
- return {endDate,endTime};
+ const startedAt=isTime(submitted.time)?preservedInstant(current?.startedAt,current?.date,current?.time,submitted.date,submitted.time):'';
+ const endedAt=endDate&&endTime?preservedInstant(current?.endedAt,opened?.endDate||current?.endDate,opened?.endTime||current?.endTime,endDate,endTime):'';
+ return {endDate,endTime,...(startedAt?{startedAt}:{}),...(endedAt?{endedAt}:{})};
 }
 /** Optional end on capture. Empty → ongoing. Memo ignores end. Reuses endDate/endTime only. */
 export function captureActivityEnd({mode,date,time,endDate='',endTime=''}={},now=new Date()){
@@ -143,7 +157,7 @@ export function captureActivityEnd({mode,date,time,endDate='',endTime=''}={},now
  if(Number.isNaN(+start)||Number.isNaN(+end))throw Error('시작·종료 시간을 확인해주세요.');
  if(end<start)throw Error('종료는 시작 이후여야 해요. 날짜가 바뀌면 종료 날짜도 맞춰주세요.');
  if(end>now)throw Error('종료는 현재 이전으로 정해주세요.');
- return {endDate,endTime};
+ return {endDate,endTime,endedAt:end.toISOString()};
 }
 export function activityTimeLabel(l,interval){
  if(!interval)return l.time?(l.timeEstimated?'약 ':'')+l.time:'시간 미기록';
@@ -168,6 +182,8 @@ export function validateBackup(v){
    if(key==='events'&&(!isTime(x.start)||!isTime(x.end)||x.end<=x.start))throw Error('일정 시간이 올바르지 않아요.');
    if(key==='logs'&&x.timeEstimated!==undefined&&(typeof x.timeEstimated!=='boolean'||x.timeEstimated&&!isTime(x.time)))throw Error('추정 시간과 시작 시각을 확인해주세요.');
    if(key==='logs'&&!validActivityTiming(x.activityTiming))throw Error('활동 시간 규칙 형식을 확인해주세요.');
+   if(key==='logs'&&(!validActivityInstant(x.startedAt)||!validActivityInstant(x.endedAt)||!validActivityInstant(x.longRunAckAt)))throw Error('활동 시각 형식을 확인해주세요.');
+   if(key==='logs'&&x.startedAt&&x.endedAt&&new Date(x.endedAt)<new Date(x.startedAt))throw Error('활동 종료 시각이 시작보다 앞서 있어요.');
    if(key==='logs'&&((x.memo!==undefined&&typeof x.memo!=='boolean')||((x.endTime||x.endDate)&&(!isTime(x.time)||!isTime(x.endTime)||!isDate(x.endDate)||new Date(x.endDate+'T'+x.endTime)<new Date(x.date+'T'+x.time)))))throw Error('활동 종료 시간을 확인해주세요.');
    if(key==='logs'&&x.asset!==undefined&&(!validAsset(x.asset)||x.kind!=='자산'||!x.memo||x.money!==undefined))throw Error('자산 잔액 기록을 확인해주세요.');
    if(key==='logs'&&x.money!==undefined&&(!validMoney(x.money)||(!x.memo&&x.kind!=='식사')||(x.kind==='식사'&&x.money.type!=='expense')))throw Error('가계부 거래 형식을 확인해주세요.');

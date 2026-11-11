@@ -94,6 +94,9 @@ public class HazeLiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
 
     override public func load() {
         HazeWatchRelay.shared.start()
+        HazeWatchRelay.shared.onRefreshRequest = { [weak self] in
+            self?.notifyListeners("refresh", data: [:])
+        }
     }
 
     @objc func sync(_ call: CAPPluginCall) {

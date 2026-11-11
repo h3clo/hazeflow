@@ -10,6 +10,9 @@ struct HazeWatchView: View {
                 Text("iPhone과 연결되지 않음")
                 Text("아직 확인한 활동이 없어요")
                     .font(.footnote)
+            case .checking:
+                Text("iPhone에서 활동을 확인하고 있어요")
+                    .font(.footnote)
             case .empty:
                 Text("진행 중인 활동 없음")
             case .live(let title, let startedAt):

@@ -4,6 +4,7 @@ import WatchConnectivity
 /// Forwards the phone's one Live Activity payload. Watch does not schedule notifications.
 final class HazeWatchRelay: NSObject, WCSessionDelegate {
     static let shared = HazeWatchRelay()
+    var onRefreshRequest: (() -> Void)?
     private var latest: [String: Any]?
 
     func start() {
@@ -37,6 +38,11 @@ final class HazeWatchRelay: NSObject, WCSessionDelegate {
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         send()
+    }
+
+    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        guard hazeWatchIsRefreshRequest(message) else { return }
+        DispatchQueue.main.async { self.onRefreshRequest?() }
     }
 
     func sessionDidBecomeInactive(_ session: WCSession) {}

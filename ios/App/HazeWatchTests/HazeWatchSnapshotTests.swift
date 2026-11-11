@@ -12,7 +12,7 @@ final class HazeWatchSnapshotTests: XCTestCase {
     func testNoActivitySaysSo() {
         let message = HazeWatchMessage(active: false, title: "", startedAt: nil, sentAt: Date(timeIntervalSince1970: 1_700_000_000))
         XCTAssertEqual(hazeWatchPresentation(message: message, reachable: true), .empty)
-        XCTAssertEqual(hazeWatchPresentation(message: nil, reachable: true), .empty)
+        XCTAssertEqual(hazeWatchPresentation(message: nil, reachable: true), .checking)
     }
 
     func testDisconnectedSnapshotDoesNotLookLive() {
@@ -38,5 +38,7 @@ final class HazeWatchSnapshotTests: XCTestCase {
         XCTAssertEqual(message?.title, "연습 활동")
         XCTAssertEqual(message?.active, true)
         XCTAssertEqual(hazeWatchFrozenElapsed(from: message!.startedAt!, to: message!.sentAt), "10분")
+        XCTAssertTrue(hazeWatchIsRefreshRequest(["request": "snapshot"]))
+        XCTAssertFalse(hazeWatchIsRefreshRequest(["request": "end"]))
     }
 }
