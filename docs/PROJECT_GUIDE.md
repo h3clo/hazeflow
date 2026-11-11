@@ -44,9 +44,19 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 **큐 진행:** [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). 완료 즉시 다음. **일반 기능은 AGENTS.md 자율 병합·배포 조건 충족 시 병합·Pages까지.** 실계정·비가역 마이그레이션·PR F 물질화·네이티브/Watch는 사전 승인.
 
-**다음 시작점:** **네이티브 준비만** — [native-readiness.md](native-readiness.md). **구현·Watch 착수 금지.** 병목: 사용자 Mac Xcode 약관·Android Studio. Life 날짜 알약 PR은 **미병합·미배포**. 다음 자동화는 그 알약을 반복하지 말고, 같은 조건의 다른 작은 버그·접근성 1건.
+**다음 시작점:** **N2 iOS 활동 QA.** N1 시뮬레이터 스모크는 통과. **Live Activity·Watch UI·Android 기능·DeX 구현은 아직 시작하지 않음.** QA 로그인·동기화는 자격 증명 파일이 없어 미검증. 상세 [native-n1-verification.md](native-n1-verification.md).
 
-**진행 (Life 날짜 알약 · 2026-11-11 · 미병합):** Life Today는 공통 날짜 막대를 숨기는데 알약 한가운데가 항상 「오늘」이라 다른 날에서 돌아올 버튼이 없었다. 오늘이면 알약에 「오늘」, 아니면 그 날짜와 `오늘로 이동`. 820px 이하에서 ‹›·오늘 44px, 제목 아래 한 줄, 사이드바가 본문을 덮지 않고 하단 바로 내려감. Classic 날짜 막대 유지. `npm test` **613 pass / 6 skip** · build · sandbox `life-date-pill` 1280·768·375·다크. **Pages 배포 없음.**
+**진행 중 (실 iPhone 셸 · 2026-11-11 · [PR #44](https://github.com/h3clo/hazeflow/pull/44) 병합):** iPhone 17 시뮬레이터 iOS 27.2에서 `N1SmokeUITests` 2건 통과. **핀치 확대·축소, 화면 잠금, 실기기 스크롤 손동작은 미검증.** QA 자격 증명 파일 없음 → iOS 로그인·동기화 미실행. Live Activities는 [계획만](native-live-activity-plan.md).
+
+**진행 (Life 날짜 알약 · 2026-11-11 · PR #42, main 충돌 해소):** 오늘이 아니면 알약에 그 날짜와 `오늘로 이동`. 820px 이하에서 하단 바. Classic 날짜 막대 유지. 이전 sandbox `life-date-pill` 1280·768·375·다크는 충돌 전 결과이고, 충돌 해소 후 단위 테스트만 다시 실행한다.
+
+**완료 (N1 iOS 시뮬레이터 스모크 · 2026-11-11 · PR #43):** Xcode 27.2 · iPhone 17 · iOS 27.2. `xcodebuild` **BUILD SUCCEEDED** · `N1SmokeUITests` **passed** (오늘/계획/기록/돈 관리/돌아보기, 로그인 폼만, `N1simcheck` 저장 후 재실행 유지). `npm test` **613 pass / 7 skip** · `npm run build` · `diff --check`. 서명 신원 0 · `DEVELOPMENT_TEAM` 없음 · 시뮬레이터는 `CODE_SIGNING_ALLOWED=NO`. **실 iPhone 미설치. QA 계정 로그인·동기화 미실행.** 웹앱·실사용 Supabase 미변경. Live Activity·Watch 미착수.
+
+**완료 (N0 환경 검증 · 2026-11-11):** PR #40 병합 후 iOS 우선 N0. Linux에서 `build:app`·`cap sync`·`verify:native-n0`·`npm test` 617/2skip 통과. Xcode/시뮬/실기기·Android SDK는 이 환경에 없음. 상세 [native-n0-verification.md](native-n0-verification.md). **기능 구현 없음.**
+
+**완료 (네이티브·DeX 설계 · 2026-11-11):** `native-execution-plan.md` · PR #40 merge. DeX=웹/PWA · 무료 Personal Team 7일 제약.
+
+**완료 (CI Supabase live QA · 2026-11-11):** Actions secrets 6개 등록. workflow_dispatch [42875539394](https://github.com/h3clo/hazeflow/actions/runs/42875539394) **success** — 시크릿 확인·sandbox live 시나리오 1–10 **통과**(6 pass / 2 skip 가드). 개인/`main` 미사용.
 
 **완료 (실 Supabase 라이브 QA · #36):** tip `8cb0098` merge. Actions [42869536615](https://github.com/h3clo/hazeflow/actions/runs/42869536615) success (build ~23s · deploy ~10s). live Pages 200 · `main-Bbya24zg.js`. 옵션 D live **6 pass / 1 skip** · QA `main`/cross 0 · sandbox tombstone 정리 · 시크릿 Git 미추적. 상세 [supabase-live-qa.md](supabase-live-qa.md) · [native-readiness.md](native-readiness.md).
 
@@ -199,7 +209,7 @@ Codex에서처럼 **로컬 앱을 옆 패널에서 보면서** UI를 고친다. 
 
 - [2주 개발 계획](DEVELOPMENT_PLAN.md) · [제품 비전·UX](PRODUCT_VISION.md) · [운동 기록 UX](WORKOUT_UX.md) · [활동 UX 인계](UX_HANDOFF.md)
 - [결제 원장 중심 설계](payment-ledger-plan.md)
-- [저장·동기화](sync-reliability.md) · [실서버 동기화 QA](supabase-live-qa.md) · [네이티브 선행](native-readiness.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
+- [저장·동기화](sync-reliability.md) · [실서버 동기화 QA](supabase-live-qa.md) · [네이티브 선행](native-readiness.md) · [네이티브 실행 계획](native-execution-plan.md) · [N0 검증](native-n0-verification.md) · [N1 검증](native-n1-verification.md) · [공부](study-flow.md) · [알림](notifications-plan.md)
 - [현재 쇼핑몰 파일 가져오기(레거시)](shopping-connection.md) · [기존 영수증 대조(레거시)](receipt-reconciliation.md)
 - [소득](income-records.md) · [세금](annual-tax-records.md) · [앱](mobile-app.md)
 - [이전 인계 이력](handoff-history.md). 과거 날짜의 완료·대기 상태를 현재 지시로 재해석하지 않는다.

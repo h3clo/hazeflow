@@ -11,7 +11,7 @@ Activity 2.0 이후 기기 간 동기화를 **테스트 전용 Auth 계정**으�
 | 항목 | 결과 |
 | --- | --- |
 | Cursor Dashboard Secrets | 채팅에 값 금지. 로컬은 gitignore `.private/hazeflow-sync-qa.env` 사용 가능 |
-| GitHub Actions Secrets | 이 환경에서 읽기/쓰기 권한 없음(403) · CI는 라이브 skip 유지 |
+| GitHub Actions Secrets | 6개 등록됨(2026-11-11). 워크플로 수동/주1회. 첫 실행 [42875539394](https://github.com/h3clo/hazeflow/actions/runs/42875539394) live **통과** |
 | 운영 프로젝트 `hazeflow` | 스키마·`hazeflow_apply` 있음. **개인 계정/`main` 시험 금지** · QA 유저·`sandbox`만 |
 | `family flow` 등 | 둘 다 실사용 → 새 무료 프로젝트 **불가**(한도 2) → **옵션 D 사용** |
 | Preview Branch | 시간당 약 **$0.01344** — 합의 전 생성 금지 |
@@ -83,8 +83,43 @@ HAZEFLOW_SYNC_TEST_PASSWORD_B=<qa-pass-b>
 
 ## 비밀정보
 
-- 값은 gitignore `.private/hazeflow-sync-qa.env` 또는 Cursor Secrets에만. **Git 추적·PR·채팅·Artifacts 로그에 비밀번호/anon JWT를 넣지 않는다.**
-- `npm test` 기본은 시크릿 없으면 live **skip**. CI(`pages.yml`)는 `main` push만이며 live 시크릿을 넣지 않는다.
+- 값은 gitignore `.private/hazeflow-sync-qa.env` · Cursor Secrets · **GitHub Actions secrets**에만. **Git 추적·PR·채팅·Artifacts 로그에 비밀번호/anon JWT를 넣지 않는다.**
+- `npm test` 기본은 시크릿 없으면 live **skip**(메시지: 실제 서버 미검증). `pages.yml`(Pages 배포)에는 live 시크릿을 넣지 않는다.
+
+## GitHub Actions (수동·주 1회)
+
+워크플로: `.github/workflows/supabase-live-qa.yml`
+
+| 트리거 | 동작 |
+| --- | --- |
+| `workflow_dispatch` | Actions 탭에서 수동 실행. `require_secrets` 켜면 시크릿 없을 때 **실패** |
+| `schedule` (일 18:00 UTC / 월 03:00 KST) | 시크릿 없으면 **실제 서버 미검증**으로 성공(skip). 있으면면 live 실행 |
+| PR / `pages.yml` | **실행 안 함** |
+
+로컬·CI 공통 진입점: `npm run test:live-supabase` → `scripts/run-supabase-live-qa.mjs`
+
+- 시크릿 **없음** → exit 0 + **실제 서버 미검증**
+- 시크릿 **일부만** → exit 1 (조용히 skip 하지 않음)
+- 시크릿 **정상** → live 스위트 실행, 실패 시 exit ≠ 0
+
+### 사용자가 Secrets 등록 (에이전트에 write 권한 없음 · 최소 단계)
+
+1. GitHub → 저장소 **Settings → Secrets and variables → Actions → New repository secret**
+2. 아래 이름 그대로 추가(값은 로컬 `.private/hazeflow-sync-qa.env` 또는 Supabase Dashboard에서, **채팅에 붙이지 말 것**):
+
+```text
+HAZEFLOW_SYNC_TEST_URL
+HAZEFLOW_SYNC_TEST_ANON_KEY
+HAZEFLOW_SYNC_TEST_EMAIL
+HAZEFLOW_SYNC_TEST_PASSWORD
+HAZEFLOW_SYNC_TEST_EMAIL_B
+HAZEFLOW_SYNC_TEST_PASSWORD_B
+```
+
+3. Actions → **Supabase live QA** → Run workflow (처음엔 `require_secrets` 꺼도 됨. 등록 확인 후 켜서 검증).
+4. (선택) Settings → Environments → `supabase-live-qa`를 만들고 시크릿을 Environment에만 둔 뒤, 워크플로에 `environment: supabase-live-qa` 한 줄을 추가하면 보호 규칙·승인 게이트를 걸 수 있다.
+
+에이전트/`gh` 통합 토큰은 Secrets **403**이라 대신 등록할 수 없다.
 
 ## 금지
 

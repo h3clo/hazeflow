@@ -1,6 +1,9 @@
-# iOS · Android · Apple Watch — 선행 분석 (구현 금지)
+# iOS · Android · Apple Watch · Samsung DeX — 선행 분석 (구현 금지)
 
-기준: 2026-11-11. **설계·순서·환경 제약만.** Capacitor 네이티브 기능 확장·Watch 코드는 별도 승인 전까지 시작하지 않는다.
+기준: 2026-11-11. **설계·N0 환경 검증.** Live Activity·Watch UI·Android 기능·DeX 전용 코드는 별도 승인 전 시작하지 않는다.
+
+**우선순위:** iPhone → Watch → Android → DeX.
+상세 계획: [native-execution-plan.md](native-execution-plan.md) · N0 결과: [native-n0-verification.md](native-n0-verification.md).
 
 ## 현재 코드 구조
 
@@ -14,14 +17,15 @@
 
 세션은 기기별이지만 같은 이메일로 로그인하면 같은 서버 기록을 쓴다. 상세: [mobile-app.md](mobile-app.md). 웹 라이브 QA: [supabase-live-qa.md](supabase-live-qa.md) (**2026-11-11 통과**).
 
-## 권장 개발 순서 (승인 후 · 구현은 아직 금지)
+## 권장 개발 순서 (승인 후 · Live Activity 등 기능은 N1 이후)
 
-1. **로컬 툴체인 준비 (사용자 PC)** — 아래 도구·약관. 클라우드 에이전트만으로는 iOS 서명·실기기 불가.
-2. **Capacitor 스모크** — `npm run app:sync` → iOS Simulator / Android Emulator에서 QA 계정 로그인·Today 로드. 실계정·`main` 데이터 금지.
-3. **iOS 실기기** — 인증 콜백(`io.h3clo.hazeflow://auth/callback`), 사진 1장, 활동 시작/종료가 웹(동일 QA)과 왕복.
-4. **Android 실기기** — 동일 시나리오 + 시스템 뒤로가기 스택.
-5. **네이티브 편의 (선택)** — Keychain/Keystore 세션, 공유 시트 내보내기. 푸시는 비용·권한 별도 검토.
-6. **Apple Watch (별도 승인)** — Capacitor 웹뷰 아님. 최소안: 대표 활동 표시·종료 → iPhone 중계 또는 동일 Supabase RPC. HealthKit은 더 뒤.
+0. **N0** — 구조·`build:app`·`cap sync` 검증([native-n0-verification.md](native-n0-verification.md)). Cloud에서는 시뮬 컴파일 불가.
+1. **사용자 Mac 툴체인** — Xcode 약관·Personal Team. 클라우드 에이전트는 iOS 서명·실기기 불가.
+2. **N1 iOS 셸 스모크** — `app:sync` → **iOS Simulator** · QA 로그인·Today. **기능 추가 없음.** Android는 현황만.
+3. **N2 iOS 활동 QA** — 콜백·사진·시작/종료(가능하면 실 iPhone).
+4. **N3/N5** — 로컬 알림 · Live Activities(앱 내 갱신만).
+5. **N7 Watch** — SwiftUI + WCSession. HealthKit 후순위.
+6. **Android N4…** — 후순위. **DeX D1** — 최후순위(웹/PWA).
 
 ## 필요한 도구
 
@@ -48,19 +52,34 @@
 | iOS 실기기 | Apple ID로 개발자 모드 사이드로드(기기 수·만료 제한) | **유료 Apple Developer($/년)** 없이는 TestFlight·스토어·일부 능력 제한. **Xcode 약관은 사용자가 한 번 동의**해야 컴파일 |
 | Android 에뮬/실기기 | 디버그 APK 설치 무료 | Play 게시·Play App Signing은 개발자 등록 |
 | Watch | 시뮬레이터로 UI 골격 | 실기 Watch·독립 네트·Health는 폰 페어링·권한·유료 팀 필요할 수 있음 |
+| DeX | 기존 갤럭시+모니터+BT 입력, **추가 비용 없음**. CI는 Playwright 데스크톱 리사이즈로 대체 | Samsung Internet 엔진·실제 창 스냅·DeX 알림 체감은 **실기기만**(§9.5) |
 | Supabase | 기존 무료 프로젝트 + QA 유저 | 새 무료 프로젝트 한도(2)·Preview Branch 시간당 과금 |
-| 클라우드 에이전트 | 문서·웹·선택적 live Node 테스트 | **Mac/Xcode/실기기 없음** → 네이티브 빌드·약관 동의·스토어 업로드 대행 불가 |
+| 클라우드 에이전트 | 문서·웹·선택적 live Node 테스트 | **Mac/Xcode/실기기/DeX 없음** → 네이티브 빌드·약관·스토어·DeX 체감 대행 불가 |
 
-## 착수 전 체크 (구현 PR 전)
+## Samsung DeX (요약)
+
+| 항목 | 결정 |
+| --- | --- |
+| 기본 경로 | DeX 브라우저 / PWA에서 기존 Pages 웹앱 |
+| Android 앱 on DeX | 실행 가능하나 DeX UX만으로는 웹 대비 이점 작음. FGS·잠금 알림이 필요할 때 N4 |
+| 금지 | DeX 전용 앱, `if (DeX)` UI 분기 |
+| 계정 | 동일 Supabase 이메일·`hazeflow_records` |
+| 자동 검증 | D1 Playwright 창 크기 변경(§9.4) |
+| 실기기만 | §9.5 체크리스트(사용자 UX 체감) |
+
+## 착수 전 체크 (기능 PR 전)
 
 - [x] 웹 실 Supabase 라이브 QA 1–10 (옵션 D)
-- [ ] 사용자 Mac에서 Xcode 약관·첫 빌드
-- [ ] Android Studio SDK 설치 또는 실기기
-- [ ] QA 계정으로만 앱 로그인 시험 합의
-- [ ] Watch/푸시/HealthKit **미승인 유지**
+- [x] DeX/네이티브 **설계 문서** (`native-execution-plan.md`)
+- [x] **N0** Linux: `build:app` · `cap sync` · `verify:native-n0` · unit
+- [x] 사용자 Mac에서 Xcode 약관·**N1** iOS Simulator (2026-11-11, iPhone 17 / iOS 27.2). 실기기·QA 로그인은 미완.
+- [ ] QA 계정으로만 앱 로그인 시험
+- [ ] Watch/푸시/HealthKit/DeX 전용·Live Activity 코드 **N1 전 미착수**
+- [ ] Android SDK는 후순위(현황만)
 
 ## 하지 말 것
 
-- 승인 전 Watch/네이티브 UI 구현 PR
-- 운영 개인 계정으로 네이티브 동기화 시험
+- 승인 전 Watch/네이티브/DeX 전용 UI 구현 PR
+- 운영 개인 계정으로 네이티브·DeX 동기화 시험
 - `server.url`로 GitHub Pages를 앱에 고정(오프라인·버전 꼬임)
+- DeX UA 감지 레이아웃 포크

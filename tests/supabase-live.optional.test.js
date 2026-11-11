@@ -90,8 +90,14 @@ async function wipeSandboxKeys(client,keys){
  }
 }
 
-test('live Supabase credentials are not configured — skipped in CI by default',{skip:ready},()=>{
- assert.ok(true);
+test('실제 서버 미검증 — HAZEFLOW_SYNC_TEST_* 없음 (skip)',{skip:ready},()=>{
+ assert.ok(true,'credentials absent: live server not verified');
+});
+
+test('live secrets misconfigured as service_role/placeholder',{
+ skip:!anon||!/YOUR_PROJECT|sb_secret_|service_role/i.test(anon)
+},()=>{
+ assert.fail('HAZEFLOW_SYNC_TEST_ANON_KEY must be publishable/anon only');
 });
 
 test('1. login and logout on isolated account',{skip:!ready},async()=>{

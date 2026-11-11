@@ -1,6 +1,6 @@
 # Haze Flow 앱 전환 준비
 
-네이티브·Watch **구현 착수 전** 선행 조건과 순서는 [native-readiness.md](native-readiness.md). 실 Supabase 격리 QA는 [supabase-live-qa.md](supabase-live-qa.md).
+선행 조건: [native-readiness.md](native-readiness.md) · 실행 계획(iPhone 우선): [native-execution-plan.md](native-execution-plan.md) · N0 결과: [native-n0-verification.md](native-n0-verification.md). 실 Supabase 격리 QA: [supabase-live-qa.md](supabase-live-qa.md). **Live Activity 등 기능은 N1 셸 스모크 이후.**
 
 ## 구성
 

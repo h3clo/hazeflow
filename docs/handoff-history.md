@@ -6,8 +6,47 @@
 
 - 선택: Life Today 날짜 알약이 항상 「오늘」이고, 숨긴 날짜 막대의 「오늘」 버튼도 쓸 수 없던 사용성 버그. 스키마·계정·Classic 전환은 그대로.
 - `lifeDayHeader`: 오늘이 아니면 알약에 `M월 D일`, `data-act=today` 「오늘로 이동」. 820px 이하 터치 44px·도구는 제목 아래. 741–820px에서 전체 폭 좌측 사이드바가 본문을 덮던 것을 하단 바로 수정.
-- 검사: `npm test` 613 pass / 6 skip · build · `git diff --check`. sandbox `life-date-pill` 1280 이전날→오늘 복귀, 375 슬로건과 겹치지 않음, 768 하단 바·알약 `11월 9일`+오늘, 다크에서 글자 읽힘. Classic 날짜 막대 유지.
-- **병합·Pages 배포 없음.** 실계정 왕복 없음.
+- 검사: 충돌 전 `npm test` 613 pass / 6 skip · sandbox `life-date-pill` 1280·375·768·다크. main 병합 충돌은 가이드·인계만. `style-life.css`의 네이티브 셸과 알약 스타일은 함께 남음.
+- 실계정 왕복 없음.
+
+### 2026-11-11 Cursor · 실 iPhone 셸 (하단 탭·상태바·확대)
+
+- 하단 탭은 폰 너비에서 스크롤 컨테이너 밖(`body>aside`, `position:relative`). 상태바는 `contentInset: never`, `viewport-fit=cover`, iOS 26 scroll edge effect 숨김. 네이티브 입력은 16px, `ios.zoomEnabled`로 핀치 확대·축소.
+- [PR #44](https://github.com/h3clo/hazeflow/pull/44). iPhone 17 / iOS 27.2 시뮬레이터 `N1SmokeUITests` 2건 통과. 핀치·잠금 화면·실기기 스크롤 제스처는 미검증. QA env 없음. Live Activities는 계획 문서만.
+- 다음: **N2**. Live Activity·Watch는 시작하지 않음.
+
+### 2026-11-11 Cursor · N1 iOS 시뮬레이터 스모크
+
+- 브랜치 `cursor/native-n1-ios-smoke` · PR #43. Xcode 27.2는 `DEVELOPER_DIR`로만 사용. `xcode-select`는 Command Line Tools 유지.
+- iPhone 17 / iOS 27.2 시뮬레이터 빌드 성공. `N1SmokeUITests`가 주요 화면, 로그인 폼(제출 없음), `N1simcheck` 로컬 저장·재실행을 통과.
+- `npm test` 613 pass / 7 skip · build · `diff --check`. QA env 없음 → Supabase 로그인·동기화 미검증. 서명 팀 없음 → 실 iPhone 미설치.
+- 로컬 전용 커밋 `e958a41`은 `backup/local-undo-capture-end-20261111`에 보존. `origin/main`과 `app.js`·`style.css`·가이드·인계가 충돌하므로 N1에 넣지 않음.
+- 다음: **N2**. Live Activity·Watch는 시작하지 않음.
+
+### 2026-11-11 Cursor · PR #40 병합 + N0 iOS 우선 환경 검증
+
+- PR #40 merge `df498dc`. 우선순위 재정렬: iPhone → Watch → Android → DeX.
+- N0: `build:app`·`cap sync` 통과 · `scripts/verify-native-n0.mjs` · unit. Linux에 Xcode/Android SDK 없음 → 시뮬·실기기·APK 미실행.
+- 문서 `native-n0-verification.md`. Live Activity 등 **기능 미착수.**
+- 다음: 사용자 Mac에서 **N1 iOS Simulator 스모크**.
+
+### 2026-11-11 Cursor · 네이티브·Watch·Samsung DeX 설계 문서 (구현 없음)
+
+- `docs/native-execution-plan.md`: Capacitor iOS/Android · Watch SwiftUI · **DeX=웹/PWA 우선**(전용 앱·UA 분기 금지) · PR N0/D1/N1–N8 · Playwright 창 리사이즈(D1) · 실기기-only §9.5 · 동일 Supabase 계정.
+- `native-readiness.md`·가이드·`mobile-app.md` 링크 갱신. **네이티브/DeX 코드 미작성.**
+- 다음(승인 후): D1 또는 N1. 현재는 설계만.
+
+### 2026-11-11 Cursor · CI live QA secrets + 첫 실행 통과
+
+- GitHub Actions secrets 6개 브라우저로 등록(CLI secrets write 403).
+- workflow_dispatch run 42875539394 success: sandbox live 1–10 통과(6 pass/2 skip 가드).
+- 다음: native-readiness만. 구현 금지.
+
+### 2026-11-11 Cursor · Supabase live QA GitHub Actions
+
+- 워크플로 `supabase-live-qa.yml`: workflow_dispatch + 주1회 cron. PR/`pages.yml`과 분리.
+- `scripts/run-supabase-live-qa.mjs` + `npm run test:live-supabase`: 무시크릿→실제 서버 미검증, 부분→fail, 정상→live 실패 시 fail.
+- Secrets 등록은 사용자 최소 단계(에이전트 403). Environment 선택 사항.
 
 ### 2026-11-11 Cursor · PR #36 병합·Pages 배포 확인
 
