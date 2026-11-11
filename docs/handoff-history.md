@@ -2,6 +2,13 @@
 
 이 문서는 `docs/PROJECT_GUIDE.md`의 토큰 효율화를 위해 분리된 과거 인수인계 이력입니다.
 
+### 2026-11-12 Cursor · Watch 1차 표시
+
+- Watch 앱은 iPhone Live Activity와 같은 대표 활동 하나만 보여 준다. 경과는 Watch가 시작 시각으로 계산한다. 연결이 끊기면 마지막 확인 시각과 그때의 경과를 멈추고, 진행 중처럼 계속 세지 않는다.
+- 전달은 `HazeWatchRelay`의 `updateApplicationContext` 하나다. 활동이 끝나면 빈 스냅샷이다. Watch `UserDefaults`는 마지막 메시지만 남긴다. 시작·종료, 로그인, Supabase, 알림 재예약은 없다.
+- watchOS 27.2 Series 12 46mm: `HazeWatchTests` 4건, `HazeWatchUITests` 3건. 픽스처는 「연습 활동」. iPhone 17: `N1SmokeUITests` 2건, `N2ActivityUITests` 3건, N3 1건 통과. `npm test` 639 pass / 7 skip. `verify:native-n2` `n3` `n7` 통과.
+- 실제 Watch, 페어링된 시뮬레이터의 WCSession 전달, iPhone 13은 미검증. 다음으로 시작·종료를 만들지 않는다.
+
 ### 2026-11-12 Cursor · N3 iOS 로컬 알림
 
 - 기존 알림 설정이 꺼져 있으면 예약하지 않는다. 켠 일정·할 일·루틴·복습만 앞으로 7일, 최대 60건을 한 번만 예약한다. 활동 시작은 대상이 아니다.

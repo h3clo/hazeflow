@@ -92,6 +92,10 @@ public class HazeLiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
     ]
     private let gate = HazeLiveActivityGate()
 
+    override public func load() {
+        HazeWatchRelay.shared.start()
+    }
+
     @objc func sync(_ call: CAPPluginCall) {
         let payload = payload(from: call)
         if call.getString("recordId") != nil && payload == nil && call.getBool("end") != true {
@@ -102,6 +106,7 @@ public class HazeLiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
             let task = await gate.enqueue(payload)
             let status = await task.value
             let count = currentActivityCount()
+            HazeWatchRelay.shared.publish(payload)
             call.resolve(["status": status, "recordId": payload?.recordId ?? "none", "count": String(count)])
         }
     }
