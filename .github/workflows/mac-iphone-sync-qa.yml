@@ -1,0 +1,29 @@
+name: Mac-iPhone synthetic sync QA (no deploy)
+on:
+  pull_request:
+    paths:
+      - 'tests/mac-iphone-activity-sync-qa.test.js'
+      - 'sync-engine.js'
+      - 'sync-state.js'
+      - '.github/workflows/mac-iphone-sync-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VITE_SUPABASE_URL: ''
+      VITE_SUPABASE_PUBLISHABLE_KEY: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Synthetic Mac-iPhone synchronization scenarios
+        run: node --test tests/mac-iphone-activity-sync-qa.test.js
+      - name: Existing sync engine regression
+        run: node --test tests/sync.test.js tests/sync-record-cache.test.js tests/activity-primary-sync.test.js
